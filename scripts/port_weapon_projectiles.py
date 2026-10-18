@@ -1,0 +1,40 @@
+from remaining_port_helpers import *
+copy('util/MahouColor.java');copy('datacomponents/itemcolor/ColorMahou.java')
+p=main/'datacomponents/itemcolor/ColorMahou.java';s=p.read_text().replace('this.colors = new ArrayList<>(c);','this.colors = new ArrayList<>();if(c!=null)for(var color:c)this.colors.add(new MahouColor(color.r,color.g,color.b));');write(p,s)
+p=main/'datacomponents/DataComponents.java';insert(p,'    public static void init() {','''    public static final Codec<stepsword.mahoutsukai.util.MahouColor> COLOR_CODEC=Codec.FLOAT.listOf().comapFlatMap(values->net.minecraft.Util.fixedSize(values,3).map(c->new stepsword.mahoutsukai.util.MahouColor(c.get(0),c.get(1),c.get(2))),color->java.util.List.of(color.r,color.g,color.b));
+    public static final Codec<stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou> COLORS_CODEC=RecordCodecBuilder.create(i->i.group(COLOR_CODEC.listOf().fieldOf("colors").forGetter(stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou::getColors)).apply(i,stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou::new));
+    public static final StreamCodec<ByteBuf,stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou> COLORS_STREAM_CODEC=new StreamCodec<>(){
+      public stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou decode(ByteBuf buffer){int n=buffer.readInt();if(n<0 || n>64)throw new IllegalArgumentException("Invalid color count");var colors=new java.util.ArrayList<stepsword.mahoutsukai.util.MahouColor>();for(int i=0;i<n;i++)colors.add(new stepsword.mahoutsukai.util.MahouColor(buffer.readFloat(),buffer.readFloat(),buffer.readFloat()));return new stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou(colors);}
+      public void encode(ByteBuf buffer,stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou colors){buffer.writeInt(colors.getColors().size());for(var c:colors.getColors()){buffer.writeFloat(c.r);buffer.writeFloat(c.g);buffer.writeFloat(c.b);}}
+    };
+    public static final DataComponentType<stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou> COLORS_COMPONENT=DataComponentType.<stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou>builder().persistent(COLORS_CODEC).networkSynchronized(COLORS_STREAM_CODEC).build();
+    public static final DataComponentType<stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou> SECOND_COLORS_COMPONENT=DataComponentType.<stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou>builder().persistent(COLORS_CODEC).networkSynchronized(COLORS_STREAM_CODEC).build();
+''');s=p.read_text();line='''        Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE,Identifier.fromNamespaceAndPath("mahoutsukai","colors_mahou"),COLORS_COMPONENT);
+        Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE,Identifier.fromNamespaceAndPath("mahoutsukai","second_colors_mahou"),SECOND_COLORS_COMPONENT);''';s=s.replace('    public static void init() {','    public static void init() {\n'+line) if line not in s else s;write(p,s)
+append(main/'util/Utils.java',''' public static stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou getColorMahou(ItemStack stack){return stack.getOrDefault(stepsword.mahoutsukai.datacomponents.DataComponents.COLORS_COMPONENT,new stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou()).copy();}
+ public static stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou getSecondColorMahou(ItemStack stack){return stack.getOrDefault(stepsword.mahoutsukai.datacomponents.DataComponents.SECOND_COLORS_COMPONENT,new stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou()).copy();}
+ public static void setColorMahou(ItemStack stack,stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou value){stack.set(stepsword.mahoutsukai.datacomponents.DataComponents.COLORS_COMPONENT,value.copy());}
+ public static void setSecondColorMahou(ItemStack stack,stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou value){stack.set(stepsword.mahoutsukai.datacomponents.DataComponents.SECOND_COLORS_COMPONENT,value.copy());}
+ public static void color(ItemStack stack,float r,float g,float b,float r2,float g2,float b2){setColorMahou(stack,new stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou(java.util.List.of(new MahouColor(r,g,b),new MahouColor(r2,g2,b2))));}
+ public static void secondcolor(ItemStack stack,float r,float g,float b,float r2,float g2,float b2){setSecondColorMahou(stack,new stepsword.mahoutsukai.datacomponents.itemcolor.ColorMahou(java.util.List.of(new MahouColor(r,g,b),new MahouColor(r2,g2,b2))));}
+ public static float[] getColor(ItemStack stack){return getColor(stack,false);}
+ public static float[] getColor(ItemStack stack,boolean second){var colors=(second?getSecondColorMahou(stack):getColorMahou(stack)).getColors();if(colors.size()<2)return null;var a=colors.get(0);var b=colors.get(1);return new float[]{a.r,a.g,a.b,b.r,b.g,b.b};}
+''')
+insert(main/'sounds/ModSounds.java',' public static void init()',' public static final Supplier<SoundEvent> SMITE=register("caliburn.smite");\n')
+p=res/'mahoutsukai.accesswidener';s=p.read_text();lines=['mutable field net/minecraft/world/entity/ai/attributes/RangedAttribute maxValue D','accessible field net/minecraft/world/entity/LivingEntity attackStrengthTicker I'];write(p,s+'\n'+'\n'.join(x for x in lines if x not in s)+'\n')
+# Both projectile variants execute native weapon attacks, including enchantments.
+entity('WEAPON_PROJECTILE','entity/WeaponProjectileEntity.java','weapon_projectile_entity',.5,.5)
+entity('GATE_WEAPON_PROJECTILE','entity/mahoujin/GateWeaponProjectileEntity.java','gate_weapon_projectile_entity',.5,.5)
+p=main/'entity/WeaponProjectileEntity.java';s=p.read_text().replace('import stepsword.mahoutsukai.effects.projection.RealityMarbleSpellEffect;','').replace('!RealityMarbleSpellEffect.inMarble(this.level())','!this.level().dimension().identifier().toString().equals("mahoutsukai:reality_marble")');write(p,s)
+p=main/'entity/mahoujin/IMahoujinEntity.java';s=p.read_text().replace('AbstractMahoujinEntity.MAHOUJIN_DATA','this.mahoujinDataKey()');anchor='   default Entity asEntity() {';line='   default net.minecraft.network.syncher.EntityDataAccessor<MahoujinData> mahoujinDataKey(){return AbstractMahoujinEntity.MAHOUJIN_DATA;}\n';s=s.replace(anchor,line+anchor) if line not in s else s;write(p,s)
+p=main/'entity/mahoujin/GateWeaponProjectileEntity.java';s=p.read_text();line='''   public static final EntityDataAccessor<stepsword.mahoutsukai.dataattachments.mahoujinentity.MahoujinData> MAHOUJIN_DATA=SynchedEntityData.defineId(GateWeaponProjectileEntity.class,stepsword.mahoutsukai.entity.ModEntityDataSerializers.MAHOUJIN);
+   public EntityDataAccessor<stepsword.mahoutsukai.dataattachments.mahoujinentity.MahoujinData> mahoujinDataKey(){return MAHOUJIN_DATA;}
+''';s=s.replace('   public static final String entityName',line+'   public static final String entityName') if line not in s else s;write(p,s)
+ritual('item/spells/projection/WeaponShooterSpellScroll.java','block/spells/projection/WeaponShooterMahoujin.java','tile/projection/WeaponShooterMahoujinTileEntity.java','weaponShooterMahoujin')
+p=copy('item/spells/projection/WeaponProjectile/WeaponProjectileBow.java');s=p.read_text().replace('import net.neoforged.neoforge.event.EventHooks;','');s=re.sub(r'         i = EventHooks.onArrowLoose[^;]+;\n','',s);write(p,s)
+insert(main/'item/ModItems.java','    static {','    public static final Supplier<Item> weaponShooterBow=register("weapon_projectile_bow",stepsword.mahoutsukai.item.spells.projection.WeaponProjectile.WeaponProjectileBow::new);\n')
+# Ammo remains an independent copied stack, using the existing original stack-holder component.
+append(main/'util/Utils.java',''' public static void setAmmoStack(ItemStack bow,ItemStack ammo){setStackHolderMahou(bow,new stepsword.mahoutsukai.datacomponents.stackholder.StackHolderMahou(java.util.Optional.of(ammo.copy())));}
+ public static ItemStack getAmmoStack(ItemStack bow){return getStackHolderMahou(bow).getStack().orElse(ItemStack.EMPTY).copy();}
+''')
+config()

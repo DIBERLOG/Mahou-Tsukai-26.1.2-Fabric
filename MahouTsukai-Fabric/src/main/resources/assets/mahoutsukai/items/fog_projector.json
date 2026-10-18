@@ -1,0 +1,1 @@
+{"model": {"type": "minecraft:special", "base": "mahoutsukai:block/fog_projector", "model": {"type": "mahoutsukai:magical_item", "renderer": "fog_projector"}}}

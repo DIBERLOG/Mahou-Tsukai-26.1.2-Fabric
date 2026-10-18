@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CBC",
+    "B B",
+    "CBC"
+  ],
+  "key": {
+    "B": "minecraft:gold_ingot",
+    "C": "minecraft:lapis_lazuli"
+  },
+  "result": {
+    "id": "mahoutsukai:attuner"
+  }
+}

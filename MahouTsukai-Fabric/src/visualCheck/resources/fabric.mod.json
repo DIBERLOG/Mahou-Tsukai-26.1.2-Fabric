@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "mahoutsukai_visualcheck",
+  "version": "1.0.0",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "stepsword.mahoutsukai.VisualCapture"
+    ]
+  },
+  "depends": {
+    "mahoutsukai": "*",
+    "fabric-api": "*"
+  },
+  "mixins": [
+    "mahoutsukai.visualchecks.mixins.json"
+  ]
+}

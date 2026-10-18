@@ -1,0 +1,9 @@
+item.lance_diamond.name=ダイヤモンドのランス
+item.lance_wood.name=木のランス
+item.lance_iron.name=鉄のランス
+item.lance_gold.name=金のランス
+item.lance_netherite.name=ネザライトのランス
+item.lance_emerald.name=エメラルドのランス
+jousting.lance.weight=重さ
+jousting.lance.attackdamage=攻撃力
+itemGroup.jousting=Jousting

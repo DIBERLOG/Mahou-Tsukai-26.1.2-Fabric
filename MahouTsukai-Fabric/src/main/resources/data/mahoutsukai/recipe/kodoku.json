@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:dirt",
+    "minecraft:carrot",
+    "minecraft:potato",
+    "minecraft:poisonous_potato",
+    "minecraft:rotten_flesh",
+    "minecraft:nether_wart"
+  ],
+  "result": {
+    "id": "mahoutsukai:kodoku"
+  }
+}

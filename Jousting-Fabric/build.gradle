@@ -1,0 +1,12 @@
+plugins { id 'net.fabricmc.fabric-loom' }
+version='1.0.12-fabric.0.1-incomplete'
+group='stepsword.jousting'
+base { archivesName='Jousting-Fabric' }
+dependencies {
+ minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+ implementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+ implementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+}
+java { sourceCompatibility=JavaVersion.VERSION_25; targetCompatibility=JavaVersion.VERSION_25; withSourcesJar() }
+tasks.withType(JavaCompile).configureEach { options.release=25 }
+processResources { inputs.property 'version',project.version; filesMatching('fabric.mod.json'){expand version:project.version} }

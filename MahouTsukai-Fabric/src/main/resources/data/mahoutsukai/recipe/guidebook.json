@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DCC",
+    "DBC",
+    "DDD"
+  ],
+  "key": {
+    "B": "minecraft:leather",
+    "C": "minecraft:paper",
+    "D": "minecraft:red_dye"
+  },
+  "result": {
+    "id": "mahoutsukai:guidebook"
+  }
+}

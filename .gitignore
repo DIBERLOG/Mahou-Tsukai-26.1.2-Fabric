@@ -1,0 +1,21 @@
+tools/
+.gradle/
+**/build/
+**/run/
+*.log
+
+# Local reference binaries, recovered duplicate sources and private test state
+original/
+recovered/
+artifacts/
+analysis/
+.codex-remote-attachments/
+**/__pycache__/
+*.pyc
+*.hprof
+*.jfr
+*.dmp
+.env
+.env.*
+**/server.properties
+**/eula.txt

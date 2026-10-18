@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " DC",
+    "ABD",
+    "BA "
+  ],
+  "key": {
+    "A": "minecraft:purple_dye",
+    "B": "minecraft:iron_ingot",
+    "C": "minecraft:stick",
+    "D": "minecraft:gold_ingot"
+  },
+  "result": {
+    "id": "mahoutsukai:dagger"
+  }
+}

@@ -1,0 +1,9 @@
+item.lance_diamond.name=Алмазное копье
+item.lance_wood.name=Деревянное копье
+item.lance_iron.name=Железное копье
+item.lance_gold.name=Золотое копье
+item.lance_netherite.name=Незеритовое копье
+item.lance_emerald.name=Изумрудное копье
+jousting.lance.weight=Вес
+jousting.lance.attackdamage=Атака
+itemGroup.jousting=Рыцарство

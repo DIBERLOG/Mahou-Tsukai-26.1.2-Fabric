@@ -1,0 +1,11 @@
+{
+  "item.jousting.lance_diamond": "Lan\u00e7a de Diamante", 
+  "item.jousting.lance_emerald": "Lan\u00e7a de Esmeralda", 
+  "item.jousting.lance_gold": "Lan\u00e7a de Ouro", 
+  "item.jousting.lance_iron": "Lan\u00e7a de Ferro", 
+  "item.jousting.lance_netherite": "Lan\u00e7a de Netherita", 
+  "item.jousting.lance_wood": "Lan\u00e7a de Madeira", 
+  "itemGroup.jousting": "Jousting", 
+  "jousting.lance.attackdamage": "Ataque", 
+  "jousting.lance.weight": "Peso"
+}

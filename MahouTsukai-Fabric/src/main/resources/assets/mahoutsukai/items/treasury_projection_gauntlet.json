@@ -1,0 +1,10 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "mahoutsukai:item/treasury_projection_gauntlet_model",
+    "model": {
+      "type": "mahoutsukai:magical_item",
+      "renderer": "treasury_projection_gauntlet"
+    }
+  }
+}

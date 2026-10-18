@@ -1,0 +1,52 @@
+accessWidener v2 official
+accessible method net/minecraft/client/renderer/rendertype/RenderType create (Ljava/lang/String;Lnet/minecraft/client/renderer/rendertype/RenderSetup;)Lnet/minecraft/client/renderer/rendertype/RenderType;
+accessible field net/minecraft/client/renderer/rendertype/RenderType name Ljava/lang/String;
+accessible field net/minecraft/client/renderer/special/SpecialModelRenderers ID_MAPPER Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;
+
+accessible field net/minecraft/world/entity/WalkAnimationState position F
+
+accessible field net/minecraft/world/entity/Entity random Lnet/minecraft/util/RandomSource;
+mutable field net/minecraft/world/entity/Entity random Lnet/minecraft/util/RandomSource;
+accessible field net/minecraft/world/entity/Mob goalSelector Lnet/minecraft/world/entity/ai/goal/GoalSelector;
+accessible method net/minecraft/world/entity/player/Player createAttackSource (Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/damagesource/DamageSource;
+accessible method net/minecraft/world/entity/player/Player cannotAttack (Lnet/minecraft/world/entity/Entity;)Z
+accessible method net/minecraft/world/entity/player/Player deflectProjectile (Lnet/minecraft/world/entity/Entity;)Z
+accessible method net/minecraft/world/entity/player/Player canCriticalAttack (Lnet/minecraft/world/entity/Entity;)Z
+accessible method net/minecraft/world/entity/player/Player isSweepAttack (ZZZ)Z
+accessible method net/minecraft/world/entity/player/Player attackVisualEffects (Lnet/minecraft/world/entity/Entity;ZZZZF)V
+accessible method net/minecraft/world/entity/player/Player damageStatsAndHearts (Lnet/minecraft/world/entity/Entity;F)V
+accessible method net/minecraft/world/entity/player/Player itemAttackInteraction (Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/damagesource/DamageSource;Z)V
+accessible method net/minecraft/world/entity/player/Player doSweepAttack (Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;F)V
+accessible method net/minecraft/world/entity/player/Player getEnchantedDamage (Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;)F
+accessible field net/minecraft/world/entity/LivingEntity autoSpinAttackDmg F
+accessible method net/minecraft/world/entity/player/Player baseDamageScaleFactor ()F
+accessible method net/minecraft/world/entity/player/Player playServerSideSound (Lnet/minecraft/sounds/SoundEvent;)V
+accessible method net/minecraft/world/entity/LivingEntity getKnockback (Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;)F
+
+accessible field net/minecraft/world/entity/projectile/arrow/AbstractArrow life I
+
+accessible method net/minecraft/world/level/block/FireBlock canBurn (Lnet/minecraft/world/level/block/state/BlockState;)Z
+accessible field net/minecraft/world/level/Level rainLevel F
+
+
+
+accessible field net/minecraft/server/network/ServerGamePacketListenerImpl aboveGroundTickCount I
+
+accessible field net/minecraft/client/player/ClientInput moveVector Lnet/minecraft/world/phys/Vec2;
+accessible field net/minecraft/client/player/ClientInput keyPresses Lnet/minecraft/world/entity/player/Input;
+
+accessible field net/minecraft/world/entity/Entity yRot F
+accessible field net/minecraft/world/entity/Entity xRot F
+
+accessible field net/minecraft/world/entity/ai/attributes/RangedAttribute maxValue D
+
+mutable field net/minecraft/world/entity/ai/attributes/RangedAttribute maxValue D
+accessible field net/minecraft/world/entity/LivingEntity attackStrengthTicker I
+
+accessible field net/minecraft/world/level/Level thunderLevel F
+accessible field net/minecraft/world/entity/LivingEntity lastHurtByPlayerMemoryTime I
+
+accessible field net/minecraft/network/syncher/SynchedEntityData itemsById [Lnet/minecraft/network/syncher/SynchedEntityData$DataItem;
+accessible field net/minecraft/world/entity/WalkAnimationState position F
+
+accessible method net/minecraft/world/entity/Entity collide (Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;

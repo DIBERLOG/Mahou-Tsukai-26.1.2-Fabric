@@ -1,0 +1,11 @@
+from remaining_port_helpers import *
+copy('datacomponents/modemahou/ModeMahou.java')
+p=main/'datacomponents/DataComponents.java';insert(p,'    public static void init() {','''    public static final Codec<stepsword.mahoutsukai.datacomponents.modemahou.ModeMahou> MODE_CODEC=RecordCodecBuilder.create(i->i.group(Codec.INT.fieldOf("mode").forGetter(stepsword.mahoutsukai.datacomponents.modemahou.ModeMahou::getMode)).apply(i,stepsword.mahoutsukai.datacomponents.modemahou.ModeMahou::new));
+    public static final DataComponentType<stepsword.mahoutsukai.datacomponents.modemahou.ModeMahou> MODE_COMPONENT=DataComponentType.<stepsword.mahoutsukai.datacomponents.modemahou.ModeMahou>builder().persistent(MODE_CODEC).networkSynchronized(StreamCodec.composite(ByteBufCodecs.INT,stepsword.mahoutsukai.datacomponents.modemahou.ModeMahou::getMode,stepsword.mahoutsukai.datacomponents.modemahou.ModeMahou::new)).build();
+''');s=p.read_text();line='        Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE,Identifier.fromNamespaceAndPath("mahoutsukai","mode_mahou"),MODE_COMPONENT);';s=s.replace('    public static void init() {','    public static void init() {\n'+line) if line not in s else s;write(p,s)
+append(main/'util/Utils.java',''' public static stepsword.mahoutsukai.datacomponents.modemahou.ModeMahou getModeMahou(ItemStack stack){return stack.getOrDefault(stepsword.mahoutsukai.datacomponents.DataComponents.MODE_COMPONENT,new stepsword.mahoutsukai.datacomponents.modemahou.ModeMahou()).copy();}
+ public static int getMode(ItemStack stack){return getModeMahou(stack).getMode();}
+ public static void setMode(ItemStack stack,int mode){stack.set(stepsword.mahoutsukai.datacomponents.DataComponents.MODE_COMPONENT,new stepsword.mahoutsukai.datacomponents.modemahou.ModeMahou(mode));}
+''')
+p=main/'item/spells/secret/FallenDownSpellScroll.java';s=p.read_text().replace('storage.beam != null && !storage.beam.isAlive() && storage.fd != null && !storage.fd.isAlive()','(storage.beam == null || !storage.beam.isAlive()) && (storage.fd == null || !storage.fd.isAlive())');write(p,s)
+p=main/'fabric/MahouFabric.java';insert(p,'        MahouNetworking.register();','        ServerLifecycleEvents.SERVER_STOPPED.register(server->stepsword.mahoutsukai.item.spells.secret.FallenDownSpellScroll.storages.clear());\n')

@@ -1,0 +1,9 @@
+item.lance_diamond.name=Lança de Diamante
+item.lance_wood.name=Lança de Madeira
+item.lance_iron.name=Lança de Ferro
+item.lance_gold.name=Lança de Ouro
+item.lance_netherite.name=Lança de Netherita
+item.lance_emerald.name=Lança de Esmeralda
+jousting.lance.weight=Peso
+jousting.lance.attackdamage=Ataque
+itemGroup.jousting=Jousting

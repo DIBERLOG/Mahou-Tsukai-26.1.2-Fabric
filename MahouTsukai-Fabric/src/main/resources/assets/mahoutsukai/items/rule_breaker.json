@@ -1,0 +1,10 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "mahoutsukai:item/rule_breaker_model",
+    "model": {
+      "type": "mahoutsukai:magical_item",
+      "renderer": "rule_breaker"
+    }
+  }
+}

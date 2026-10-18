@@ -1,0 +1,6 @@
+# Attribution and rights
+
+Mahou Tsukai 1.36.36 and Jousting 1.0.12: original author **stepsword**.
+Original metadata declares **All Rights Reserved**. Original authorship and notices are retained. This public repository is an unofficial Fabric adaptation; publication does not grant an additional open-source license to the original code or assets. The project owner reported permission to port with attribution; a separate permission document is not included.
+
+Gradle wrapper files retain their own Apache-2.0 notices. Fabric, Minecraft, JEI and the optional Apotheosis/Placebo/Cardinal Components dependencies retain their respective owners and licenses; their runtime JARs are not bundled in this source repository.

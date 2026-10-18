@@ -1,0 +1,10 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "mahoutsukai:item/proximity_projection_keys_model",
+    "model": {
+      "type": "mahoutsukai:magical_item",
+      "renderer": "proximity_projection_keys"
+    }
+  }
+}

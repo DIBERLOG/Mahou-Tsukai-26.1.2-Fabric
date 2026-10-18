@@ -1,0 +1,9 @@
+pluginManagement {
+    repositories {
+        maven { url = 'https://maven.fabricmc.net/' }
+        gradlePluginPortal()
+    }
+}
+rootProject.name = 'MahouTsukai-Fabric'
+include ':jousting'
+project(':jousting').projectDir=file('../Jousting-Fabric')

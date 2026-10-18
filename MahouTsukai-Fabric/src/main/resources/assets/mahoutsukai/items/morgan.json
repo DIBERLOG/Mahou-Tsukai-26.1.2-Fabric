@@ -1,0 +1,10 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "mahoutsukai:item/morgan_model",
+    "model": {
+      "type": "mahoutsukai:magical_item",
+      "renderer": "morgan"
+    }
+  }
+}

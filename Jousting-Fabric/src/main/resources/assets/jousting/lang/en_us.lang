@@ -1,0 +1,9 @@
+item.lance_diamond.name=Diamond Lance
+item.lance_wood.name=Wooden Lance
+item.lance_iron.name=Iron Lance
+item.lance_gold.name=Gold Lance
+item.lance_netherite.name=Netherite Lance
+item.lance_emerald.name=Emerald Lance
+jousting.lance.weight=Weight
+jousting.lance.attackdamage=Attack
+itemGroup.jousting=Jousting

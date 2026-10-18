@@ -1,0 +1,130 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:display_context",
+    "fallback": {
+      "type": "minecraft:special",
+      "base": "mahoutsukai:item/nobu_model",
+      "model": {
+        "type": "mahoutsukai:magical_item",
+        "renderer": "nobu"
+      }
+    },
+    "cases": [
+      {
+        "when": "gui",
+        "model": {
+          "type": "minecraft:special",
+          "base": "mahoutsukai:item/nobu_model",
+          "model": {
+            "type": "mahoutsukai:magical_item",
+            "renderer": "nobu"
+          }
+        }
+      },
+      {
+        "when": "ground",
+        "model": {
+          "type": "minecraft:special",
+          "base": "mahoutsukai:item/nobu_model",
+          "model": {
+            "type": "mahoutsukai:magical_item",
+            "renderer": "nobu_ground"
+          }
+        }
+      },
+      {
+        "when": "thirdperson_righthand",
+        "model": {
+          "type": "minecraft:condition",
+          "property": "minecraft:using_item",
+          "on_false": {
+            "type": "minecraft:special",
+            "base": "mahoutsukai:item/nobu_model",
+            "model": {
+              "type": "mahoutsukai:magical_item",
+              "renderer": "nobu_tp_idle"
+            }
+          },
+          "on_true": {
+            "type": "minecraft:special",
+            "base": "mahoutsukai:item/nobu_model",
+            "model": {
+              "type": "mahoutsukai:magical_item",
+              "renderer": "nobu_tp_use"
+            }
+          }
+        }
+      },
+      {
+        "when": "thirdperson_lefthand",
+        "model": {
+          "type": "minecraft:condition",
+          "property": "minecraft:using_item",
+          "on_false": {
+            "type": "minecraft:special",
+            "base": "mahoutsukai:item/nobu_model",
+            "model": {
+              "type": "mahoutsukai:magical_item",
+              "renderer": "nobu_tp_idle"
+            }
+          },
+          "on_true": {
+            "type": "minecraft:special",
+            "base": "mahoutsukai:item/nobu_model",
+            "model": {
+              "type": "mahoutsukai:magical_item",
+              "renderer": "nobu_tp_use"
+            }
+          }
+        }
+      },
+      {
+        "when": "firstperson_righthand",
+        "model": {
+          "type": "minecraft:condition",
+          "property": "minecraft:using_item",
+          "on_false": {
+            "type": "minecraft:special",
+            "base": "mahoutsukai:item/nobu_model",
+            "model": {
+              "type": "mahoutsukai:magical_item",
+              "renderer": "nobu_fp_r_idle"
+            }
+          },
+          "on_true": {
+            "type": "minecraft:special",
+            "base": "mahoutsukai:item/nobu_model",
+            "model": {
+              "type": "mahoutsukai:magical_item",
+              "renderer": "nobu_fp_r_use"
+            }
+          }
+        }
+      },
+      {
+        "when": "firstperson_lefthand",
+        "model": {
+          "type": "minecraft:condition",
+          "property": "minecraft:using_item",
+          "on_false": {
+            "type": "minecraft:special",
+            "base": "mahoutsukai:item/nobu_model",
+            "model": {
+              "type": "mahoutsukai:magical_item",
+              "renderer": "nobu_fp_l_idle"
+            }
+          },
+          "on_true": {
+            "type": "minecraft:special",
+            "base": "mahoutsukai:item/nobu_model",
+            "model": {
+              "type": "mahoutsukai:magical_item",
+              "renderer": "nobu_fp_l_use"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "mahoutsukai:item/spatial_disorientation_staff_model",
+    "model": {
+      "type": "mahoutsukai:magical_item",
+      "renderer": "spatial_disorientation_staff"
+    }
+  }
+}

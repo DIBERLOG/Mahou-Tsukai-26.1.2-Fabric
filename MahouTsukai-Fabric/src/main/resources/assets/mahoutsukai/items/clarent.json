@@ -1,0 +1,22 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "property": "minecraft:using_item",
+    "on_false": {
+      "type": "minecraft:special",
+      "base": "mahoutsukai:item/clarent_model",
+      "model": {
+        "type": "mahoutsukai:magical_item",
+        "renderer": "clarent"
+      }
+    },
+    "on_true": {
+      "type": "minecraft:special",
+      "base": "mahoutsukai:item/clarent_blocking2_model",
+      "model": {
+        "type": "mahoutsukai:magical_item",
+        "renderer": "clarent_blocking"
+      }
+    }
+  }
+}

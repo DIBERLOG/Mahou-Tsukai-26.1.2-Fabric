@@ -1,0 +1,19 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "mahoutsukai:item/mana_circuit_magitech"
+      },
+      {
+        "type": "minecraft:special",
+        "base": "mahoutsukai:item/mana_circuit_magitech",
+        "model": {
+          "type": "mahoutsukai:magical_item",
+          "renderer": "mana_circuit_magitech"
+        }
+      }
+    ]
+  }
+}

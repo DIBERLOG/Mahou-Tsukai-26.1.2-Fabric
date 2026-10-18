@@ -1,0 +1,10 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "mahoutsukai:item/rhongomyniad_model",
+    "model": {
+      "type": "mahoutsukai:magical_item",
+      "renderer": "rhongomyniad"
+    }
+  }
+}

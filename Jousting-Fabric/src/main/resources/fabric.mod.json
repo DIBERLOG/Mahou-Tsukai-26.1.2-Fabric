@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "jousting",
+  "version": "${version}",
+  "name": "Jousting \u2014 Fabric adaptation",
+  "authors": [
+    "stepsword (original)",
+    "Fabric adaptation for angel"
+  ],
+  "license": "All Rights Reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "stepsword.jousting.JoustingMod"
+    ],
+    "client": [
+      "stepsword.jousting.client.JoustingClient"
+    ]
+  },
+  "mixins": [
+    "jousting.fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "26.1.2",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}

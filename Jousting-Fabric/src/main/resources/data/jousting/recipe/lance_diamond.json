@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " BD",
+    "DAB",
+    "CD "
+  ],
+  "key": {
+    "A": "#minecraft:logs",
+    "B": "#minecraft:planks",
+    "C": "#c:rods/wooden",
+    "D": "#c:gems/diamond"
+  },
+  "result": {
+    "id": "jousting:lance_diamond"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " BD",
+    "DAB",
+    "CD "
+  ],
+  "key": {
+    "A": "#minecraft:logs",
+    "B": "#minecraft:planks",
+    "C": "#c:rods/wooden",
+    "D": "#c:ingots/netherite"
+  },
+  "result": {
+    "id": "jousting:lance_netherite"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "item.jousting.lance_diamond": "다이아몬드 장창", 
+  "item.jousting.lance_emerald": "에메랄드 장창", 
+  "item.jousting.lance_gold": "금 장창", 
+  "item.jousting.lance_iron": "철 장창", 
+  "item.jousting.lance_netherite": "네더라이트 장창", 
+  "item.jousting.lance_wood": "나무 장창", 
+  "itemGroup.jousting": "자우스팅", 
+  "jousting.lance.attackdamage": "공격 피해", 
+  "jousting.lance.weight": "무게"
+}

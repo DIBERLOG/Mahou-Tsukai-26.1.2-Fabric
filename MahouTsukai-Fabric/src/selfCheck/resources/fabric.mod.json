@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "mahoutsukai_selfcheck",
+  "version": "1.0.0",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "stepsword.mahoutsukai.EconomyIntegration"
+    ]
+  },
+  "depends": {
+    "mahoutsukai": "*",
+    "fabric-api": "*"
+  },
+  "mixins": [
+    "mahoutsukai.checks.mixins.json"
+  ]
+}

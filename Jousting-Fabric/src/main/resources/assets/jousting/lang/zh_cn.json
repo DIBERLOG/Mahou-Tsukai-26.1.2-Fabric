@@ -1,0 +1,11 @@
+{
+  "item.jousting.lance_diamond": "\u94bb\u77f3\u957f\u67aa", 
+  "item.jousting.lance_emerald": "\u7eff\u5b9d\u77f3\u957f\u67aa", 
+  "item.jousting.lance_gold": "\u91d1\u957f\u67aa", 
+  "item.jousting.lance_iron": "\u94c1\u957f\u67aa", 
+  "item.jousting.lance_netherite": "\u4e0b\u754c\u5408\u91d1\u957f\u67aa", 
+  "item.jousting.lance_wood": "\u6728\u957f\u67aa", 
+  "itemGroup.jousting": "\u9a6c\u672f", 
+  "jousting.lance.attackdamage": "\u653b\u51fb\u529b", 
+  "jousting.lance.weight": "\u91cd\u91cf"
+}

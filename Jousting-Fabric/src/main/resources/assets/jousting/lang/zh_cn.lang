@@ -1,0 +1,9 @@
+item.lance_diamond.name=钻石长枪
+item.lance_wood.name=木长枪
+item.lance_iron.name=铁长枪
+item.lance_gold.name=金长枪
+item.lance_netherite.name=下界合金长枪
+item.lance_emerald.name=绿宝石长枪
+jousting.lance.weight=重量
+jousting.lance.attackdamage=攻击力
+itemGroup.jousting=马术

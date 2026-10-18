@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "FFF",
+    "HGH",
+    "FFF"
+  ],
+  "key": {
+
+    "F": "mahoutsukai:powdered_gold",
+    "G": "mahoutsukai:spell_cloth",
+    "H": "minecraft:redstone"
+  },
+  "result": {
+    "id": "mahoutsukai:mahoujin_projector"
+  }
+}

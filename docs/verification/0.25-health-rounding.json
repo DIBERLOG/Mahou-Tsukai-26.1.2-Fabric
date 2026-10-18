@@ -1,0 +1,1034 @@
+[
+  {
+    "section": "defense_power_set",
+    "case": "144/player/40",
+    "original": {
+      "accepted": true,
+      "health": 11.200001,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {},
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 11.2,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {},
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "145/player/40",
+    "original": {
+      "accepted": true,
+      "health": 3.199997,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {},
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 3.2000008,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {},
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "148/player/40",
+    "original": {
+      "accepted": true,
+      "health": 11.200001,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {},
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 11.2,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {},
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "149/player/40",
+    "original": {
+      "accepted": true,
+      "health": 3.199997,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {},
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 3.2000008,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {},
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "152/player/40",
+    "original": {
+      "accepted": true,
+      "health": 11.200001,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 11.2,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "153/player/40",
+    "original": {
+      "accepted": true,
+      "health": 3.199997,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 3.2000008,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "156/player/40",
+    "original": {
+      "accepted": true,
+      "health": 11.200001,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 11.2,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "157/player/40",
+    "original": {
+      "accepted": true,
+      "health": 3.199997,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 3.2000008,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "176/player/40",
+    "original": {
+      "accepted": true,
+      "health": 11.200001,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "FEET": 11,
+        "LEGS": 11,
+        "CHEST": 11,
+        "HEAD": 11
+      },
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 11.2,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "FEET": 11,
+        "LEGS": 11,
+        "CHEST": 11,
+        "HEAD": 11
+      },
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "177/player/40",
+    "original": {
+      "accepted": true,
+      "health": 3.199997,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "FEET": 21,
+        "LEGS": 21,
+        "CHEST": 21,
+        "HEAD": 21
+      },
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 3.2000008,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "FEET": 21,
+        "LEGS": 21,
+        "CHEST": 21,
+        "HEAD": 21
+      },
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "180/player/40",
+    "original": {
+      "accepted": true,
+      "health": 11.200001,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "FEET": 11,
+        "LEGS": 11,
+        "CHEST": 11,
+        "HEAD": 11
+      },
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 11.2,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "FEET": 11,
+        "LEGS": 11,
+        "CHEST": 11,
+        "HEAD": 11
+      },
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "181/player/40",
+    "original": {
+      "accepted": true,
+      "health": 3.199997,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "FEET": 21,
+        "LEGS": 21,
+        "CHEST": 21,
+        "HEAD": 21
+      },
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 3.2000008,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "FEET": 21,
+        "LEGS": 21,
+        "CHEST": 21,
+        "HEAD": 21
+      },
+      "totem_left": false,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "184/player/40",
+    "original": {
+      "accepted": true,
+      "health": 11.200001,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0,
+        "FEET": 11,
+        "LEGS": 11,
+        "CHEST": 11,
+        "HEAD": 11
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 11.2,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0,
+        "FEET": 11,
+        "LEGS": 11,
+        "CHEST": 11,
+        "HEAD": 11
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "185/player/40",
+    "original": {
+      "accepted": true,
+      "health": 3.199997,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0,
+        "FEET": 21,
+        "LEGS": 21,
+        "CHEST": 21,
+        "HEAD": 21
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 3.2000008,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0,
+        "FEET": 21,
+        "LEGS": 21,
+        "CHEST": 21,
+        "HEAD": 21
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 0.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "188/player/40",
+    "original": {
+      "accepted": true,
+      "health": 11.200001,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0,
+        "FEET": 11,
+        "LEGS": 11,
+        "CHEST": 11,
+        "HEAD": 11
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 11.2,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0,
+        "FEET": 11,
+        "LEGS": 11,
+        "CHEST": 11,
+        "HEAD": 11
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  },
+  {
+    "section": "defense_power_set",
+    "case": "189/player/40",
+    "original": {
+      "accepted": true,
+      "health": 3.199997,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0,
+        "FEET": 21,
+        "LEGS": 21,
+        "CHEST": 21,
+        "HEAD": 21
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    },
+    "fabric": {
+      "accepted": true,
+      "health": 3.2000008,
+      "alive": true,
+      "absorption": 0.0,
+      "effects": {
+        "mahoutsukai:bleeding": [
+          0,
+          100
+        ],
+        "mahoutsukai:immunity_exchange": [
+          0,
+          200
+        ],
+        "minecraft:resistance": [
+          3,
+          200
+        ]
+      },
+      "target_wear": {
+        "OFFHAND": 0,
+        "FEET": 21,
+        "LEGS": 21,
+        "CHEST": 21,
+        "HEAD": 21
+      },
+      "totem_left": true,
+      "mana": 1000,
+      "exchange": 0,
+      "souls": 2.0,
+      "immunity": "player",
+      "attacker_mana": 1000,
+      "weapon_wear": 0,
+      "weapon_strength": 4
+    }
+  }
+]

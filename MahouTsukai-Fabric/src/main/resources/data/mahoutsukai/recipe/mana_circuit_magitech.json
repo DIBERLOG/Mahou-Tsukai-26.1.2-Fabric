@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DAD",
+    "DBD",
+    "DAD"
+  ],
+  "key": {
+    "A": "mahoutsukai:powdered_emerald",
+    "B": "mahoutsukai:powdered_emerald",
+    "D": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "mahoutsukai:mana_circuit_magitech"
+  }
+}

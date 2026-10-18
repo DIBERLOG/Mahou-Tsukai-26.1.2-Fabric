@@ -1,0 +1,22 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "property": "minecraft:using_item",
+    "on_false": {
+      "type": "minecraft:special",
+      "base": "mahoutsukai:item/replica_model",
+      "model": {
+        "type": "mahoutsukai:magical_item",
+        "renderer": "replica"
+      }
+    },
+    "on_true": {
+      "type": "minecraft:special",
+      "base": "mahoutsukai:item/replica_blocking_model",
+      "model": {
+        "type": "mahoutsukai:magical_item",
+        "renderer": "replica_blocking"
+      }
+    }
+  }
+}

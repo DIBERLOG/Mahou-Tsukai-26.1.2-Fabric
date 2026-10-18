@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "jousting:lance_wood",
+    "jousting:lance_iron",
+    "jousting:lance_gold",
+    "jousting:lance_emerald",
+    "jousting:lance_diamond",
+    "jousting:lance_netherite"
+  ]
+}

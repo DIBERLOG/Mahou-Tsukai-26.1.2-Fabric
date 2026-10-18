@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " BB",
+    "AAB",
+    "CA "
+  ],
+  "key": {
+    "A": "#minecraft:logs",
+    "B": "#minecraft:planks",
+    "C": "minecraft:stick"
+  },
+  "result": {
+    "id": "jousting:lance_wood"
+  }
+}

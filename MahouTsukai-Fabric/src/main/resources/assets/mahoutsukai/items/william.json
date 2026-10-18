@@ -1,0 +1,82 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:display_context",
+    "fallback": {
+      "type": "minecraft:special",
+      "base": "mahoutsukai:item/william_model",
+      "model": {
+        "type": "mahoutsukai:magical_item",
+        "renderer": "william"
+      }
+    },
+    "cases": [
+      {
+        "when": "gui",
+        "model": {
+          "type": "minecraft:special",
+          "base": "mahoutsukai:item/william_model",
+          "model": {
+            "type": "mahoutsukai:magical_item",
+            "renderer": "william_gui"
+          }
+        }
+      },
+      {
+        "when": "ground",
+        "model": {
+          "type": "minecraft:special",
+          "base": "mahoutsukai:item/william_model",
+          "model": {
+            "type": "mahoutsukai:magical_item",
+            "renderer": "william_ground"
+          }
+        }
+      },
+      {
+        "when": "thirdperson_righthand",
+        "model": {
+          "type": "minecraft:special",
+          "base": "mahoutsukai:item/william_model",
+          "model": {
+            "type": "mahoutsukai:magical_item",
+            "renderer": "william_tp"
+          }
+        }
+      },
+      {
+        "when": "thirdperson_lefthand",
+        "model": {
+          "type": "minecraft:special",
+          "base": "mahoutsukai:item/william_model",
+          "model": {
+            "type": "mahoutsukai:magical_item",
+            "renderer": "william_tp"
+          }
+        }
+      },
+      {
+        "when": "firstperson_righthand",
+        "model": {
+          "type": "minecraft:special",
+          "base": "mahoutsukai:item/william_model",
+          "model": {
+            "type": "mahoutsukai:magical_item",
+            "renderer": "william_fp_right"
+          }
+        }
+      },
+      {
+        "when": "firstperson_lefthand",
+        "model": {
+          "type": "minecraft:special",
+          "base": "mahoutsukai:item/william_model",
+          "model": {
+            "type": "mahoutsukai:magical_item",
+            "renderer": "william_fp_left"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "mahoutsukai",
+  "version": "${version}",
+  "name": "Mahou Tsukai — INCOMPLETE Fabric port",
+  "description": "Fabric port with 81 original items, 53 ritual families, all 27 original entity types and 37 original effects. Optional JEI, local Jousting adaptation, verified Apotheosis Adventure Fabric 0.2.1 integration, NeoForge Mahou data import, server settings sync and custom DOOM. Compared with the unmodified original in 1372 ritual scenarios. Full visual and gameplay parity across every combination remains unverified.",
+  "authors": [
+    "stepsword (original)",
+    "Fabric adaptation prepared with OpenAI Codex for angel"
+  ],
+  "license": "All Rights Reserved",
+  "environment": "*",
+  "accessWidener": "mahoutsukai.accesswidener",
+  "mixins": [
+    "mahoutsukai.fabric.mixins.json"
+  ],
+  "entrypoints": {
+    "main": [
+      "stepsword.mahoutsukai.fabric.MahouFabric"
+    ],
+    "client": [
+      "stepsword.mahoutsukai.fabric.MahouFabricClient"
+    ],
+    "jei_mod_plugin": [
+      "stepsword.mahoutsukai.integration.jei.MahouJeiPlugin"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "26.1.2",
+    "java": ">=25",
+    "fabric-api": ">=0.155.3"
+  },
+  "suggests": {
+    "jei": ">=29.47.0.111 <30"
+  }
+}

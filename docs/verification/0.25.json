@@ -1,0 +1,18 @@
+{
+  "version": "1.36.36-fabric.0.25-incomplete",
+  "original_sha256": "7bccdce504cf01a5edf0bca7ae6d647c09ff8dca67425577804cc3132a6c090a",
+  "fabric_jar_sha256": "3fda99ac8f9dabdfc1924b5a5d512bacf5d1946ef3ed04b4b57c2fb9f01a58f6",
+  "cases": 15440,
+  "ordered_effect_pairs": 5776,
+  "defense_combinations": 4096,
+  "native_item_attacks": 5568,
+  "behavioral_differences": 0,
+  "health_float_tolerance_hp": 1e-05,
+  "health_rounding_cases": 16,
+  "clean_source_build": true,
+  "clean_build_matches_tested_production_classes": 823,
+  "base_server_suite": true,
+  "jousting_apotheosis_server_suite": true,
+  "packaged_jar_world_restart_passes": 2,
+  "source_world_unchanged": true
+}

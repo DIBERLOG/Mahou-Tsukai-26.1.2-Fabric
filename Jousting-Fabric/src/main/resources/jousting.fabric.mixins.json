@@ -1,0 +1,1 @@
+{"required":true,"package":"stepsword.jousting.client.mixin","compatibilityLevel":"JAVA_25","client":["LancePoseMixin"],"injectors":{"defaultRequire":1}}

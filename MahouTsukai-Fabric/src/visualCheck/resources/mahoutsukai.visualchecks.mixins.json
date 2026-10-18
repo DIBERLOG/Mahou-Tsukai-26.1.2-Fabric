@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "stepsword.mahoutsukai.visualcheck.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": ["MinecraftAttackInvoker", "HandTransformCapture"],
+  "injectors": {"defaultRequire": 1}
+}

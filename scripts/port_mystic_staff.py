@@ -1,0 +1,29 @@
+from remaining_port_helpers import *
+ritual('item/spells/mystic/MysticStaffSpellScroll.java','block/spells/mystic/MysticStaffMahoujin.java','tile/mystic/MysticStaffMahoujinTileEntity.java','mysticStaffMahoujin')
+for field,cls,id in [('EXPLOSION_MAHOUJIN','MysticStaffMahoujinEntity','mahoujin_entity'),('AOE_EXPLOSION_MAHOUJIN','MysticStaffAOEMahoujinEntity','aoe_mahoujin_entity'),('BEAM_MAHOUJIN','MysticStaffBeamMahoujinEntity','mahoujin_beam_entity'),('BEAM_PROJECTILE','BeamProjectileEntity','beam_projectile_entity')]:
+ entity(field,'entity/mahoujin/'+cls+'.java',id)
+ p=main/('entity/mahoujin/'+cls+'.java');s=p.read_text(encoding='utf-8');s=re.sub(r'   public AABB getBoundingBox\(\) \{.*?\n   \}\n','',s,flags=re.S);s=s.replace('import stepsword.mahoutsukai.MahouTsukaiMod;','').replace('            MahouTsukaiMod.proxy.speedUp();','');s=s.replace('((MahouTrigger)ModTriggers.BEAM.get())','ModTriggers.BEAM')
+ if cls=='BeamProjectileEntity':
+  s=s.replace('   public static final String entityName', '''   private static final EntityDataAccessor<stepsword.mahoutsukai.datacomponents.mahoujin.MahoujinData> MAHOUJIN_DATA=SynchedEntityData.defineId(BeamProjectileEntity.class,stepsword.mahoutsukai.entity.ModEntityDataSerializers.MAHOUJIN);
+   @Override public EntityDataAccessor<stepsword.mahoutsukai.datacomponents.mahoujin.MahoujinData> mahoujinDataKey(){return MAHOUJIN_DATA;}
+   public static final String entityName''')
+ s=re.sub(r'EffectUtil.tryFakeExplosion\(\s*EffectUtil.createFakeExplosion\(this.caster, this.caster, this.caster.position\(\), bs\), bs, this.caster, this.caster, "mahou_beam", false, lst\s*\);', '''EffectUtil.applySpellBlockChanges(bs,this.caster,this.caster,false,lst,this.position(),MTConfig.MYSTIC_STAFF_BEAM_MAX_BLOCK_BREAK_PER_TICK,(state,owner,drop,pos)->owner.level().destroyBlock(pos,false,owner));''',s);write(p,s)
+p=copy('item/spells/mystic/MysticStaff/MysticStaff.java');s=p.read_text(encoding='utf-8').replace('import net.minecraft.client.Minecraft;','').replace('import stepsword.mahoutsukai.MahouTsukaiMod;','');s=re.sub(r'         \} else if \(this.getRemainingUseDuration\(stack, player, count\) > MysticStaffBeamMahoujinEntity.dyingticks \* 2\s*&& player == Minecraft.getInstance\(\).player\) \{\s*MahouTsukaiMod.proxy.slowDown\(\);\s*\}', '         }',s);s=s.replace('      } else {\n         MahouTsukaiMod.proxy.speedUp();\n      }','      }').replace('((MahouTrigger)ModTriggers.BAKURETSU.get())','ModTriggers.BAKURETSU');write(p,s)
+insert(main/'item/ModItems.java','    static {','    public static final Supplier<Item> explosionStaff=register("mystic_staff",stepsword.mahoutsukai.item.spells.mystic.MysticStaff.MysticStaff::new);\n')
+p=copy('item/spells/mystic/MysticStaff/Bakuretsu.java');s=p.read_text(encoding='utf-8').replace('FakeExplosion fake = EffectUtil.createFakeExplosion(entity, entity, entity.position(), affected);','var fake = new net.minecraft.world.level.ServerExplosion((net.minecraft.server.level.ServerLevel)world,entity,null,null,new Vec3(this.posX,this.posY,this.posZ),this.radius,false,Explosion.BlockInteraction.DESTROY);').replace('b.getExplosionResistance(world.getBlockState(tmp), world, tmp, fake)','b.getExplosionResistance()').replace('EffectUtil.tryFakeExplosion(fake, affected, entity, entity, "bakuretsu", false, new ArrayList<>(lst));','EffectUtil.applySpellBlockChanges(affected,entity,entity,false,new ArrayList<>(lst),new Vec3(this.posX,this.posY,this.posZ),-1,(state,owner,drop,pos)->owner.level().destroyBlock(pos,false,owner));').replace('entity.hurt(player.damageSources().explosion(player, null), this.damage * density);','if(!stepsword.mahoutsukai.effects.mystic.RhoAiasSpellEffect.protects((net.minecraft.server.level.ServerLevel)entity.level(),entity.position()))entity.hurtServer((net.minecraft.server.level.ServerLevel)entity.level(),player.damageSources().explosion(player,null),this.damage*density);');write(p,s)
+for cls,id in [('BakuretsuPacket','bakuretsu'),('BeamPacket','beam')]:
+ p=copy('networking/'+cls+'.java');s=p.read_text(encoding='utf-8').replace('import net.neoforged.neoforge.network.handling.IPayloadContext;','');s=re.sub(r'   public static void handle\([^}]+\}\n','',s);s=s.replace('   public Type<'+cls+'> type()',f'   public static final Type<{cls}> TYPE=new Type<>(net.minecraft.resources.Identifier.fromNamespaceAndPath("mahoutsukai","{id}"));\n   public Type<{cls}> type()').replace('return MahouPackets.'+('BAKURETSU_TYPE' if cls=='BakuretsuPacket' else 'BEAM_TYPE')+';','return TYPE;').replace('   int entityId','   public int entityId');write(p,s)
+ insert(main/'fabric/MahouNetworking.java','        PayloadTypeRegistry.serverboundPlay()',f'        PayloadTypeRegistry.clientboundPlay().register(stepsword.mahoutsukai.networking.{cls}.TYPE,stepsword.mahoutsukai.networking.{cls}.STREAM_CODEC);\n')
+p=main/'advancements/ModTriggers.java'
+for key in ['BEAM','BAKURETSU']:
+ insert(p,' public static void init()',f' public static final MahouTrigger {key}=Registry.register(BuiltInRegistries.TRIGGER_TYPES,Identifier.fromNamespaceAndPath("mahoutsukai","{key.lower()}"),new MahouTrigger());\n')
+ src=Path('recovered/data/mahoutsukai/advancement')/(key.lower()+'.json')
+ if src.exists():shutil.copyfile(src,res/'data/mahoutsukai/advancement'/src.name)
+p=main/'sounds/ModSounds.java'
+for key,id in [('BEAM_TWINKLE','beam.twinkle'),('EXPLOSION','explosion')]:insert(p,' public static void init()',f' public static final Supplier<SoundEvent> {key}=register("{id}");\n')
+p=res/'mahoutsukai.accesswidener';s=p.read_text();s+='\naccessible field net/minecraft/world/level/Level thunderLevel F\n' if ' thunderLevel ' not in s else '';write(p,s)
+for id in ['mystic_staff']:
+ for rel in [f'assets/mahoutsukai/items/{id}.json',f'assets/mahoutsukai/models/item/{id}.json']:
+  src=Path('recovered')/rel
+  if src.exists():shutil.copyfile(src,res/rel)
+config()

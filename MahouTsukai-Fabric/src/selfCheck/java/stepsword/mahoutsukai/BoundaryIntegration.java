@@ -1,0 +1,84 @@
+package stepsword.mahoutsukai;
+import java.util.*;
+import net.minecraft.core.*;
+import net.minecraft.server.level.*;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.*;
+import stepsword.mahoutsukai.block.ModBlocks;
+import stepsword.mahoutsukai.item.ModItems;
+import stepsword.mahoutsukai.tile.boundary.*;
+import stepsword.mahoutsukai.tile.exchange.ContractMahoujinTileEntity;
+import stepsword.mahoutsukai.fabric.MahouHolder;
+import stepsword.mahoutsukai.config.MTConfig;
+public final class BoundaryIntegration {
+ private static Runnable deferred;
+ public static void verifyDeferred() { if(deferred!=null) {deferred.run();deferred=null;} }
+ private static void require(boolean value,String message) { if(!value) throw new AssertionError(message); }
+ public static void run(ServerPlayer player) {
+  var world=player.level();var mahou=((MahouHolder)player).mahoutsukai$getMahou();
+  var players=((stepsword.mahoutsukai.checks.mixin.PlayerListAccessor)world.getServer().getPlayerList()).mahoutsukai$playersByUUID();players.put(player.getUUID(),player);
+  var pos=new BlockPos(560,250,580);player.setPos(560.5,250,580.5);mahou.setStoredMana(1000);mahou.setMaxMana(1000);
+  var contract=(ContractMahoujinTileEntity)ExchangeCircleIntegration.ritual(player,pos,"contract",false,"emerald","emerald","ender");
+  var friend=new ServerPlayer(world.getServer(),world,new com.mojang.authlib.GameProfile(UUID.randomUUID(),"ContractCheck"),ClientInformation.createDefault());
+  friend.connection=new net.minecraft.server.network.ServerGamePacketListenerImpl(world.getServer(),new net.minecraft.network.Connection(net.minecraft.network.protocol.PacketFlow.SERVERBOUND),friend,net.minecraft.server.network.CommonListenerCookie.createInitial(friend.getGameProfile(),false));
+  friend.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
+  var friendMahou=((MahouHolder)friend).mahoutsukai$getMahou();friendMahou.setStoredMana(100);friendMahou.setMaxMana(1000);
+  players.put(friend.getUUID(),friend);var friendPos=pos.offset(2,0,0);friend.setPos(Vec3.atCenterOf(friendPos));world.addNewPlayer(friend);
+  var friendCircle=(ContractMahoujinTileEntity)ExchangeCircleIntegration.ritual(friend,friendPos,"contract",false,"emerald","emerald","ender");
+  require(contract.getTargets().contains(friend),"Contract finds owner standing on adjacent contract circle");contract.ifEntityFoundAbove(player);
+  var save=stepsword.mahoutsukai.util.Utils.getWorldMahou(world);
+  require(save.doesContractExist(player.getUUID(),friend.getUUID()) && mahou.getStoredMana()==990 && friendMahou.getStoredMana()==90,"Original two-circle contract charges both players ten");
+  var roundtrip=stepsword.mahoutsukai.dataattachments.worldsave.MahouSavedData.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE,
+    stepsword.mahoutsukai.dataattachments.worldsave.MahouSavedData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE,save).getOrThrow()).getOrThrow();
+  require(roundtrip.doesContractExist(friend.getUUID(),player.getUUID()),"Original world contract codec round trips both directions");
+  require(ContractMahoujinTileEntity.isImmuneToSpell(world,player.getUUID(),friend),"Contract grants original friendly spell immunity");
+  player.setHealth(20);player.invulnerableTime=0;player.hurtServer(world,player.damageSources().playerAttack(friend),1);
+  require(!save.doesContractExist(player.getUUID(),friend.getUUID()),"Actual hostile player hit breaks contract");
+  world.setBlockAndUpdate(friendPos,Blocks.AIR.defaultBlockState());friend.discard();players.remove(friend.getUUID());
+  var cow=EntityType.COW.create(world,EntitySpawnReason.COMMAND);cow.setPos(561,250,580);world.addFreshEntity(cow);
+  var gravity=(GravityBoundaryMahoujinTileEntity)ExchangeCircleIntegration.ritual(player,pos,"gravity_barrier",false,"iron","iron","gold");
+  gravity.toggle(player);require(gravity.getSwitchOn(),"Owner toggles native gravity boundary");
+  cow.setDeltaMovement(1,-1,1);gravity.doBarrierNonLiving(List.of(cow,player));
+  require(Math.abs(cow.getDeltaMovement().x-0.4)<0.00001 && Math.abs(cow.getDeltaMovement().y+1.4)<0.00001,"Original gravity slows horizontal movement and increases falling speed");
+  world.setBlockAndUpdate(pos.above(),Blocks.REDSTONE_BLOCK.defaultBlockState());require(!gravity.shouldIPerformBarrier(),"Redstone inverts original boundary switch");world.setBlockAndUpdate(pos.above(),Blocks.AIR.defaultBlockState());
+  mahou.setStoredMana(100);for(int i=0;i<=MTConfig.GRAVITY_BARRIER_MANA_CYCLE*20;i++) gravity.tick(world,pos,gravity.getBlockState(),gravity);
+  require(mahou.getStoredMana()==99,"Running boundary charges original per-second mana cycle");
+  var scrollPos=pos.offset(0,0,4);world.setBlockAndUpdate(scrollPos.below(),Blocks.STONE.defaultBlockState());world.setBlockAndUpdate(scrollPos,Blocks.AIR.defaultBlockState());
+  var scroll=new ItemStack(ModItems.REGISTERED.get("scroll_boundary_gravity"));
+  ((stepsword.mahoutsukai.item.spells.boundary.BoundarySpellScroll)scroll.getItem()).boundaryScrollUse(player,world,scroll,scrollPos.below(),Direction.UP,true);
+  require(scroll.isEmpty() && world.getBlockState(scrollPos).is(ModBlocks.gravityBoundaryMahoujin.get()) && ((GravityBoundaryMahoujinTileEntity)world.getBlockEntity(scrollPos)).getSwitchOn(),"Original boundary scroll deploys enabled native boundary");
+  var alarm=(AlarmBoundaryMahoujinTileEntity)ExchangeCircleIntegration.ritual(player,pos,"alarm_barrier",false,"iron","iron","quartz");
+  alarm.entitiesInBarrier=new HashSet<>();alarm.doBarrier(List.of(cow));require(alarm.detected,"Alarm detects hostile living entity");alarm.doNotBarrier();require(!alarm.detected,"Disabled alarm clears detection");
+  var displacement=(DisplacementBoundaryMahoujinTileEntity)ExchangeCircleIntegration.ritual(player,pos,"displacement_barrier",false,"iron","iron","ender");
+  cow.setPos(561,250,580);cow.setYRot(0);cow.setYHeadRot(0);cow.setXRot(0);displacement.doBarrier(List.of(cow));
+  require(cow.getZ()>=pos.getZ()+MTConfig.DISPLACEMENT_BARRIER_RADIUS,"Original displacement moves hostile entity outside boundary");
+  var drain=(DrainLifeBoundaryMahoujinTileEntity)ExchangeCircleIntegration.ritual(player,pos,"drain_life_barrier",false,"iron","iron","emerald");
+  cow.setHealth(10);cow.invulnerableTime=0;player.setHealth(10);drain.drainLife(cow);drain.giveLife(player);
+  require(cow.getHealth()==8 && player.getHealth()==10.5f,"Original life boundary drains two damage and heals half a heart point");
+  player.setHealth(20);player.getFoodData().setFoodLevel(19);drain.giveLife(player);require(player.getFoodData().getFoodLevel()==20,"Drain Life restores hunger before mana");
+  mahou.setStoredMana(100);drain.giveLife(player);require(mahou.getStoredMana()==101,"Full health and food redirect life drain into mana");
+  int oldRadius=MTConfig.TANGIBLE_BARRIER_RADIUS;MTConfig.TANGIBLE_BARRIER_RADIUS=2;
+  var tangible=(TangibleBoundaryMahoujinTileEntity)ExchangeCircleIntegration.ritual(player,pos,"tangible_barrier",false,"iron","iron","diamond");
+  for(var block:BlockPos.betweenClosed(pos.offset(-2,-2,-2),pos.offset(2,2,2))) if(!block.equals(pos)) world.setBlockAndUpdate(block,Blocks.AIR.defaultBlockState());
+  tangible.doBarrier(List.of(cow));var surface=pos.offset(2,0,0);var surfaceState=world.getBlockState(surface);
+  require(surfaceState.is(ModBlocks.invisibleBarrierBlock.get()),"Tangible boundary creates original invisible surfaces");
+  require(surfaceState.getCollisionShape(world,surface,net.minecraft.world.phys.shapes.CollisionContext.of(player)).isEmpty(),"Caster can cross tangible surface");
+  require(!surfaceState.getCollisionShape(world,surface,net.minecraft.world.phys.shapes.CollisionContext.of(cow)).isEmpty(),"Hostile mob collides with tangible surface");
+  var barrier=(InvisibleBarrierBlockTileEntity)world.getBlockEntity(surface);barrier.setTimeOfCollision(world.getGameTime(),Direction.EAST);
+  require(barrier.getTimeSinceCollision(Direction.EAST)==0,"Collision feedback records native time for original renderer");
+  tangible.doNotBarrier();require(world.getBlockState(surface).isAir(),"Boundary removes its own surfaces on disable");MTConfig.TANGIBLE_BARRIER_RADIUS=oldRadius;
+  var raise=(RaiseEnclosureBarrierMahoujinTileEntity)ExchangeCircleIntegration.ritual(player,pos,"raise_enclosure",false,"iron","iron","iron");
+  var column=pos.offset(-MTConfig.ENCLOSURE_BARRIER_RADIUS,-MTConfig.ENCLOSURE_BARRIER_RADIUS+1,0);
+  for(int y=-10;y<12;y++) world.setBlockAndUpdate(column.above(y),Blocks.AIR.defaultBlockState());world.setBlockAndUpdate(column,Blocks.STONE.defaultBlockState());
+  mahou.setStoredMana(100);raise.mahoujinTick(world,pos,raise.getBlockState(),raise);
+  require(mahou.getStoredMana()==80 && world.getBlockState(column).isAir() && world.getBlockState(column.above()).is(Blocks.STONE),"Enclosure raises original outer column and charges twenty");
+  cow.setHealth(10);cow.invulnerableTime=0;player.setHealth(10);drain.doBarrier(List.of(cow));
+  require(player.getHealth()==10,"Original Drain Life restoration is deferred to server task queue");
+  deferred=()-> {require(player.getHealth()==10.5f,"Deferred native Drain Life task heals original caster");player.setHealth(20);};
+  cow.discard();world.setBlockAndUpdate(pos,Blocks.AIR.defaultBlockState());world.setBlockAndUpdate(scrollPos,Blocks.AIR.defaultBlockState());players.remove(player.getUUID());
+  System.out.println("PASS: BOUNDARY_INTEGRATION: contract recipe/payment/codec/immunity/break, gravity/redstone/cost, scroll deployment, alarm, displacement, life/hunger/mana, tangible collision/cleanup and enclosure");
+ }
+}

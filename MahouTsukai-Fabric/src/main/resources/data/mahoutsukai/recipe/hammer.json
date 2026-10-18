@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AB ",
+    "BC ",
+    "  C"
+  ],
+  "key": {
+    "A": "minecraft:string",
+    "B": "minecraft:cobblestone",
+    "C": "minecraft:stick"
+  },
+  "result": {
+    "id": "mahoutsukai:hammer"
+  }
+}
