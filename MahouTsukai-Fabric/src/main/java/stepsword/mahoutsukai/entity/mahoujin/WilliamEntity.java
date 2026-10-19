@@ -136,7 +136,9 @@ public class WilliamEntity extends MahoujinEntity {
    @Override
    public void tick() {
       super.tick();
-      this.py = this.yy;
+      // Previous roll (not the unused yy field) so the client interpolates a smooth spin instead of
+      // interpolating from zero every frame.
+      this.py = this.getRotationRoll();
       if (((Vector3fc)this.entityData.get(STARTING_POINT)).equals(new Vector3f())) {
          this.entityData.set(STARTING_POINT, this.position().toVector3f());
       }
@@ -180,6 +182,13 @@ public class WilliamEntity extends MahoujinEntity {
    }
 
    public void move(MoverType type, Vec3 v) {
+      // Bound both the sweep and the physical box before invoking vanilla's block iterator.
+      // Old saves/external impulses must not turn a hovering book into a multi-chunk sweep.
+      if (!Double.isFinite(v.x) || !Double.isFinite(v.y) || !Double.isFinite(v.z)) v=Vec3.ZERO;
+      if (v.lengthSqr() > 0.25) v=v.normalize().scale(0.5);
+      this.setDeltaMovement(v);
+      this.setBoundingBox(new AABB(this.getX()-.5,this.getY(),this.getZ()-.5,this.getX()+.5,this.getY()+1,this.getZ()+.5));
+      if (!this.level().hasChunkAt(BlockPos.containing(this.position().add(v)))) return;
       v = this.collide(v);
       Vec3 go = this.position().add(v);
       this.setPos(go);

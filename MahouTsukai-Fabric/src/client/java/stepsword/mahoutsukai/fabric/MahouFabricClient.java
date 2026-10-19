@@ -6,12 +6,17 @@ import stepsword.mahoutsukai.networking.PlayerMahouPacket;
 import org.slf4j.LoggerFactory;
 
 public final class MahouFabricClient implements ClientModInitializer {
+    /** Once per session: explain a hidden mana HUD instead of letting it look lost. */
+    static boolean hudHiddenHintShown = false;
+    /** Once per join: log the mana HUD preconditions, so a missing HUD can be diagnosed from the log. */
+    static boolean hudDiagnosticsLogged = false;
+
     @Override
     public void onInitializeClient() {
         try {stepsword.mahoutsukai.config.MTConfig.loadClient(net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("mahoutsukai-fabric-client.json"));}
         catch(java.io.IOException | RuntimeException e){throw new IllegalStateException("Cannot load Mahou client settings",e);}
         ClientPlayNetworking.registerGlobalReceiver(ServerSettingsPacket.TYPE,(packet,context)->packet.apply());
-        net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler,client)->stepsword.mahoutsukai.config.MTConfig.resetServerSettings());
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler,client)->{stepsword.mahoutsukai.config.MTConfig.resetServerSettings();hudHiddenHintShown=false;hudDiagnosticsLogged=false;});
         SixFamilyClient.init();
         SpellVisuals.init();
         ProjectorClient.init();
@@ -53,6 +58,7 @@ public final class MahouFabricClient implements ClientModInitializer {
         net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(stepsword.mahoutsukai.tile.ModTileEntities.damageReplication.get(),stepsword.mahoutsukai.render.tile.MahoujinRenderer::new);
         net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(stepsword.mahoutsukai.tile.ModTileEntities.strengthening.get(),stepsword.mahoutsukai.render.tile.MahoujinRenderer::new);
         net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(stepsword.mahoutsukai.render.entity.kodoku.ModelKodoku.KODOKU_LAYER,stepsword.mahoutsukai.render.entity.kodoku.ModelKodoku::createBodyLayer);
+        net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(stepsword.mahoutsukai.render.entity.archmage.ArchmageModel.LAYER,stepsword.mahoutsukai.render.entity.archmage.ArchmageModel::createBodyLayer);
         net.minecraft.client.renderer.entity.EntityRenderers.register(stepsword.mahoutsukai.entity.ModEntities.KODOKU.get(),stepsword.mahoutsukai.render.entity.kodoku.RenderKodoku::new);
         net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(stepsword.mahoutsukai.tile.ModTileEntities.deathCollectionEyes.get(),stepsword.mahoutsukai.render.tile.MahoujinRenderer::new);
         net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(stepsword.mahoutsukai.tile.ModTileEntities.projectileDisplacement.get(),stepsword.mahoutsukai.render.tile.MahoujinRenderer::new);
@@ -118,6 +124,20 @@ public final class MahouFabricClient implements ClientModInitializer {
             ((MahouHolder) context.player()).mahoutsukai$getMahou().copyMahou(packet.state());
             LoggerFactory.getLogger("mahoutsukai").info("Received original player mahou state: {}/{}",
                 packet.state().getStoredMana(), packet.state().getMaxMana());
+            // The mana HUD can be hidden with /showmahou; explain it once instead of leaving a "lost" HUD.
+            if (packet.state().hasMagic() && !packet.state().getVisible() && !stepsword.mahoutsukai.fabric.MahouFabricClient.hudHiddenHintShown) {
+                stepsword.mahoutsukai.fabric.MahouFabricClient.hudHiddenHintShown = true;
+                context.player().sendSystemMessage(net.minecraft.network.chat.Component.translatable("mahoutsukai.hud.hidden_hint"));
+            }
+            if (!stepsword.mahoutsukai.fabric.MahouFabricClient.hudDiagnosticsLogged) {
+                stepsword.mahoutsukai.fabric.MahouFabricClient.hudDiagnosticsLogged = true;
+                var window = context.client().getWindow();
+                LoggerFactory.getLogger("mahoutsukai").info(
+                    "Mana HUD preconditions: hasMagic={} visible={} stored={} max={} placement={},{} screen={}x{}",
+                    packet.state().hasMagic(), packet.state().getVisible(), packet.state().getStoredMana(), packet.state().getMaxMana(),
+                    stepsword.mahoutsukai.config.MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_X, stepsword.mahoutsukai.config.MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_Y,
+                    window.getGuiScaledWidth(), window.getGuiScaledHeight());
+            }
         });
     }
 }

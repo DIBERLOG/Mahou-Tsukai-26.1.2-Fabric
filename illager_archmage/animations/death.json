@@ -1,0 +1,137 @@
+{
+  "name": "death",
+  "length": 1,
+  "loop": false,
+  "tracks": [
+    {
+      "bone": "root_motion",
+      "channel": "rotation",
+      "times": [
+        0,
+        0.35,
+        1
+      ],
+      "values": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          20,
+          0,
+          0
+        ],
+        [
+          80,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "bone": "root_motion",
+      "channel": "position",
+      "times": [
+        0,
+        0.35,
+        1
+      ],
+      "values": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          -2,
+          0
+        ]
+      ]
+    },
+    {
+      "bone": "head",
+      "channel": "rotation",
+      "times": [
+        0,
+        0.5,
+        1
+      ],
+      "values": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          20,
+          0,
+          0
+        ],
+        [
+          30,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "bone": "right_arm",
+      "channel": "rotation",
+      "times": [
+        0,
+        0.5,
+        1
+      ],
+      "values": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          20,
+          0,
+          25
+        ],
+        [
+          45,
+          0,
+          50
+        ]
+      ]
+    },
+    {
+      "bone": "cloak",
+      "channel": "rotation",
+      "times": [
+        0,
+        0.5,
+        1
+      ],
+      "values": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          30,
+          0,
+          0
+        ],
+        [
+          65,
+          0,
+          0
+        ]
+      ]
+    }
+  ]
+}

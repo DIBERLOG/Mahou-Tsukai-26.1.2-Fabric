@@ -35,9 +35,23 @@ public final class PresentationResearchChecks {
    require(BuiltInRegistries.SOUND_EVENT.getKey(stepsword.mahoutsukai.sounds.ModSounds.cast(key,stage.equals("release"))).getNamespace().equals("mahoutsukai"),"Custom audio registered");
    try(var stream=PresentationResearchChecks.class.getResourceAsStream("/assets/mahoutsukai/sounds/cast/"+key+"_"+stage+".ogg")){require(stream!=null&&new String(stream.readNBytes(4),java.nio.charset.StandardCharsets.US_ASCII).equals("OggS"),"Packaged Vorbis asset: "+key+stage);}
   }
-  for(String name:List.of("tripod_film"))try(var stream=PresentationResearchChecks.class.getResourceAsStream("/assets/mahoutsukai/sounds/doom/"+name+".ogg")){require(stream!=null&&new String(stream.readNBytes(4),java.nio.charset.StandardCharsets.US_ASCII).equals("OggS"),"Packaged film recording: "+name);}
+  var doomAudio=new java.util.HashSet<String>();
+  for(String name:List.of("tripod_film","rumble","impact"))try(var stream=PresentationResearchChecks.class.getResourceAsStream("/assets/mahoutsukai/sounds/doom/"+name+".ogg")){
+   require(stream!=null,"Packaged DOOM audio: "+name);byte[] data=stream.readAllBytes();
+   require(data.length>1000&&new String(data,0,4,java.nio.charset.StandardCharsets.US_ASCII).equals("OggS"),"Ogg Vorbis DOOM audio: "+name);
+   require(doomAudio.add(java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(data))),"DOOM layers must not reuse audio bytes: "+name);
+  }
+  require(doomAudio.size()==3,"Three distinct DOOM audio layers");
   try(var reader=new java.io.InputStreamReader(PresentationResearchChecks.class.getResourceAsStream("/assets/mahoutsukai/sounds.json"),java.nio.charset.StandardCharsets.UTF_8)){
-   var sounds=com.google.gson.JsonParser.parseReader(reader).getAsJsonObject();for(String event:List.of("doom.arrival_horn","doom.impact_horn"))require(sounds.getAsJsonObject(event).getAsJsonArray("sounds").get(0).getAsJsonObject().get("name").getAsString().equals("mahoutsukai:doom/tripod_film"),"Both DOOM stages use the film recording");
+   var sounds=com.google.gson.JsonParser.parseReader(reader).getAsJsonObject();for(String event:List.of("doom.arrival_horn","doom.impact_horn"))require(sounds.getAsJsonObject(event).getAsJsonArray("sounds").get(0).getAsJsonObject().get("name").getAsString().equals("mahoutsukai:doom/tripod_film"),"Both DOOM horn stages keep the user's film recording");
+   for(String event:List.of("doom.rumble","doom.impact"))require(sounds.getAsJsonObject(event).getAsJsonArray("sounds").get(0).getAsJsonObject().get("name").getAsString().equals("mahoutsukai:doom/"+event.substring(5)),"Original DOOM layer resolves its own audio: "+event);
+   require(sounds.getAsJsonObject("mystic.explosion_big").getAsJsonArray("sounds").get(0).getAsJsonObject().get("name").getAsString().equals("mahoutsukai:mystic/big_explosion"),"Original staff blast layer resolves its own audio");
+   try(var blast=PresentationResearchChecks.class.getResourceAsStream("/assets/mahoutsukai/sounds/mystic/big_explosion.ogg")){
+    require(blast!=null,"Packaged staff blast audio");
+    byte[] data=blast.readAllBytes();
+    require(data.length>1000&&new String(data,0,4,java.nio.charset.StandardCharsets.US_ASCII).equals("OggS"),"Ogg Vorbis staff blast audio");
+    require(doomAudio.add(java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(data))),"Staff blast must not reuse existing audio bytes");
+   }
    for(String event:individualEvents){require(sounds.has(event),"Individual spell event in sounds.json: "+event);String[] parts=event.split("\\.");require(sounds.getAsJsonObject(event).getAsJsonArray("sounds").get(0).getAsJsonObject().get("name").getAsString().equals("mahoutsukai:spells/"+parts[1]+"_"+parts[2]),"Individual event resolves its own audio: "+event);}
   }
   var packet=new SpellVisualPacket(new net.minecraft.world.phys.Vec3(1,2,3),SpellPresentation.of(ModItems.REGISTERED.get("scroll_summon_familiar")));
@@ -49,6 +63,11 @@ public final class PresentationResearchChecks {
   for(String language:List.of("ru_ru","en_us"))try(var reader=new java.io.InputStreamReader(PresentationResearchChecks.class.getResourceAsStream("/assets/mahoutsukai/lang/"+language+".json"),java.nio.charset.StandardCharsets.UTF_8)){
    var text=com.google.gson.JsonParser.parseReader(reader).getAsJsonObject();for(String key:List.of("mahoutsukai.handbook.changes.body","mahoutsukai.handbook.doom.body","mahoutsukai.research.doom.body","mahoutsukai.catalog.secret")){String body=text.get(key).getAsString().toLowerCase(Locale.ROOT);require(java.util.List.of("powder","sculk","ender","\u043f\u043e\u0440\u043e\u0448","\u0441\u043a\u0430\u043b\u043a","\u044d\u043d\u0434\u0435\u0440").stream().noneMatch(body::contains),"DOOM help contains no ingredient hints: "+language+key);}
    for(String key:List.of("mahoutsukai.research.sculk.title","mahoutsukai.research.sculk.body"))require(!text.get(key).getAsString().toLowerCase(Locale.ROOT).contains("doom"),"Sculk help does not reveal its relation to DOOM");
+   for(String key:List.of("mahoutsukai.mystic_code.tooltip","mahoutsukai.mystic_code.slot_restriction","mahoutsukai.hud.hidden_hint","mahoutsukai.command.showmahou.on","mahoutsukai.command.showmahou.off","mahoutsukai.mental.countdown","mahoutsukai.subtitle.doom.rumble","mahoutsukai.subtitle.doom.impact","mahoutsukai.subtitle.mystic.explosion_big","entity.mahoutsukai.reality_marble_boss","mahoutsukai.marble.boss_reward","mahoutsukai.catalog.usage_murky_bucket","mahoutsukai.catalog.usage_theripper")){
+    require(text.has(key),"0.32 translation present: "+language+" "+key);
+    String value=text.get(key).getAsString();
+    require(!value.isBlank()&&!value.equals(key),"0.32 translation is filled in: "+language+" "+key);
+   }
   }
   for(var node:nodes){require(node.parents().stream().allMatch(keys::contains),"Research parent exists");for(String goal:node.goals())require(BuiltInRegistries.ITEM.containsKey(net.minecraft.resources.Identifier.parse(goal)),"Research item exists: "+goal);}
   require(nodes.stream().filter(n->n.key().startsWith("learn_")).count()==entries.stream().filter(e->e.kind().equals("ritual")).count(),"All ritual families represented");
@@ -73,6 +92,15 @@ public final class PresentationResearchChecks {
      require(!row.toString().contains("powdered_")&&!row.toString().contains("craft/scroll_doom"),"Network catalogue does not disclose secret ingredients: "+mode);
      if(!row.get("kind").getAsString().equals("research")){secretRows++;require(row.get("kind").getAsString().equals("secret")&&row.getAsJsonArray("ingredients").isEmpty()&&row.getAsJsonArray("pattern").isEmpty(),"DOOM remains mysterious even in creative catalogue");}
     }}require(secretRows==1,"DOOM remains visible as one secret spell: "+mode);
+     com.google.gson.JsonObject guideRow=null;
+     for(var value:rows){var row=value.getAsJsonObject();if(row.get("item").getAsString().equals("mahoutsukai:guidebook")&&row.get("kind").getAsString().equals("craft"))guideRow=row;}
+     require(guideRow!=null,"Compendium craft entry is present in the catalogue: "+mode);
+     require(guideRow.get("unlocked").getAsBoolean(),"Compendium recipe has no research or possession barrier: "+mode);
+     var guideCounts=new java.util.HashMap<String,Integer>();
+     guideRow.getAsJsonArray("ingredients").forEach(v->guideCounts.merge(v.getAsString(),1,Integer::sum));
+     require(guideCounts.getOrDefault("minecraft:red_dye",0)==5&&guideCounts.getOrDefault("minecraft:paper",0)==3&&guideCounts.getOrDefault("minecraft:leather",0)==1,"Compendium recipe uses 5 red dye, 3 paper and 1 leather: "+mode);
+     var guidePattern=guideRow.getAsJsonArray("pattern");
+     require(guidePattern.size()==3&&guidePattern.get(0).getAsString().equals("DCC")&&guidePattern.get(1).getAsString().equals("DBC")&&guidePattern.get(2).getAsString().equals("DDD"),"Compendium pattern is the real DCC/DBC/DDD grid: "+mode);
    }
   }finally{var helper=stepsword.mahoutsukai.effects.familiar.SummonFamiliarSpellEffect.familiarMap.remove(player.getUUID());if(helper!=null)helper.discard();world.removePlayerImmediately(player,net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);}
   System.out.println("PASS: PRESENTATION_RESEARCH: "+scrolls+" scroll signatures, "+individualEvents.size()+" individual + 20 shared/DOOM audio events / "+(individualAssets.size()+19)+" assets, event codec, "+nodes.size()+" valid nodes, real familiar and persistent prerequisite progression");

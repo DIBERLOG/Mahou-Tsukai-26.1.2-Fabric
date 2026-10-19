@@ -302,14 +302,31 @@ public class TreasuryProjectionGauntlet extends ItemBase {
          weapon.xRot = groundDegrees;
          weapon.yRot = circleDegrees - 90;
          weapon.setOwner(player);
+         weapon.setTargetEntity(nearestTarget(world, pos, player));
          Vec3 aim = weapon.position().subtract(pos);
-         weapon.shoot(-aim.x, -aim.y, -aim.z, 3.0F, 4.0F);
+         // No spread: the projected weapon flies where it is aimed.
+         weapon.shoot(-aim.x, -aim.y, -aim.z, 2.2F, 0.0F);
       } while (!world.isEmptyBlock(Utils.toBlockPos(weapon.position())) && tries < 20);
 
       world.addFreshEntity(weapon);
       if (player instanceof ServerPlayer) {
          ((MahouTrigger)ModTriggers.TREASURY_PROJECTION).trigger((ServerPlayer)player);
       }
+   }
+
+   /** The living entity nearest to the aimed point, used for gentle homing of a projected weapon. */
+   private static net.minecraft.world.entity.LivingEntity nearestTarget(Level world, Vec3 pos, LivingEntity caster) {
+      net.minecraft.world.entity.LivingEntity best = null;
+      double bestDistance = 9.0;
+      for (var candidate : world.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class,
+            new net.minecraft.world.phys.AABB(pos, pos).inflate(3.0), e -> e != caster && e.isAlive())) {
+         double distance = candidate.position().distanceToSqr(pos);
+         if (distance < bestDistance) {
+            bestDistance = distance;
+            best = candidate;
+         }
+      }
+      return best;
    }
 
    public static void behindShoot(ItemStack stack, Level world, LivingEntity player, RandomSource random, float speed) {
@@ -347,7 +364,7 @@ public class TreasuryProjectionGauntlet extends ItemBase {
          Vec3 pos = weapon.position().add(player.getLookAngle());
          weapon.setOwner(player);
          Vec3 aim = weapon.position().subtract(pos);
-         weapon.shoot(-aim.x, -aim.y, -aim.z, 3.0F, 4.0F);
+         weapon.shoot(-aim.x, -aim.y, -aim.z, 2.2F, 0.0F);
       } while (!world.isEmptyBlock(Utils.toBlockPos(weapon.position())) && tries < 20);
 
       world.addFreshEntity(weapon);
@@ -417,15 +434,7 @@ public class TreasuryProjectionGauntlet extends ItemBase {
                      Vec3 aim = chain.position().subtract(pos);
                      chain.shoot(-aim.x, -aim.y, -aim.z);
                      chain.setCircleSize(1.0F);
-                     player.level()
-                        .playSound(
-                           null,
-                           Utils.toBlockPos(chain.position()),
-                           (SoundEvent)ModSounds.CHAINS.get(),
-                           SoundSource.NEUTRAL,
-                           (float)MTConfig.CHAIN_VOLUME,
-                           1.2F
-                        );
+                     chainSound(player, chain.position());
                      player.level().addFreshEntity(chain);
                   }
                }
@@ -449,10 +458,20 @@ public class TreasuryProjectionGauntlet extends ItemBase {
             Vec3 aim = chain.position().subtract(pos);
             chain.shoot(-aim.x, -aim.y, -aim.z);
             chain.setCircleSize(1.0F);
-            player.level()
-               .playSound(null, Utils.toBlockPos(chain.position()), (SoundEvent)ModSounds.CHAINS.get(), SoundSource.NEUTRAL, (float)MTConfig.CHAIN_VOLUME, 1.2F);
+            chainSound(player, chain.position());
             player.level().addFreshEntity(chain);
          }
       }
+   }
+
+   /** One chain sound per short interval: mass summoning no longer stacks dozens of identical sounds. */
+   private static final java.util.Map<java.util.UUID,Long> LAST_CHAIN_SOUND=new java.util.concurrent.ConcurrentHashMap<>();
+   private static void chainSound(Player player, Vec3 pos){
+      if(player.level().isClientSide())return;
+      long now=player.level().getGameTime();
+      long last=LAST_CHAIN_SOUND.getOrDefault(player.getUUID(),Long.MIN_VALUE);
+      if(last!=Long.MIN_VALUE&&now-last<4L)return;
+      LAST_CHAIN_SOUND.put(player.getUUID(),now);
+      player.level().playSound(null,Utils.toBlockPos(pos),(SoundEvent)ModSounds.CHAINS.get(),SoundSource.NEUTRAL,(float)(MTConfig.CHAIN_VOLUME*0.45),1.15F);
    }
 }

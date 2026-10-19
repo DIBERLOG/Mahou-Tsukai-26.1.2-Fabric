@@ -21,12 +21,14 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import stepsword.mahoutsukai.config.MTConfig;
 import stepsword.mahoutsukai.dataattachments.mahou.IMahou;
 import stepsword.mahoutsukai.dataattachments.worldsave.MahouSavedData;
 import stepsword.mahoutsukai.entity.WeaponProjectileEntity;
+import stepsword.mahoutsukai.entity.RealityMarbleBossEntity;
 import stepsword.mahoutsukai.mana.PlayerManaManager;
 import stepsword.mahoutsukai.util.EffectUtil;
 import stepsword.mahoutsukai.util.MahouTsukaiTeleporter;
@@ -94,34 +96,49 @@ public class RealityMarbleSpellEffect {
    }
 
    public static boolean goToMarble(Player user) {
+      if (!(user instanceof ServerPlayer serverUser)) return false;
       IMahou casterMahou = Utils.getPlayerMahou(user);
       if (casterMahou != null) {
+         var marbleKey = net.minecraft.resources.ResourceKey.create(Registries.DIMENSION, marble);
+         var marbleLevel = serverUser.level().getServer().getLevel(marbleKey);
+         if (marbleLevel == null) return false;
+         LivingEntity e = getEnemy(user);
+         // A selected opponent keeps the original duel. A solo cast joins this server's live
+         // Archmage encounter, including the first caster's not-yet-executed dimension transfer.
+         SharedEncounter shared = e == null ? activeEncounter(serverUser, marbleLevel) : null;
+         boolean existingReturn = casterMahou.getPlayerSavedSpawn() != null
+            && RealityMarbleBossEntity.liveFor(marbleLevel, casterMahou.getEnemy()) != null;
+         BlockPos hint = shared == null ? casterMahou.getPlayerMarbleSpawn() : shared.spawn();
+         if (shared == null && !inMarble(user.level())) {
+            BlockPos allocated = Utils.getWorldMahou(user.level()).getPlayerSpawn(user.getUUID());
+            if (allocated != null) hint = allocated;
+         }
+         if (hint == null) hint = getRealityMarbleSpawn(user.level(), user.getUUID());
+         if (hint == null) return false;
+         Vec3 arrival = safeMarbleSpawn(marbleLevel, hint, user.getBbWidth(), Math.max(3, user.getBbHeight()));
+         if (arrival == null) return false;
+         Vec3 enemyArrival = e == null ? null : safeMarbleSpawn(marbleLevel, hint.offset(20, 0, 0), e.getBbWidth(), Math.max(3, e.getBbHeight()));
+         if (e != null && enemyArrival == null) return false;
+         BlockPos pos = BlockPos.containing(arrival);
+         BlockPos bossCenter = shared == null ? pos.offset(12, 0, 12)
+            : shared.boss().arena() == null ? shared.boss().blockPosition() : shared.boss().arena();
+         LivingEntity boss = RealityMarbleBossEntity.spawnFor(marbleLevel, bossCenter);
+         if (e == null && boss == null) return false;
          Identifier userdimension = EffectUtil.getDimension(user.level());
          boolean inmarble = inMarble(user.level());
-         if (userdimension != null && !inmarble) {
-            casterMahou.setPlayerOldDimension(userdimension.toString());
-         } else {
-            casterMahou.setPlayerOldDimension(Level.OVERWORLD.identifier().toString());
-         }
-
-         if (userdimension != null && !inmarble) {
+         if (!inmarble && !existingReturn) {
+            casterMahou.setPlayerOldDimension(userdimension != null ? userdimension.toString() : Level.OVERWORLD.identifier().toString());
             casterMahou.setPlayerSavedSpawn(user.blockPosition());
          }
 
-         if (casterMahou.getPlayerMarbleSpawn() == null) {
-            casterMahou.setPlayerMarbleSpawn(getRealityMarbleSpawn(user.level(), user.getUUID()));
-         }
-
-         BlockPos pos = casterMahou.getPlayerMarbleSpawn();
-         if (pos == null) {
-            return false;
-         }
-
-         LivingEntity e = getEnemy(user);
-         PlayerManaManager.updateClientMahou((ServerPlayer)user, casterMahou);
-         MahouTsukaiTeleporter.teleport(user, marble, new Vec3(pos.getX(), 120.0, pos.getZ()));
+         // This is the current encounter position; the player's allocated saved-world spawn
+         // remains untouched and is available again after this shared fight.
+         casterMahou.setPlayerMarbleSpawn(pos);
+         user.setDeltaMovement(Vec3.ZERO);
+         user.fallDistance = 0;
+         MahouTsukaiTeleporter.teleport(user, marble, arrival);
          if (e != null) {
-            if (e instanceof ServerPlayer && !inmarble) {
+            if (e instanceof ServerPlayer && !inMarble(e.level())) {
                IMahou enemyMahou = Utils.getPlayerMahou((Player)e);
                if (enemyMahou != null) {
                   enemyMahou.setPlayerOldDimension(EffectUtil.getDimension(e.level()).toString());
@@ -132,11 +149,77 @@ public class RealityMarbleSpellEffect {
             }
 
             casterMahou.setEnemy(e.getUUID());
-            MahouTsukaiTeleporter.teleport(e, marble, new Vec3(pos.getX() + 20, 120.0, pos.getZ()));
+            e.setDeltaMovement(Vec3.ZERO);
+            e.fallDistance = 0;
+            MahouTsukaiTeleporter.teleport(e, marble, enemyArrival);
+         } else {
+            // Solo visits are a boss encounter: ordinary damage must not end the arena early.
+            casterMahou.setEnemy(boss == null ? null : boss.getUUID());
          }
+         PlayerManaManager.updateClientMahou((ServerPlayer)user, casterMahou);
       }
 
-      return true;
+      return casterMahou != null;
+   }
+
+   private record SharedEncounter(BlockPos spawn, RealityMarbleBossEntity boss) {}
+
+   @Nullable
+   private static SharedEncounter activeEncounter(ServerPlayer user, ServerLevel marbleLevel) {
+      var candidates = new ArrayList<ServerPlayer>();
+      candidates.add(user); // Recasting in the current arena must not switch to somebody else's.
+      candidates.addAll(user.level().getServer().getPlayerList().getPlayers());
+      for (var participant : candidates) {
+         if (!participant.isAlive() || participant.isRemoved()) continue;
+         IMahou mahou = Utils.getPlayerMahou(participant);
+         if (mahou == null || mahou.getPlayerMarbleSpawn() == null) continue;
+         var boss = RealityMarbleBossEntity.liveFor(marbleLevel, mahou.getEnemy());
+         if (boss == null || boss.arena() == null) continue;
+         if (mahou.getPlayerMarbleSpawn().distSqr(boss.arena()) > (long)RealityMarbleBossEntity.ARENA_RADIUS * RealityMarbleBossEntity.ARENA_RADIUS) continue;
+         if (inMarble(participant.level()) && !boss.inArena(participant)) continue;
+         return new SharedEncounter(mahou.getPlayerMarbleSpawn(), boss);
+      }
+      return null;
+   }
+
+   /** Finds supported, dry feet coordinates on actual terrain; stored arena Y is only an old hint. */
+   @Nullable
+   public static Vec3 safeMarbleSpawn(ServerLevel level, BlockPos hint, double width, double height) {
+      if (!Double.isFinite(width) || !Double.isFinite(height) || width <= 0 || height <= 0 || width > 32 || height > 32) return null;
+      for (int radius = 0; radius <= 8; radius++) {
+         for (int dx = -radius; dx <= radius; dx++) for (int dz = -radius; dz <= radius; dz++) {
+            if (Math.max(Math.abs(dx), Math.abs(dz)) != radius) continue;
+            double x = hint.getX() + dx + .5, z = hint.getZ() + dz + .5, half = width / 2;
+            if (!level.getWorldBorder().isWithinBounds(new AABB(x-half, level.getMinY()+1, z-half, x+half, level.getMinY()+1+height, z+half))) continue;
+            // Only the few targeted chunks are generated; never retain the obsolete fixed Y=120.
+            level.getChunk((hint.getX()+dx) >> 4, (hint.getZ()+dz) >> 4);
+            int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, hint.getX()+dx, hint.getZ()+dz);
+            if (top <= level.getMinY() || top + height > level.getMaxY()) continue;
+            BlockPos floor = new BlockPos(hint.getX()+dx, top-1, hint.getZ()+dz);
+            var shape = level.getBlockState(floor).getCollisionShape(level, floor);
+            if (shape.isEmpty() || !level.getFluidState(floor).isEmpty()) continue;
+            double y = floor.getY() + shape.max(net.minecraft.core.Direction.Axis.Y);
+            var body = new AABB(x-half, y+.001, z-half, x+half, y+height, z+half);
+            if (!level.noCollision(null, body) || level.containsAnyLiquid(body)) continue;
+            if (!supportedAt(level, x, y, z)
+               || !supportedAt(level, x-half+.01, y, z-half+.01)
+               || !supportedAt(level, x+half-.01, y, z-half+.01)
+               || !supportedAt(level, x-half+.01, y, z+half-.01)
+               || !supportedAt(level, x+half-.01, y, z+half-.01)) continue;
+            return new Vec3(x, y, z);
+         }
+      }
+      return null;
+   }
+
+   private static boolean supportedAt(ServerLevel level, double x, double y, double z) {
+      BlockPos below = BlockPos.containing(x, y-.01, z);
+      if (!level.getFluidState(below).isEmpty()) return false;
+      for (var box : level.getBlockState(below).getCollisionShape(level, below).toAabbs()) {
+         if (x >= below.getX()+box.minX && x <= below.getX()+box.maxX && z >= below.getZ()+box.minZ && z <= below.getZ()+box.maxZ
+            && Math.abs(below.getY()+box.maxY-y) < .01) return true;
+      }
+      return false;
    }
 
    public static void spawnSwords(BlockPos userSpawn, Level world, ChunkAccess chunk, int size_count, int distance) {

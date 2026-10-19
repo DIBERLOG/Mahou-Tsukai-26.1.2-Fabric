@@ -11,6 +11,9 @@ import stepsword.mahoutsukai.block.spells.MahoujinRecipeRegistrar;
 public final class GuideCatalog {
  public record Entry(String id,String item,String kind,List<String> ingredients,boolean cloth,List<String> pattern,int output){}
  private static final net.minecraft.resources.ResourceKey<net.minecraft.world.item.crafting.Recipe<?>> DOOM_RECIPE=net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.RECIPE,Identifier.fromNamespaceAndPath("mahoutsukai","scroll_doom"));
+ /** Decorative service blocks: kept registered for existing builds and admins, never a survival entry. */
+ private static final java.util.Set<String> SERVICE_ITEMS=java.util.Set.of("mahoutsukai:fog_projector","mahoutsukai:mahoujin_projector");
+ public static boolean service(String item){return SERVICE_ITEMS.contains(item);}
  private static List<Entry> entries=List.of();
  public static final AttachmentType<List<String>> KNOWLEDGE=AttachmentRegistry.create(Identifier.fromNamespaceAndPath("mahoutsukai","guide_discoveries"),b->b.initializer(()->List.of()).persistent(com.mojang.serialization.Codec.STRING.listOf()).copyOnDeath());
  public static void init(){
@@ -61,8 +64,8 @@ public final class GuideCatalog {
  }
  public static String payload(ServerPlayer player){
   discover(player);var known=player.getAttachedOrCreate(KNOWLEDGE);var rows=new JsonArray();
-  for(var entry:entries){var row=new Gson().toJsonTree(entry).getAsJsonObject();row.addProperty("unlocked",!entry.item().startsWith("mahoutsukai:scroll_")||entry.ingredients().isEmpty()||known.contains(entry.id())||player.isCreative());rows.add(row);}
-  ResearchProgress.append(rows,entries,new HashSet<>(known));
+  for(var entry:entries){if(service(entry.item())&&!player.isCreative())continue;var row=new Gson().toJsonTree(entry).getAsJsonObject();boolean unlocked=!entry.item().startsWith("mahoutsukai:scroll_")||entry.ingredients().isEmpty()||known.contains(entry.id())||player.isCreative();row.addProperty("unlocked",unlocked);if(!unlocked){row.add("ingredients",new JsonArray());row.add("pattern",new JsonArray());}rows.add(row);}
+  ResearchProgress.append(rows,entries,new HashSet<>(known),player.isCreative());
   return rows.toString();
  }
  public static void send(ServerPlayer player){stepsword.mahoutsukai.networking.PacketHandler.sendTo(player,new stepsword.mahoutsukai.networking.GuideCatalogPacket(payload(player)));}

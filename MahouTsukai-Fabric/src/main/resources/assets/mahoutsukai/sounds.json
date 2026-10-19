@@ -47,6 +47,16 @@
       "mahoutsukai:explode"
     ]
   },
+  "mystic.explosion_big": {
+    "subtitle": "mahoutsukai.subtitle.mystic.explosion_big",
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "mahoutsukai:mystic/big_explosion",
+        "attenuation_distance": 32
+      }
+    ]
+  },
   "nobu.taikobig": {
     "category": "neutral",
     "sounds": [
@@ -260,6 +270,24 @@
       {
         "name": "mahoutsukai:doom/tripod_film",
         "attenuation_distance": 32
+      }
+    ]
+  },
+  "doom.rumble": {
+    "subtitle": "mahoutsukai.subtitle.doom.rumble",
+    "sounds": [
+      {
+        "name": "mahoutsukai:doom/rumble",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "doom.impact": {
+    "subtitle": "mahoutsukai.subtitle.doom.impact",
+    "sounds": [
+      {
+        "name": "mahoutsukai:doom/impact",
+        "attenuation_distance": 48
       }
     ]
   },
@@ -1088,6 +1116,50 @@
       {
         "name": "mahoutsukai:spells/fireball_release",
         "attenuation_distance": 24
+      }
+    ]
+  },
+  "archmage.charge": {
+    "subtitle": "mahoutsukai.subtitle.archmage.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:archmage/charge",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "archmage.release": {
+    "subtitle": "mahoutsukai.subtitle.archmage.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:archmage/release",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "archmage.shockwave": {
+    "subtitle": "mahoutsukai.subtitle.archmage.shockwave",
+    "sounds": [
+      {
+        "name": "mahoutsukai:archmage/shockwave",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "archmage.arrival": {
+    "subtitle": "mahoutsukai.subtitle.archmage.arrival",
+    "sounds": [
+      {
+        "name": "mahoutsukai:archmage/arrival",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "archmage.defeat_laugh": {
+    "subtitle": "mahoutsukai.subtitle.archmage.defeat_laugh",
+    "sounds": [
+      {
+        "name": "mahoutsukai:archmage/defeat_laugh"
       }
     ]
   }

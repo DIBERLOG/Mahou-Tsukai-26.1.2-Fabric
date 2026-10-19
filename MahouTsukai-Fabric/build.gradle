@@ -61,11 +61,25 @@ loom {
         mahoutsukai_selfcheck { sourceSet sourceSets.selfCheck }
     }
     runs {
+        battlePreview {
+            server()
+            source sourceSets.selfCheck
+            runDir 'run/progression-preview'
+            vmArgs '-Dmahoutsukai.battlePreview=true'
+            programArgs 'nogui'
+        }
         progressionChecks {
             server()
             source sourceSets.selfCheck
             runDir 'run/progression-checks'
             vmArgs '-Dmahoutsukai.progressionOnly=true'
+            programArgs 'nogui'
+        }
+        auditFixChecks {
+            server()
+            source sourceSets.selfCheck
+            runDir 'run/economy-checks'
+            vmArgs '-Dmahoutsukai.audit032=true'
             programArgs 'nogui'
         }
         economyChecks {
@@ -133,4 +147,11 @@ tasks.named('runProgressionChecks') {
     def marker = file('../analysis/phase026-progression-server.passed')
     doFirst { marker.delete() }
     doLast { if (!marker.isFile()) throw new GradleException('Progression server checks did not complete') }
+}
+
+// Negative probes have their own fresh receipt; the normal economy receipt remains mandatory.
+tasks.named('runAuditFixChecks') {
+    def marker=file('run/economy-checks/audit-033.passed')
+    doFirst { marker.delete() }
+    doLast { if(!marker.isFile()) throw new GradleException('Audit regression probes failed') }
 }

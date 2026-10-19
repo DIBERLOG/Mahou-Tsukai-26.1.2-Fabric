@@ -30,11 +30,16 @@ public final class DoomIntegration {
   Progression027Checks.runGravity(world);
   BlockPos center = new BlockPos(512, 250, 512);
   BlockPos protectedPos = center.offset(2, 0, 0);
+  // Outside the dense -15..15 refill but inside the attraction erosion shell (radius up to 26):
+  // one claim-protected stone and one bedrock must survive the pull phase.
+  BlockPos erosionProtected = center.offset(0, 0, 18);
+  BlockPos erosionBedrock = center.offset(18, 0, 0);
   for(var dense:BlockPos.betweenClosed(center.offset(-15,-15,-15),center.offset(15,15,15)))world.setBlock(dense,Blocks.AIR.defaultBlockState(),18);
-  net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, entity) -> !pos.equals(protectedPos));
-  for (var pos : java.util.List.of(center, protectedPos, center.offset(39,0,0), center.offset(41,0,0)))
+  net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, entity) -> !pos.equals(protectedPos) && !pos.equals(erosionProtected));
+  for (var pos : java.util.List.of(center, protectedPos, center.offset(39,0,0), center.offset(41,0,0), erosionProtected))
    world.setBlockAndUpdate(pos, Blocks.STONE.defaultBlockState());
   world.setBlockAndUpdate(center.offset(1,0,0), Blocks.BEDROCK.defaultBlockState());
+  world.setBlockAndUpdate(erosionBedrock, Blocks.BEDROCK.defaultBlockState());
   // Cast through the actual item, not just the explosion entity constructor.
   fixture.setPos(512.5,270,512.5);
   fixture.setXRot(90); fixture.setYRot(0);
@@ -108,12 +113,18 @@ public final class DoomIntegration {
   doom.setPos(512,250,512);
   for (int i=0;i<159;i++) doom.tick();
   require(inside.isAlive() && !world.getBlockState(center).isAir(), "DOOM waits full eight seconds");
+  require(doom.erodedCount() > 0 && doom.erodedCount() < 8000, "Terrain erodes during attraction within a bounded budget, leaving the dense core for the finale");
+  require(world.getBlockState(erosionProtected).is(Blocks.STONE), "Attraction erosion respects claim cancellation");
+  require(world.getBlockState(erosionBedrock).is(Blocks.BEDROCK), "Attraction erosion preserves bedrock");
   System.out.println("DOOM fixture victims visible=" + world.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class, new net.minecraft.world.phys.AABB(450,190,450,580,310,580)).size());
   long blastStarted=System.nanoTime();doom.tick();System.out.println("DOOM_ONE_TICK_MS="+(System.nanoTime()-blastStarted)/1000000.0);
   require(sounds.stream().filter(s->s.getSound().value()==stepsword.mahoutsukai.sounds.ModSounds.DOOM_ARRIVAL_HORN.get()).count()==1,"Arrival horn plays exactly once when DOOM appears");
   require(sounds.stream().filter(s->s.getSound().value()==stepsword.mahoutsukai.sounds.ModSounds.DOOM_IMPACT_HORN.get()).count()==1,"Impact horn plays exactly once when DOOM detonates");
+  require(sounds.stream().filter(s->s.getSound().value()==stepsword.mahoutsukai.sounds.ModSounds.DOOM_IMPACT.get()).count()==1,"Original heavy impact layer strikes once");
   require(sounds.stream().filter(s->s.getSound().value()==stepsword.mahoutsukai.sounds.ModSounds.DOOM_ARRIVAL_HORN.get()||s.getSound().value()==stepsword.mahoutsukai.sounds.ModSounds.DOOM_IMPACT_HORN.get()).allMatch(s->s.getPitch()==1F),"Film signal retains original playback pitch");
-  require(sounds.stream().filter(s->s.getSound().value()==net.minecraft.sounds.SoundEvents.WARDEN_HEARTBEAT).count()==15,"Accelerating heartbeat reaches observer 96 blocks away");
+  long heartbeats=sounds.stream().filter(s->s.getSound().value()==net.minecraft.sounds.SoundEvents.WARDEN_HEARTBEAT).count();
+  require(heartbeats==15,"Accelerating heartbeat reaches observer 96 blocks away, got "+heartbeats);
+  require(sounds.stream().filter(s->s.getSound().value()==stepsword.mahoutsukai.sounds.ModSounds.DOOM_RUMBLE.get()).count()==2,"Rumble starts at ticks 5 and 95 without overlapping its 4.35-second playback");
   for(var sound:java.util.List.of(net.minecraft.sounds.SoundEvents.BEACON_AMBIENT,net.minecraft.sounds.SoundEvents.WARDEN_SONIC_CHARGE,net.minecraft.sounds.SoundEvents.WARDEN_SONIC_BOOM,stepsword.mahoutsukai.sounds.ModSounds.DOOM_ARRIVAL_HORN.get(),stepsword.mahoutsukai.sounds.ModSounds.DOOM_IMPACT_HORN.get(),net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE.value()))
    require(sounds.stream().anyMatch(s->s.getSound().value()==sound&&s.getVolume()>=8&&s.getX()==512&&s.getY()==250&&s.getZ()==512),"Native DOOM sound packet originates at target and reaches 96-block observer: "+sound);
   require(particles.stream().anyMatch(p->p.getParticle().getType()==net.minecraft.core.particles.ParticleTypes.FLASH&&p.getY()==250),"Native flash packet stays at target height and reaches distant observer");
@@ -132,7 +143,7 @@ public final class DoomIntegration {
   doom.saveWithoutId(output);
   var reloaded = new DoomEntity(ModEntities.DOOM.get(), world);
   reloaded.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING, world.registryAccess(), output.buildResult()));
-  require(reloaded.age() == 160 && reloaded.workCursor() == doom.workCursor() && fixture.getUUID().equals(reloaded.getOwner()), "DOOM persists preparation, owner and work cursor");
+  require(reloaded.age() == 160 && reloaded.workCursor() == doom.workCursor() && reloaded.erodedCount() == doom.erodedCount() && fixture.getUUID().equals(reloaded.getOwner()), "DOOM persists preparation, owner, work cursor and attraction erosion");
   for (int i=0;i<250 && !reloaded.isRemoved();i++) reloaded.tick();
   require(reloaded.isRemoved(), "DOOM finishes shockwave after one-tick destruction");
   require(world.getBlockState(center).isAir() && world.getBlockState(center.offset(39,0,0)).isAir(), "Inside block radius destroyed");

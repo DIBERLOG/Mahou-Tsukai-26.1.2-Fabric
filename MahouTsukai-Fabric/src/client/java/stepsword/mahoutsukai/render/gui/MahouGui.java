@@ -70,18 +70,33 @@ public class MahouGui  {
 
       if (!Minecraft.getInstance().options.hideGui) {
 
-         RenderInsightOverlay.insightOverlay(guiGraphics);
+         // Each overlay is isolated: one broken effect must never remove the mana panel.
+         section("doom_sky", () -> stepsword.mahoutsukai.client.DoomSkyEffect.render(guiGraphics));
 
-         RenderBoundOverlay.boundOverlay(guiGraphics);
+         section("insight", () -> RenderInsightOverlay.insightOverlay(guiGraphics));
 
-         RenderRevertedOverlay.revertedOverlay(guiGraphics);
+         section("bound", () -> RenderBoundOverlay.boundOverlay(guiGraphics));
 
-         manaText(guiGraphics);
+         section("reverted", () -> RenderRevertedOverlay.revertedOverlay(guiGraphics));
 
-         mahoujinOverlay(guiGraphics);
+         section("mana", () -> manaText(guiGraphics));
+
+         section("mahoujin", () -> mahoujinOverlay(guiGraphics));
 
       }
 
+   }
+
+   private static final java.util.Set<String> REPORTED = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+   private static void section(String name, Runnable body) {
+      try {
+         body.run();
+      } catch (RuntimeException | LinkageError error) {
+         if (REPORTED.add(name)) {
+            org.slf4j.LoggerFactory.getLogger("mahoutsukai").error("HUD section {} failed and was skipped", name, error);
+         }
+      }
    }
 
 
@@ -98,20 +113,24 @@ public class MahouGui  {
 
       matrix.pushMatrix();
       float hudScale=.82F;
-      matrix.translate(MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_X*(1-hudScale),MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_Y*(1-hudScale));
+      // Effective placement is clamped to the current screen so a stale or absurd config value can
+      // never push the mana HUD off-screen (one real way for the HUD to "disappear").
+      int baseX=hudX(),baseY=hudY();
+      matrix.translate(baseX*(1-hudScale),baseY*(1-hudScale));
       matrix.scale(hudScale,hudScale);
+      try {
 
       matrix.translate(0.0F, 0.0F);
 
       IMahou mahou = Utils.getPlayerMahou(Minecraft.getInstance().player);
 
-      if (mahou != null && mahou.hasMagic() && mahou.getVisible()) {
+      if (mahou != null && mahou.getVisible()) {
 
          int storedMana = mahou.getStoredMana();
 
          int maxMana = mahou.getMaxMana();
 
-         int panelX=MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_X,panelY=MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_Y;
+         int panelX=baseX,panelY=baseY;
 
          int panelWidth=Math.min(220,Math.max(80,Minecraft.getInstance().getWindow().getGuiScaledWidth()-panelX-8));
 
@@ -121,9 +140,9 @@ public class MahouGui  {
 
          graphics.fill(panelX,panelY+22,panelX+(int)((panelWidth-4)*Math.clamp(storedMana/(double)Math.max(1,maxMana),0,1)),panelY+23,0xFF9071B4);
 
-         graphics.text(fr, preText + " " + storedMana + " / " + maxMana, MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_X, MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_Y, color);
+         graphics.text(fr, preText + " " + storedMana + " / " + maxMana, baseX, baseY, color);
 
-         int x=MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_X,y=MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_Y;
+         int x=baseX,y=baseY;
 
          graphics.text(fr,Component.translatable("mahoutsukai.progression.hud",stepsword.mahoutsukai.fabric.MageProgression.level(maxMana),stepsword.mahoutsukai.fabric.MageProgression.nextLevelMana(maxMana)).getString(),x,y+12,0xFFD6A1FF);
 
@@ -135,6 +154,10 @@ public class MahouGui  {
 
          if(doomTicks>0){int seconds=(doomTicks+19)/20;graphics.text(fr,Component.translatable("mahoutsukai.cast.doom_ready",String.format(java.util.Locale.ROOT,"%d:%02d",seconds/60,seconds%60)).getString(),x,extras,0xFFCE9DFF);extras+=12;}
 
+         int mental=stepsword.mahoutsukai.client.MentalDisplacementClientEffect.secondsLeft();
+
+         if(mental>=0){graphics.text(fr,Component.translatable("mahoutsukai.mental.countdown",mental).getString(),x,extras,0xFF9FE0FF);extras+=12;}
+
          if(MTConfig.SHOW_CAST_HINTS&&EffectUtil.hasBuff(player,ModEffects.BLACK_FLAME_EYES)){graphics.text(fr,Component.translatable("mahoutsukai.black_flame.stop_hint",Keybinds.stopMagic.getTranslatedKeyMessage().getString()).getString(),x,extras,0xFFB4DE91);extras+=12;}
 
          infoOverlay(graphics, mahou, extras-y, fr, color);
@@ -143,9 +166,9 @@ public class MahouGui  {
 
 
 
-      if(mahou==null||!mahou.hasMagic()||!mahou.getVisible())castHints(graphics,Minecraft.getInstance().player,MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_X,MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_Y,fr);
+      if(mahou==null||!mahou.getVisible())castHints(graphics,Minecraft.getInstance().player,baseX,baseY,fr);
 
-      matrix.popMatrix();
+      } finally { matrix.popMatrix(); }
       circuitOverlay(graphics, fr, preText, color);
 
       projectorOverlay(graphics, fr);
@@ -155,6 +178,17 @@ public class MahouGui  {
 
 
    private static String fit(Font font,String text,int width){return font.width(text)<=width?text:font.plainSubstrByWidth(text,Math.max(0,width-font.width("...")))+"...";}
+
+   /** Effective HUD origin: configured placement clamped to the current GUI screen. */
+   private static int hudX(){return Math.clamp(MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_X,0,Math.max(0,Minecraft.getInstance().getWindow().getGuiScaledWidth()-60));}
+   private static int hudY(){return Math.clamp(MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_Y,0,Math.max(0,Minecraft.getInstance().getWindow().getGuiScaledHeight()-60));}
+
+   /** Total cooldown length in ticks for the spells that actually register one. */
+   private static int cooldownTicks(net.minecraft.world.item.ItemStack stack){
+      if(stack.getItem() instanceof stepsword.mahoutsukai.fireball.FireballScroll)return stepsword.mahoutsukai.fireball.FireballScroll.COOLDOWN_TICKS;
+      if(stack.getItem() instanceof stepsword.mahoutsukai.doom.DoomScroll)return stepsword.mahoutsukai.doom.DoomScroll.COOLDOWN;
+      return 0;
+   }
 
 
 
@@ -202,10 +236,13 @@ public class MahouGui  {
 
       if(stepsword.mahoutsukai.fabric.SpellCasting.summonsWeapon(spell)&&code){graphics.text(font,fit(font,Component.translatable("mahoutsukai.cast.weapon_code").getString(),width-4),x,y+13,0xFFFFB394);return height;}
 
-      if(spell.getItem() instanceof stepsword.mahoutsukai.fireball.FireballScroll&&player.getCooldowns().isOnCooldown(spell)){
+      if(!spell.isEmpty()&&player.getCooldowns().isOnCooldown(spell)){
          float cooldown=player.getCooldowns().getCooldownPercent(spell,0);
-         graphics.text(font,fit(font,Component.translatable("mahoutsukai.cast.cooldown",String.format(java.util.Locale.ROOT,"%.1f",cooldown*stepsword.mahoutsukai.fireball.FireballScroll.COOLDOWN_TICKS/20.0)).getString(),width-4),x,y+13,0xFFFFB16B);
-         graphics.text(font,fit(font,Component.translatable("mahoutsukai.hints.hold","1.2").getString(),width-4),x,y+26,0xFFABA5B2);
+         int total=cooldownTicks(spell);
+         String label=total>0?Component.translatable("mahoutsukai.cast.cooldown",String.format(java.util.Locale.ROOT,"%.1f",cooldown*total/20.0)).getString():Component.translatable("mahoutsukai.cast.cooldown_unknown").getString();
+         graphics.text(font,fit(font,label,width-4),x,y+13,0xFFFFB16B);
+         int hold=stepsword.mahoutsukai.fabric.SpellCasting.requiredTicks(spell);
+         graphics.text(font,fit(font,Component.translatable("mahoutsukai.hints.hold",String.format(java.util.Locale.ROOT,"%.1f",hold/20.0)).getString(),width-4),x,y+26,0xFFABA5B2);
          graphics.fill(x,y+40,x+width-4,y+42,0xFF342D3D);graphics.fill(x,y+40,x+(int)((width-4)*(1-cooldown)),y+42,0xFFEBA85F);return height;
       }
 
@@ -253,9 +290,9 @@ public class MahouGui  {
 
             souls + " " + mahou.getDeathCollectionUsesLeft() + " (-" + manadrain + " " + drain + ")",
 
-            MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_X,
+            hudX(),
 
-            MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_Y + dist,
+            hudY() + dist,
 
             color
 
@@ -277,9 +314,9 @@ public class MahouGui  {
 
             damageExchange + " " + mahou.getDamageExchangeUses(),
 
-            MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_X,
+            hudX(),
 
-            MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_Y + dist,
+            hudY() + dist,
 
             color
 
@@ -301,9 +338,9 @@ public class MahouGui  {
 
             immunityExchange + " " + mahou.getImmunityDamageType(),
 
-            MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_X,
+            hudX(),
 
-            MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_Y + dist,
+            hudY() + dist,
 
             color
 

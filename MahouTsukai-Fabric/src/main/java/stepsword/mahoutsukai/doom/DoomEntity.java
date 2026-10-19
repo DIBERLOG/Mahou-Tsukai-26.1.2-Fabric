@@ -36,11 +36,15 @@ public final class DoomEntity extends Entity {
  public static final int PULL_RADIUS = 96;
  public static final int CHECKS_PER_TICK = 81 * 81 * 81;
  public static final int BREAKS_PER_TICK = CHECKS_PER_TICK;
+ /** Bounded erosion while the rift still pulls; the dense core is kept for the finale. */
+ private static final int EROSION_ATTEMPTS = 28;
+ private static final float EROSION_MIN_RADIUS = 8.0F, EROSION_MAX_RADIUS = 26.0F;
  private static final int WIDTH = BLOCK_RADIUS * 2 + 1;
  private static final int VOLUME = WIDTH * WIDTH * WIDTH;
  private static final EntityDataAccessor<Integer> AGE = SynchedEntityData.defineId(DoomEntity.class, EntityDataSerializers.INT);
  private UUID owner;
  private int cursor;
+ private int eroded;
  private boolean detonated;
  private Player cachedCaster;
  public DoomEntity(EntityType<? extends DoomEntity> type, Level level) {
@@ -52,6 +56,7 @@ public final class DoomEntity extends Entity {
  public UUID getOwner() { return owner; }
  public int age() { return entityData.get(AGE); }
  public int workCursor() { return cursor; }
+ public int erodedCount() { return eroded; }
  @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { builder.define(AGE, 0); }
  @Override public boolean hurtServer(ServerLevel level, DamageSource source, float amount) { return false; }
  @Override public boolean shouldRenderAtSqrDistance(double distance) { return distance < 512 * 512; }
@@ -62,6 +67,7 @@ public final class DoomEntity extends Entity {
   entityData.set(AGE, age);
   if (age < PREPARATION_TICKS) {
    attract(world,age);
+   erode(world,age);
    float radius = visualRadius(age);
    if (age % 4 == 0) {
     // Send a bounded set of inward particle trails rather than a large volume each tick.
@@ -72,9 +78,12 @@ public final class DoomEntity extends Entity {
     }
    }
    if(age==1)world.playSound(null,getX(),getY(),getZ(),stepsword.mahoutsukai.sounds.ModSounds.DOOM_ARRIVAL_HORN.get(),SoundSource.PLAYERS,8,1F);
+   if (age % 90 == 5) world.playSound(null, getX(), getY(), getZ(), stepsword.mahoutsukai.sounds.ModSounds.DOOM_RUMBLE.get(), SoundSource.PLAYERS, 6.5F, 0.92F);
    if (age % 20 == 0) world.playSound(null, getX(), getY(), getZ(), SoundEvents.BEACON_AMBIENT, SoundSource.PLAYERS, 8, 0.5F + age / 320F);
-   int interval = age < 80 ? 20 : age < 120 ? 10 : 5;
-   if (age % interval == 0) world.playSound(null, getX(), getY(), getZ(), SoundEvents.WARDEN_HEARTBEAT, SoundSource.PLAYERS, 8, 0.6F + age / 200F);
+   // Heartbeats never share a tick with the beacon swell, so identical layers cannot pile up.
+   if (age > 1 && age < 80 && age % 20 == 1) world.playSound(null, getX(), getY(), getZ(), SoundEvents.WARDEN_HEARTBEAT, SoundSource.PLAYERS, 8, 0.6F + age / 200F);
+   else if (age >= 80 && age < 120 && age % 10 == 1) world.playSound(null, getX(), getY(), getZ(), SoundEvents.WARDEN_HEARTBEAT, SoundSource.PLAYERS, 8, 0.6F + age / 200F);
+   else if (age >= 120 && age % 5 == 1) world.playSound(null, getX(), getY(), getZ(), SoundEvents.WARDEN_HEARTBEAT, SoundSource.PLAYERS, 8, 0.6F + age / 200F);
    if (age == 120) world.playSound(null, getX(), getY(), getZ(), SoundEvents.WARDEN_SONIC_CHARGE, SoundSource.PLAYERS, 8, 0.65F);
    return;
   }
@@ -95,6 +104,35 @@ public final class DoomEntity extends Entity {
    var velocity=target.getDeltaMovement().scale(.92).add(delta.scale(force/distance));if(velocity.lengthSqr()>4)velocity=velocity.normalize().scale(2);
    target.setDeltaMovement(velocity);target.hurtMarked=true;target.fallDistance=0;
    if(target instanceof ServerPlayer player&&age%2==0)player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(target));
+  }
+ }
+ /**
+  * Random, bounded erosion in an outer shell while the rift still pulls. Sampling random points
+  * avoids the visible chunk-by-chunk cut, the protected core stays intact for the finale, and every
+  * block still goes through the same claim and break-event checks as the final blast.
+  */
+ private void erode(ServerLevel world, int age) {
+  if (age < 20 || age % 2 != 0) return;
+  var caster = caster(world);
+  if (caster == null) return;
+  var origin = blockPosition();
+  float radius = Math.min(EROSION_MAX_RADIUS, 6.0F + visualRadius(age) * 0.85F);
+  var random = getRandom();
+  for (int attempt = 0; attempt < EROSION_ATTEMPTS; attempt++) {
+   double angle = random.nextDouble() * Math.PI * 2.0;
+   double vertical = random.nextDouble() * 2.0 - 1.0;
+   double horizontal = Math.sqrt(1.0 - vertical * vertical);
+   double distance = EROSION_MIN_RADIUS + (radius - EROSION_MIN_RADIUS) * Math.cbrt(random.nextDouble());
+   int x = (int)Math.round(Math.cos(angle) * horizontal * distance);
+   int y = (int)Math.round(vertical * distance);
+   int z = (int)Math.round(Math.sin(angle) * horizontal * distance);
+   if (x == 0 && y == 0 && z == 0) continue;
+   var pos = origin.offset(x, y, z);
+   if (!world.hasChunkAt(pos)) continue;
+   var state = world.getBlockState(pos);
+   if (state.isAir() || EffectUtil.unchangableBlock(state.getBlock()) || state.getDestroySpeed(world, pos) < 0) continue;
+   if (!world.mayInteract(caster, pos) || !PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(world, caster, pos, state, world.getBlockEntity(pos))) continue;
+   if (world.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 18)) eroded++;
   }
  }
  private Player caster(ServerLevel world) {
@@ -121,6 +159,7 @@ public final class DoomEntity extends Entity {
   world.playSound(null, getX(), getY(), getZ(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 10, 0.6F);
   world.playSound(null, getX(), getY(), getZ(), SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 8, 0.55F);
   world.playSound(null,getX(),getY(),getZ(),stepsword.mahoutsukai.sounds.ModSounds.DOOM_IMPACT_HORN.get(),SoundSource.PLAYERS,8,1F);
+  world.playSound(null,getX(),getY(),getZ(),stepsword.mahoutsukai.sounds.ModSounds.DOOM_IMPACT.get(),SoundSource.PLAYERS,7.5F,0.72F);
   world.sendParticles(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH, 0xFFA96CFF), true, false, getX(), getY(), getZ(), 1, 0, 0, 0, 0);
   for(int ring=0;ring<3;ring++)for(int i=0;i<48;i++){
    double angle=i*Math.PI/24, radius=8+ring*14;
@@ -155,12 +194,14 @@ public final class DoomEntity extends Entity {
   owner = input.read("owner", UUIDUtil.CODEC).orElse(null);
   entityData.set(AGE, Math.max(0, input.getIntOr("age", 0)));
   cursor = Math.clamp(input.getIntOr("cursor", 0), 0, VOLUME);
+  eroded = Math.max(0, input.getIntOr("eroded", 0));
   detonated = input.getBooleanOr("detonated", false);
  }
  @Override protected void addAdditionalSaveData(ValueOutput output) {
   if (owner != null) output.store("owner", UUIDUtil.CODEC, owner);
   output.putInt("age", age());
   output.putInt("cursor", cursor);
+  output.putInt("eroded", eroded);
   output.putBoolean("detonated", detonated);
  }
 }

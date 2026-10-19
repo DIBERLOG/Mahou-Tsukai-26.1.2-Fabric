@@ -41,12 +41,18 @@ public class GateWeaponProjectileEntity extends Arrow implements IMahoujinEntity
    private static final EntityDataAccessor<ItemStack> ITEM = SynchedEntityData.defineId(GateWeaponProjectileEntity.class, EntityDataSerializers.ITEM_STACK);
    private static final EntityDataAccessor<Float> PROGRESS = SynchedEntityData.defineId(GateWeaponProjectileEntity.class, EntityDataSerializers.FLOAT);
    private static final EntityDataAccessor<Float> SPEED = SynchedEntityData.defineId(GateWeaponProjectileEntity.class, EntityDataSerializers.FLOAT);
+   /** Hard lifetime so a projected weapon can never linger or be fired forever. */
+   public static final int LIFETIME_TICKS = 120;
    private float progress = 0.0F;
    public float lastProgress = 0.0F;
+   private int targetEntityId = -1;
+   private int lifetime;
 
    public GateWeaponProjectileEntity(Level worldIn) {
       super((EntityType)ModEntities.GATE_WEAPON_PROJECTILE.get(), worldIn);
       this.setStack(new ItemStack(Items.IRON_SWORD));
+      // Native arrow movement plus collision; projected weapons fly straight instead of dropping.
+      this.setNoGravity(true);
    }
 
    public GateWeaponProjectileEntity(Level worldIn, double x, double y, double z, ItemStack stack, Entity e, float speed) {
@@ -73,6 +79,7 @@ public class GateWeaponProjectileEntity extends Arrow implements IMahoujinEntity
    public void addAdditionalSaveData(ValueOutput output) {
       output.store("stack", ItemStack.CODEC, this.getStack() == null ? new ItemStack(Items.IRON_SWORD) : this.getStack());
       output.putFloat("progress", this.progress);
+      output.putInt("target_entity", this.targetEntityId);
       IMahoujinEntity.super.add(output);
       super.addAdditionalSaveData(output);
    }
@@ -82,6 +89,7 @@ public class GateWeaponProjectileEntity extends Arrow implements IMahoujinEntity
       stack.setCount(1);
       this.setStack(stack);
       this.progress = input.getFloatOr("progress", 0.0F);
+      this.targetEntityId = input.getIntOr("target_entity", -1);
       IMahoujinEntity.super.read(input);
       super.readAdditionalSaveData(input);
    }
@@ -136,30 +144,53 @@ public class GateWeaponProjectileEntity extends Arrow implements IMahoujinEntity
       }
 
       this.playSound(SoundEvents.ARROW_HIT, 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
+      if (!this.level().isClientSide()) this.discard();
    }
 
    public void tick() {
-      this.tickDespawn();
-      this.tickDespawn();
-      this.lastProgress = this.getProgress();
-      float progressCap = this.getProgressCap();
-      if (this.getProgress() > progressCap) {
-         super.tick();
-         if (this.isInGround() && MTConfig.TREASURY_PROJECTION_DESPAWN_AFTER_LAND) {
-            this.discard();
-         }
-      } else {
-         if (this.isInGround()) {
-            this.setProgress(this.getProgressCap() + 1.0F);
-         }
+      this.lastProgress = this.progress;
+      this.progress += 1.0F;
+      steerToTarget();
+      // Native arrow movement performs swept collision, damage and the despawn timer.
+      super.tick();
+      if (!this.isRemoved() && ++this.lifetime > LIFETIME_TICKS) this.discard();
+   }
 
-         float speed = this.getProgressSpeed();
-         this.setProgress(this.getProgress() + progressCap / speed);
-         Vec3 z = this.getDeltaMovement();
-         z = z.normalize().scale(progressCap / speed);
-         z = z.add(this.position());
-         this.setPos(z.x, z.y, z.z);
+   /** Gentle homing towards a recorded target: leads the target and stops when it is gone. */
+   private void steerToTarget() {
+      if (this.level().isClientSide() || this.targetEntityId < 0) return;
+      if (!(this.level().getEntity(this.targetEntityId) instanceof LivingEntity target)) {
+         this.targetEntityId = -1;
+         return;
       }
+      if (!target.isAlive() || shouldAvoid(this.getOwner(), target)) {
+         this.targetEntityId = -1;
+         return;
+      }
+      this.steerTo(target.getEyePosition().add(target.getDeltaMovement().scale(0.5)));
+   }
+
+   /** Turns the current velocity towards a point while keeping its speed. */
+   void steerTo(Vec3 point) {
+      Vec3 aim = point.subtract(this.position());
+      double distance = aim.length();
+      if (distance < 0.25 || distance > 64.0) return;
+      double speed = Math.max(1.0, this.getDeltaMovement().length());
+      this.setDeltaMovement(aim.normalize().scale(speed));
+   }
+
+   public void setTargetEntity(Entity entity) {
+      this.targetEntityId = entity == null ? -1 : entity.getId();
+   }
+
+   public int targetEntityId() {
+      return this.targetEntityId;
+   }
+
+   /** One projected weapon hits once and disappears; it never repeats damage every tick. */
+   protected void onHitBlock(net.minecraft.world.phys.BlockHitResult result) {
+      super.onHitBlock(result);
+      if (!this.level().isClientSide()) this.discard();
    }
 
    public void playerTouch(Player player) {

@@ -32,6 +32,10 @@ public class MentalDisplacementEntity extends Entity {
    protected static final EntityDataAccessor<Optional<EntityReference<LivingEntity>>> OWNER_UNIQUE_ID = SynchedEntityData.defineId(
       MentalDisplacementEntity.class, EntityDataSerializers.OPTIONAL_LIVING_ENTITY_REFERENCE
    );
+   /** Server-owned remaining life of the controlled form, mirrored to the owner for the countdown. */
+   protected static final EntityDataAccessor<Integer> TICKS_LEFT = SynchedEntityData.defineId(
+      MentalDisplacementEntity.class, EntityDataSerializers.INT
+   );
    public BlockPos origPos;
    public Player player;
    private int lerpSteps;
@@ -100,11 +104,22 @@ public class MentalDisplacementEntity extends Entity {
       if (!this.level().isClientSide()) {
          if(this.player==null && this.getOwnerId()!=null)this.player=this.level().getPlayerByUUID(this.getOwnerId());
          if (this.player == null) {
-            this.discard();
+            this.finish(null);
          } else if (!this.player.isAlive()) {
-            this.discard();
+            this.finish(null);
+         } else if (!this.player.level().equals(this.level())) {
+            // Dimension change left the spirit behind: end travel without moving the body.
+            this.finish(null);
          } else if (MentalDisplacementSpellEffect.checkDistance(this.player.blockPosition(), this.blockPosition()) > MTConfig.MENTAL_DISPLACEMENT_RANGE) {
-            this.discard();
+            // Out of the legal radius: finish at the spirit's furthest legal point.
+            this.finish(this.position());
+         } else {
+            int left = this.entityData.get(TICKS_LEFT) - 1;
+            if (left <= 0) {
+               this.finish(this.position());
+            } else {
+               this.entityData.set(TICKS_LEFT, left);
+            }
          }
       } else {
          this.setOldPosAndRot();
@@ -114,6 +129,21 @@ public class MentalDisplacementEntity extends Entity {
             this.tickLerp();
          }
       }
+   }
+
+   /** Ends travel once: optionally delivers the body, clears saved state and removes this entity. */
+   private void finish(@Nullable Vec3 destination) {
+      Player owner = this.player;
+      if (owner instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+         stepsword.mahoutsukai.util.Utils.getPlayerMahou(serverPlayer).setMentalDisplacementPos(null);
+         stepsword.mahoutsukai.mana.PlayerManaManager.updateClientMahou(serverPlayer, stepsword.mahoutsukai.util.Utils.getPlayerMahou(serverPlayer));
+         if (destination != null) MentalDisplacementSpellEffect.arrive(serverPlayer, destination);
+      }
+      this.discard();
+   }
+
+   public int ticksLeft() {
+      return this.entityData.get(TICKS_LEFT);
    }
 
    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
@@ -213,6 +243,7 @@ public class MentalDisplacementEntity extends Entity {
 
    protected void defineSynchedData(Builder builder) {
       builder.define(OWNER_UNIQUE_ID, Optional.empty());
+      builder.define(TICKS_LEFT, MTConfig.MENTAL_DISPLACEMENT_MAX_TICKS);
    }
 
    @Nullable
@@ -226,12 +257,14 @@ public class MentalDisplacementEntity extends Entity {
 
    protected void readAdditionalSaveData(ValueInput input) {
       this.used = input.getBooleanOr("mahoutsukai_used", false);
+      this.entityData.set(TICKS_LEFT, input.getIntOr("mahoutsukai_ticks_left", MTConfig.MENTAL_DISPLACEMENT_MAX_TICKS));
       this.origPos=input.read("MAHOUTSUKAI_ORIGIN",BlockPos.CODEC).orElse(this.blockPosition());
       input.read("MAHOUTSUKAI_OWNER",net.minecraft.core.UUIDUtil.CODEC).ifPresent(uuid->this.entityData.set(OWNER_UNIQUE_ID,Optional.of(EntityReference.of(uuid))));
    }
 
    protected void addAdditionalSaveData(ValueOutput output) {
       output.putBoolean("mahoutsukai_used", this.used);
+      output.putInt("mahoutsukai_ticks_left", this.entityData.get(TICKS_LEFT));
       if(origPos!=null)output.store("MAHOUTSUKAI_ORIGIN",BlockPos.CODEC,origPos);
       if(getOwnerId()!=null)output.store("MAHOUTSUKAI_OWNER",net.minecraft.core.UUIDUtil.CODEC,getOwnerId());
    }

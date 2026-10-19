@@ -371,6 +371,7 @@ public final class MTConfig {
     public static int AUTHORITY_TIME=400;
     public static int MENTAL_DISPLACEMENT_MANA_COST=300;
     public static int MENTAL_DISPLACEMENT_RANGE=20;
+    public static int MENTAL_DISPLACEMENT_MAX_TICKS=1200;
     public static int POSSESS_ENTITY_MANA_COST=200;
     public static boolean SPATIAL_DISORIENTATION_AIR_RESISTANCE=false;
     public static double SPATIAL_DISORIENTATION_AOE_RADIUS=4.0;
@@ -762,6 +763,7 @@ public final class MTConfig {
 
         java.util.Map.entry("MENTAL_DISPLACEMENT_MANA_COST",new double[]{0,100000000}),
         java.util.Map.entry("MENTAL_DISPLACEMENT_RANGE",new double[]{0,100000000}),
+        java.util.Map.entry("MENTAL_DISPLACEMENT_MAX_TICKS",new double[]{20,24000}),
 
         java.util.Map.entry("AUTHORITY_BLOCK_RESISTANCE_LIMIT",new double[]{0,100000000}),
         java.util.Map.entry("AUTHORITY_DAMAGE_TO_OTHER",new double[]{0.0,1.0E8}),

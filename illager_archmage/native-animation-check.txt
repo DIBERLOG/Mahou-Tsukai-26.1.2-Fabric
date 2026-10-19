@@ -1,0 +1,1 @@
+PASS: 50 native cuboids, parented staff, 10 distinct moving animations / 410 finite transform samples, 3 seamless loops, 384 upright blended staff poses, 3 Archmage OGGs accepted by native sound engine

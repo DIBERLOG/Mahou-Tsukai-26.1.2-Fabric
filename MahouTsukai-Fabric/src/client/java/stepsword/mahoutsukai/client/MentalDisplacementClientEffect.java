@@ -30,20 +30,25 @@ public class MentalDisplacementClientEffect {
       boolean right = mi.keyPresses.right();
       boolean jumping = mi.keyPresses.jump();
       boolean shift = mi.keyPresses.shift();
-      if (player != null && Minecraft.getInstance().getCameraEntity() instanceof MentalDisplacementEntity) {
-         MentalDisplacementEntity entity = (MentalDisplacementEntity)Minecraft.getInstance().getCameraEntity();
+      if (player != null && Minecraft.getInstance().getCameraEntity() instanceof MentalDisplacementEntity entity) {
          entity.updateInputs(down, up, left, right, jumping, shift);
          entity.syncLookToPlayer(player);
          if (MentalDisplacementSpellEffect.checkDistance(entity.origPos, Utils.toBlockPos(new Vec3(entity.getX(), entity.getY(), entity.getZ())))
             < MTConfig.MENTAL_DISPLACEMENT_RANGE) {
             mi.keyPresses = BoundPotion.STANDING_STILL;
          } else {
-            Minecraft.getInstance().setCameraEntity(player);
-            net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(new DoneMentalPacket());
-            mentalDisplacementStartTick = Long.MIN_VALUE;
-            waitingForStartupInputRelease = false;
+            endTravel(entity, player);
          }
       }
+   }
+
+   /** Reports the spirit's final position before the camera returns to the body. */
+   private static void endTravel(MentalDisplacementEntity spirit, Player player) {
+      var packet = new DoneMentalPacket(spirit);
+      Minecraft.getInstance().setCameraEntity(player);
+      net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(packet);
+      mentalDisplacementStartTick = Long.MIN_VALUE;
+      waitingForStartupInputRelease = false;
    }
 
    public static void mentalDisplacementMouseInput() {
@@ -79,19 +84,22 @@ public class MentalDisplacementClientEffect {
       return mahou != null && Minecraft.getInstance().getCameraEntity() instanceof MentalDisplacementEntity;
    }
 
-
+   /** Remaining controlled seconds, or -1 when the player is not travelling. */
+   public static int secondsLeft() {
+      if (Minecraft.getInstance().getCameraEntity() instanceof MentalDisplacementEntity spirit) {
+         return Math.max(0, (spirit.ticksLeft() + 19) / 20);
+      }
+      return -1;
+   }
 
    public static boolean mentalDisplacementDisallowedAction(Player player) {
       boolean ret = false;
-      if (player != null && Minecraft.getInstance().getCameraEntity() instanceof MentalDisplacementEntity) {
+      if (player != null && Minecraft.getInstance().getCameraEntity() instanceof MentalDisplacementEntity spirit) {
          if (isSuppressingStartupInput()) {
             return true;
          }
 
-         Minecraft.getInstance().setCameraEntity(player);
-         net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(new DoneMentalPacket());
-         mentalDisplacementStartTick = Long.MIN_VALUE;
-         waitingForStartupInputRelease = false;
+         endTravel(spirit, player);
          ret = true;
       }
 

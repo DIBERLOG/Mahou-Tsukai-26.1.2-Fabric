@@ -53,10 +53,25 @@ public class ModelKodoku extends EntityModel<LivingEntityRenderState> {
 
    public void setupAnim(LivingEntityRenderState state) {
       super.setupAnim(state);
+      float walk = Math.min(1.0F, state.walkAnimationSpeed * 4.0F);
+      float stride = state.walkAnimationPos;
+      float death = Math.min(1.0F, state.deathTime / 20.0F);
+      float sway = 1.0F + walk * 1.6F;
 
       for (int i = 0; i < this.wormparts.length; i++) {
-         this.wormparts[i].yRot = Mth.cos(state.ageInTicks * 0.4F + i * 0.15F * (float) Math.PI) * (float) Math.PI * 0.05F * (1 + Math.abs(i - 2));
-         this.wormparts[i].x = Mth.sin(state.ageInTicks * 0.4F + i * 0.15F * (float) Math.PI) * (float) Math.PI * 0.2F * Math.abs(i - 2);
+         float phase = state.ageInTicks * 0.4F + i * 0.15F * (float) Math.PI;
+         float joint = Math.abs(i - 2);
+         // Idle sway stays the original one; walking adds a travelling wave; death twists and sags.
+         this.wormparts[i].yRot = Mth.cos(phase) * (float) Math.PI * 0.05F * (1 + joint) * sway
+            + Mth.sin(stride * 0.9F + i * 0.7F) * 0.10F * walk
+            + death * 0.35F * (i % 2 == 0 ? 1.0F : -1.0F);
+         this.wormparts[i].x = Mth.sin(phase) * (float) Math.PI * 0.2F * joint
+            + Mth.sin(stride + i) * 0.06F * walk
+            + death * (float) Math.PI * 0.22F;
       }
+
+      this.root.y = death * 6.0F;
+      this.root.x = 0.0F;
+      this.root.z = -Mth.sin(stride) * 0.4F * walk;
    }
 }

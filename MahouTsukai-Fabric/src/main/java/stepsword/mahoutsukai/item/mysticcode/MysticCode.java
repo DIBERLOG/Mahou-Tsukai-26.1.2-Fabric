@@ -55,6 +55,15 @@ public class MysticCode extends ItemBase implements MenuProvider {
       return 1;
    }
 
+   @Override
+   public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context,
+      net.minecraft.world.item.component.TooltipDisplay display,
+      java.util.function.Consumer<Component> tooltip, net.minecraft.world.item.TooltipFlag flag) {
+      super.appendHoverText(stack, context, display, tooltip, flag);
+      // The slot rule is stated on the item so the refusal is understandable without a wiki.
+      tooltip.accept(Component.translatable("mahoutsukai.mystic_code.tooltip"));
+   }
+
    public InteractionResult use(Level worldIn, Player playerIn, InteractionHand handIn) {
       if (playerIn.isDiscrete()) {
          if (!worldIn.isClientSide()) {

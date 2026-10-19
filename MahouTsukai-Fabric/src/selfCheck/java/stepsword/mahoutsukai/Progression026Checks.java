@@ -27,7 +27,8 @@ public final class Progression026Checks {
      if(stage==1){require(!world.isRainingAt(rain.blockPosition()),"Native rain does not reach covered player");rain.setItemInHand(InteractionHand.OFF_HAND,stick.copy());stepsword.mahoutsukai.item.emrys.StaffEmrys.emrysInRain(rain);require(rain.getOffhandItem().is(Items.STICK),"Roof prevents Emrys transformation");world.removeBlock(roof,false);stage=2;changedAt=age;return;}
      require(world.isRainingAt(rain.blockPosition()),"Native rain reaches player after sky lighting updates");stepsword.mahoutsukai.item.emrys.StaffEmrys.emrysInRain(rain);require(rain.getOffhandItem().is(ModItems.emrysStaff.get()),"Rain creates Emrys without lightning");
      // Projectile queries require native entity-ticking chunks, after the force-load tickets settle.
-     Nobu031Checks.run(rain);Fireball031Checks.run(rain);
+     MentalDisplacementChecks.run(rain);
+     Nobu031Checks.run(rain);Fireball031Checks.run(rain);ArchmageCombat034Checks.run(rain);
      Progression027Checks.runGravity(world);
      server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"weather clear");world.setRainLevel(0);world.removePlayerImmediately(rain,net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"forceload remove 560 512 592 576");
      java.nio.file.Files.writeString(java.nio.file.Path.of("../../../analysis/phase026-progression-server.passed"),"PASS: progression regression suite, native crafting and automatic recipe discovery, 3000 seeded dungeon loot rolls, actual eating and cancellation, rain/roof lifecycle and Emrys without lightning; real world ticks and sky lighting\n");System.out.println("PASS: PROGRESSION_SERVER_026");done=true;server.halt(false);
@@ -40,6 +41,11 @@ public final class Progression026Checks {
   var catalogField=GuideCatalog.class.getDeclaredField("entries");catalogField.setAccessible(true);
   var catalog=(java.util.List<GuideCatalog.Entry>)catalogField.get(null);
   PresentationResearchChecks.run(fixture.level(),catalog);
+  RealityMarbleBossChecks.run(fixture);
+  GroundSpawn036Checks.run(fixture);
+  ArchmageDefeat036Checks.run(fixture);
+  WilliamFlightChecks.run(fixture);
+  stepsword.mahoutsukai.entity.mahoujin.GauntletFlightChecks.run(fixture);
   require(catalog.stream().filter(e->e.kind().equals("craft")&&e.id().endsWith("_2")&&e.output()==2).count()==7,"All seven original mortar recipes are displayed with two outputs");
   for(var pair:stepsword.mahoutsukai.block.spells.MahoujinRecipeRegistrar.recipes.entrySet())if(pair.getValue() instanceof net.minecraft.world.level.block.EntityBlock block){
    var tile=block.newBlockEntity(net.minecraft.core.BlockPos.ZERO,pair.getValue().defaultBlockState());
@@ -124,6 +130,15 @@ public final class Progression026Checks {
    for(int n=0;n<3000;n++)for(var item:table.getRandomItems(lootParams,random)){String id=net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();if(id.startsWith("scroll_"))counts.merge(id,item.getCount(),Integer::sum);}
    require(counts.getOrDefault("scroll_mana_1000",0)>0&&counts.getOrDefault("scroll_mana_50",0)>10*counts.get("scroll_mana_1000")&&counts.getOrDefault("scroll_mana_100",0)>10*counts.get("scroll_mana_1000"),"Native dungeon loot yields common 50/100 and rare 1000 mana scrolls");
    require(counts.keySet().stream().anyMatch(id->id.startsWith("scroll_")&&!id.startsWith("scroll_mana_")),"Native dungeon loot yields spell scrolls");java.nio.file.Files.writeString(java.nio.file.Path.of("../../../analysis/phase026-loot-sample.json"),new com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(counts));
+    require(!DungeonScrollLoot.library(net.minecraft.resources.Identifier.withDefaultNamespace("chests/simple_dungeon"))&&DungeonScrollLoot.library(net.minecraft.resources.Identifier.withDefaultNamespace("chests/stronghold_library")),"William is limited to book-heavy chests");
+    var libraryTable=world.getServer().reloadableRegistries().getLootTable(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.LOOT_TABLE,net.minecraft.resources.Identifier.withDefaultNamespace("chests/stronghold_library")));
+    int williams=0;
+    for(int n=0;n<2000;n++)for(var item:libraryTable.getRandomItems(lootParams,random))if(item.is(ModItems.william.get())){williams++;
+     require(Utils.getFictionMahou(item).getStyle()==DungeonScrollLoot.WILLIAM_STYLE&&Utils.getFictionMahou(item).getFame()==DungeonScrollLoot.WILLIAM_FAME,"Found William carries working fiction data");
+     require(item.get(net.minecraft.core.component.DataComponents.WRITTEN_BOOK_CONTENT)!=null,"Found William has readable written content");
+     require(stepsword.mahoutsukai.item.william.William.getManaValue(item)>0,"Found William is a working artifact, not a blank");
+    }
+    require(williams>0,"Book-heavy dungeon chests can actually contain William");
    mana.setMaxMana(20000);mana.setStoredMana(0);player.getFoodData().setFoodLevel(10);var food=new ItemStack(Items.APPLE,2);player.setItemInHand(InteractionHand.MAIN_HAND,food);player.startUsingItem(InteractionHand.MAIN_HAND);
    var finish=LivingEntity.class.getDeclaredMethod("completeUsingItem");finish.setAccessible(true);finish.invoke(player);require(mana.getStoredMana()==31&&food.getCount()==1,"Native completed eating restores mana and consumes one food");
    int beforeCancel=mana.getStoredMana();player.startUsingItem(InteractionHand.MAIN_HAND);player.stopUsingItem();require(mana.getStoredMana()==beforeCancel,"Cancelled eating grants no mana");

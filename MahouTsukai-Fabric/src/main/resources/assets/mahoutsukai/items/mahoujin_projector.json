@@ -1,1 +1,23 @@
-{"model": {"type": "minecraft:special", "base": "mahoutsukai:block/mahoujin_projector", "model": {"type": "mahoutsukai:magical_item", "renderer": "mahoujin_projector"}}}
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:display_context",
+    "cases": [
+      {
+        "when": "gui",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mahoutsukai:item/mahoujin_projector_gui"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:special",
+      "base": "mahoutsukai:block/mahoujin_projector",
+      "model": {
+        "type": "mahoutsukai:magical_item",
+        "renderer": "mahoujin_projector"
+      }
+    }
+  }
+}

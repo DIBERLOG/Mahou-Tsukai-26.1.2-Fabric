@@ -72,6 +72,7 @@ public class Nobu extends EmptyProjectileWeaponItem {
          storage.fireMe = 0;
          storage.isFiring = false;
          storage.currentGun = 0;
+         storage.target = null;
          storage.origpit = 0.0F;
          storage.origyaw = 0.0F;
          storage.originalBasis2 = null;
@@ -98,9 +99,12 @@ public class Nobu extends EmptyProjectileWeaponItem {
                settings.get(4).intValue(),
                settings.get(5).intValue()
             );
-            storage.lastMode = mode;
-            Utils.setMode(itemstack, (storage.lastMode + 1) % 4);
-            mode = Utils.getMode(itemstack);
+            // Constructs belong to the mode that spawned them: drop only this owner's guns now.
+            clearNobuStorage(player);
+            int next = (mode + 1) % 4;
+            Utils.setMode(itemstack, next);
+            storage.lastMode = next;
+            mode = next;
          }
 
          MutableComponent tt;

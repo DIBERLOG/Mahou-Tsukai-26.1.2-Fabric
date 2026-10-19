@@ -21,6 +21,8 @@ public class MysticCodeInventoryGui extends AbstractContainerScreen<MysticCodeIn
 
    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
       graphics.text(this.font, this.title.getString(), 8, 6, 0xFF404040, false);
+      // Explain the slot restriction next to the slots instead of silently refusing the item.
+      graphics.text(this.font, Component.translatable("mahoutsukai.mystic_code.slot_restriction").getString(), 8, 40, 0xFF6A5A78, false);
    }
 
    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {

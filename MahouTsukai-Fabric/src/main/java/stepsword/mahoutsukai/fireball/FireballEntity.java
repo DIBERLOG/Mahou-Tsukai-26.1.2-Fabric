@@ -89,6 +89,7 @@ public final class FireballEntity extends SmallFireball {
  }
  private void damage(ServerLevel world,LivingEntity target,float amount){
   Entity caster=getOwner();
+  if(caster instanceof net.minecraft.world.entity.Mob&&(caster==target||caster.isAlliedTo(target)))return;
   if(target.fireImmune()||target.isSpectator()||GateWeaponProjectileEntity.shouldAvoid(caster,target))return;
   if(caster instanceof Player shooter&&target instanceof Player player&&!shooter.canHarmPlayer(player))return;
   if(target.hurtServer(world,damageSources().fireball(this,caster),amount))target.igniteForSeconds(BURN_SECONDS);

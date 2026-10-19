@@ -36,7 +36,50 @@ public final class Nobu031Checks {
             MTConfig.NOBU_BULLET_DAMAGE=configuredDamage;
             world.removePlayerImmediately(caster,Entity.RemovalReason.DISCARDED);
         }
-        System.out.println("PASS: NOBU_031: default12, one-time8-to12 upgrade/backup, custom and later8 overrides preserved, bounds and native manual/autonomous beam hits");
+        modeSwitch(world);
+        System.out.println("PASS: NOBU_031: default12, one-time8-to12 upgrade/backup, custom and later8 overrides preserved, bounds and native manual/autonomous beam hits, owner-only construct cleanup on mode switch");
+    }
+
+    /** Switching mode must drop only this owner's constructs, immediately and in both directions. */
+    private static void modeSwitch(net.minecraft.server.level.ServerLevel world){
+        var owner=DoomIntegration.player(world,"NobuModeOwner",GameType.SURVIVAL,552);
+        var bystander=DoomIntegration.player(world,"NobuModeOther",GameType.SURVIVAL,560);
+        try {
+            var nobu=(stepsword.mahoutsukai.item.nobu.Nobu)ModItems.nobu.get();
+            owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(nobu));
+            bystander.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(nobu));
+            stepsword.mahoutsukai.util.Utils.setMode(owner.getMainHandItem(),2);
+            var ownerStorage=stepsword.mahoutsukai.item.nobu.Nobu.getStorage(owner);
+            var ownGun=new stepsword.mahoutsukai.entity.mahoujin.GunEntity(world,owner,1,0,0,1,1,1,1,1);
+            require(world.addFreshEntity(ownGun),"Owner construct inserted");
+            ownerStorage.guns.put(0,ownGun);
+            var otherStorage=stepsword.mahoutsukai.item.nobu.Nobu.getStorage(bystander);
+            var otherGun=new stepsword.mahoutsukai.entity.mahoujin.GunEntity(world,bystander,0,1,0,1,1,1,1,1);
+            require(world.addFreshEntity(otherGun),"Bystander construct inserted");
+            otherStorage.guns.put(0,otherGun);
+            int otherMode=stepsword.mahoutsukai.util.Utils.getMode(bystander.getMainHandItem());
+
+            owner.setShiftKeyDown(true);
+            nobu.use(world,owner,InteractionHand.MAIN_HAND);
+            owner.setShiftKeyDown(false);
+            require(ownGun.isRemoved()&&ownerStorage.guns.isEmpty(),"Mode switch immediately removes the owner's previous constructs");
+            require(!otherGun.isRemoved()&&otherStorage.guns.size()==1,"Mode switch leaves other players' constructs untouched");
+            require(stepsword.mahoutsukai.util.Utils.getMode(owner.getMainHandItem())==3,"Mode advances from circle to line");
+            require(stepsword.mahoutsukai.util.Utils.getMode(bystander.getMainHandItem())==otherMode,"Bystander mode is unchanged");
+
+            owner.setShiftKeyDown(true);
+            nobu.use(world,owner,InteractionHand.MAIN_HAND);
+            owner.setShiftKeyDown(false);
+            require(stepsword.mahoutsukai.util.Utils.getMode(owner.getMainHandItem())==0,"Mode cycles back to automatic in the other direction");
+            require(!otherGun.isRemoved(),"Repeated switch still ignores other players");
+        } finally {
+            stepsword.mahoutsukai.item.nobu.Nobu.clearNobuStorage(owner);
+            stepsword.mahoutsukai.item.nobu.Nobu.clearNobuStorage(bystander);
+            stepsword.mahoutsukai.item.nobu.Nobu.player_storage.remove(owner.getUUID());
+            stepsword.mahoutsukai.item.nobu.Nobu.player_storage.remove(bystander.getUUID());
+            world.removePlayerImmediately(owner,Entity.RemovalReason.DISCARDED);
+            world.removePlayerImmediately(bystander,Entity.RemovalReason.DISCARDED);
+        }
     }
 
     private static void hit(ServerPlayer caster,double expected,boolean autonomous){

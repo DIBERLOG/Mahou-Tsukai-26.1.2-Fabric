@@ -112,6 +112,7 @@ public final class MahouFabric implements ModInitializer {
         stepsword.mahoutsukai.advancements.ModTriggers.init();
         stepsword.mahoutsukai.potion.ModEffects.init();
         stepsword.mahoutsukai.sounds.ModSounds.init();
+        ArchmageDefeat.init();
         stepsword.mahoutsukai.entity.ModEntities.init();
         stepsword.mahoutsukai.MahouRecipes.init();
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_LEVEL_TICK.register(world -> {
@@ -151,8 +152,12 @@ public final class MahouFabric implements ModInitializer {
         ServerLifecycleEvents.SERVER_STOPPED.register(server->{stepsword.mahoutsukai.item.spells.mystic.SpatialDisorientation.SpatialDisorientationStaff.staffs.clear();stepsword.mahoutsukai.item.spells.mystic.MysticStaff.MysticStaff.staffs.clear();stepsword.mahoutsukai.item.morgan.Morgan.staffs.clear();});
         net.fabricmc.fabric.api.event.player.AttackEntityCallback.EVENT.register((player,world,hand,target,hit)->{stepsword.mahoutsukai.item.caliburn.Caliburn.upgradeDamageCap();return net.minecraft.world.InteractionResult.PASS;});
         net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.AFTER_DEATH.register((living,source)->{
-            if(living instanceof net.minecraft.world.entity.player.Player player && stepsword.mahoutsukai.config.MTConfig.ONE_LIFE){
-                var m=stepsword.mahoutsukai.util.Utils.getPlayerMahou(player);m.setMaxMana(100);m.setManaToUseCounter(100);m.setDeathCollectionUsesLeft(0);m.setDamageReplicationTarget(null);m.clearBuffs();
+            if(living instanceof net.minecraft.world.entity.player.Player player){
+                // Death must not leave the owner's summoned Nobu constructs behind.
+                stepsword.mahoutsukai.item.nobu.Nobu.clearNobuStorage(player);
+                if(stepsword.mahoutsukai.config.MTConfig.ONE_LIFE){
+                    var m=stepsword.mahoutsukai.util.Utils.getPlayerMahou(player);m.setMaxMana(100);m.setManaToUseCounter(100);m.setDeathCollectionUsesLeft(0);m.setDamageReplicationTarget(null);m.clearBuffs();
+                }
             }
         });
         MahouNetworking.register();

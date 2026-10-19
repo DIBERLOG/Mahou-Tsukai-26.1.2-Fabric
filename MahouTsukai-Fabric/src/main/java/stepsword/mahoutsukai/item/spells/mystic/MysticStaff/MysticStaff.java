@@ -370,32 +370,36 @@ public class MysticStaff extends ItemBase {
                   ModTriggers.BAKURETSU.trigger((ServerPlayer)player);
                   float[] colors = this.getColor(player, 0);
 
-                  for (Player Player : world.players()) {
-                     if (Player.distanceToSqr(x, y, z) < 16384.0) {
-                        Vec3 vec = null;
-                        if (explosion.knockback.containsKey(player)) {
-                           vec = explosion.knockback.get(player);
-                        }
-
+                  for (Player target : world.players()) {
+                     if (target.distanceToSqr(x, y, z) < 16384.0) {
+                        Vec3 vec = explosion.knockback.get(target);
                         if (vec == null) {
-                           PacketHandler.sendTo((ServerPlayer)Player, new BakuretsuPacket(x, y + (radius / 2 + 2), z, radius, 0.0F, 0.0F, 0.0F, colors));
+                           PacketHandler.sendTo((ServerPlayer)target, new BakuretsuPacket(x, y + (radius / 2 + 2), z, radius, 0.0F, 0.0F, 0.0F, colors));
                         } else {
                            PacketHandler.sendTo(
-                              (ServerPlayer)Player, new BakuretsuPacket(x, y + (radius / 2 + 2), z, radius, (float)vec.x, (float)vec.y, (float)vec.z, colors)
+                              (ServerPlayer)target, new BakuretsuPacket(x, y + (radius / 2 + 2), z, radius, (float)vec.x, (float)vec.y, (float)vec.z, colors)
                            );
                         }
                      }
-
-                     caster.level()
-                        .playSound(
-                           null,
-                           Utils.toBlockPos(storage.target),
-                           (SoundEvent)ModSounds.EXPLOSION.get(),
-                           SoundSource.NEUTRAL,
-                           (float)MTConfig.NOBU_DRUM_VOLUME * 12.0F,
-                           1.0F
-                        );
                   }
+
+                  // One blast sound for everyone: the old loop played it once per nearby player.
+                  world.playSound(
+                     null,
+                     Utils.toBlockPos(storage.target),
+                     (SoundEvent)ModSounds.EXPLOSION.get(),
+                     SoundSource.NEUTRAL,
+                     (float)MTConfig.NOBU_DRUM_VOLUME * 8.0F,
+                     1.0F
+                  );
+                  world.playSound(
+                     null,
+                     Utils.toBlockPos(storage.target),
+                     (SoundEvent)ModSounds.EXPLOSION_BIG.get(),
+                     SoundSource.NEUTRAL,
+                     9.0F,
+                     0.8F
+                  );
 
                   for (MysticStaffMahoujinEntity e : storage.mahoujins) {
                      e.discard();

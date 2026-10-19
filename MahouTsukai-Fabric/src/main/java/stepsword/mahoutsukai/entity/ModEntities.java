@@ -29,6 +29,11 @@ public final class ModEntities {
   net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder.<stepsword.mahoutsukai.entity.kodoku.KodokuEntity>create(MobCategory.MISC,stepsword.mahoutsukai.entity.kodoku.KodokuEntity::new)
    .dimensions(net.minecraft.world.entity.EntityDimensions.fixed(0.4F,0.3F)).trackable(64,3,false).build(ResourceKey.create(Registries.ENTITY_TYPE,KODOKU_ID)));
  public static final Supplier<EntityType<stepsword.mahoutsukai.entity.kodoku.KodokuEntity>> KODOKU=()->KODOKU_TYPE;
+ private static final Identifier REALITY_MARBLE_BOSS_ID=Identifier.fromNamespaceAndPath("mahoutsukai","reality_marble_boss");
+ private static final EntityType<stepsword.mahoutsukai.entity.RealityMarbleBossEntity> REALITY_MARBLE_BOSS_TYPE=Registry.register(BuiltInRegistries.ENTITY_TYPE,REALITY_MARBLE_BOSS_ID,
+  EntityType.Builder.<stepsword.mahoutsukai.entity.RealityMarbleBossEntity>of(stepsword.mahoutsukai.entity.RealityMarbleBossEntity::new,MobCategory.MONSTER)
+   .sized(1.5F,3F).clientTrackingRange(200).updateInterval(2).build(ResourceKey.create(Registries.ENTITY_TYPE,REALITY_MARBLE_BOSS_ID)));
+ public static final Supplier<EntityType<stepsword.mahoutsukai.entity.RealityMarbleBossEntity>> REALITY_MARBLE_BOSS=()->REALITY_MARBLE_BOSS_TYPE;
  private static final Identifier FAMILIAR_ID=Identifier.fromNamespaceAndPath("mahoutsukai","familiar_entity");
  private static final EntityType<stepsword.mahoutsukai.entity.FamiliarEntity> FAMILIAR_TYPE=Registry.register(BuiltInRegistries.ENTITY_TYPE,FAMILIAR_ID,
   net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder.<stepsword.mahoutsukai.entity.FamiliarEntity>create(MobCategory.MISC,stepsword.mahoutsukai.entity.FamiliarEntity::new)
@@ -117,6 +122,7 @@ public final class ModEntities {
   legacy("spatial_disorientation_entity",SPATIAL_DISORIENTATION.get());
   net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(FAMILIAR_TYPE,stepsword.mahoutsukai.entity.FamiliarEntity.registerAttributes());
   net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(KODOKU_TYPE,stepsword.mahoutsukai.entity.kodoku.KodokuEntity.registerAttributes());
+  net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(REALITY_MARBLE_BOSS_TYPE,stepsword.mahoutsukai.entity.RealityMarbleBossEntity.createAttributes());
   net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(FAE_TYPE, FaeEntity.registerAttributes());
  }
  /** Original IDs decode into the already registered native type, including its renderer/save ID. */

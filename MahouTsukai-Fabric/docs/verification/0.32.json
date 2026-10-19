@@ -1,0 +1,70 @@
+{
+  "version": "1.36.36-fabric.0.32-incomplete",
+  "minecraft": "26.1.2",
+  "loader": "fabric",
+  "jdk": "tools/jdk/jdk-25.0.4.1+1",
+  "jar": "MahouTsukai-Fabric/build/libs/MahouTsukai-Fabric-1.36.36-fabric.0.32-incomplete.jar",
+  "jar_sha256": "5b69c699ea537dc306fd0d1e697dd237b71d47b4c292eb19736e3828dfdc565b",
+  "jar_size": 7569746,
+  "previous_jar_sha256_unchanged": "ea47459f35f6e8bc6835c7bf19fc52d91a9e497fa450e1e5e0e90560e33339ff",
+  "commands": [
+    "gradlew.bat --offline compileJava compileClientJava selfCheckClasses",
+    "gradlew.bat --offline runProgressionChecks",
+    "gradlew.bat --offline runEconomyChecks",
+    "gradlew.bat --offline build",
+    "python scripts/generate_doom_audio.py"
+  ],
+  "native_results": {
+    "build": "PASS",
+    "PROGRESSION_SERVER_026": "PASS",
+    "PRESENTATION_RESEARCH": "PASS (46 scroll signatures, 111 audio assets incl. DOOM rumble/impact and staff blast, 83 research nodes, DOOM secrecy, compendium 5/3/1 DCC-DBC-DDD, all new 0.32 texts in both languages)",
+    "MENTAL_DISPLACEMENT_032": "PASS",
+    "REALITY_MARBLE_BOSS": "PASS (registration, one boss per arena, boss bar, arena bounds, real attacks with synced telegraph, one-time Morgan reward, persistence, empty-arena cleanup, no spawn outside the marble dimension)",
+    "NOBU_031": "PASS",
+    "WILLIAM_FLIGHT": "PASS (previous-roll interpolation base and gentle hover)",
+    "GAUNTLET_FLIGHT": "PASS (native hit damage, single-hit cleanup, homing, block impact, lifetime)",
+    "FIREBALL_031": "PASS",
+    "PROGRESSION_027": "PASS",
+    "GRAVITY_027": "PASS",
+    "ECONOMY_INTEGRATION": "PASS",
+    "DOOM_INTEGRATION": "PASS (bounded attraction erosion that respects claim cancellation and bedrock, preserved one-tick destruction)",
+    "TREASURY_PROJECTION_INTEGRATION": "PASS (after native-movement projectile rewrite)",
+    "MYSTIC_STAFF_INTEGRATION": "PASS (after single-play blast sound and per-recipient knockback fix)",
+    "REALITY_MARBLE_INTEGRATION": "PASS",
+    "ENTITIES_PROJECTORS": "PASS",
+    "WILLIAM_ITEM": "PASS",
+    "SCENARIO_PARITY": "PASS (reality_marble_boss recorded as an intentional addition, not a regression)"
+  },
+  "data_checks": {
+    "recipes_loaded": 1549,
+    "advancements_loaded": 1657,
+    "recipe_or_advancement_errors": "none observed",
+    "lang_json_parse": "PASS (ru_ru, en_us)",
+    "new_audio_assets": "doom/rumble.ogg, doom/impact.ogg, mystic/big_explosion.ogg: OggS header, distinct bytes, own synthesis",
+    "projector_gui_models": "valid JSON, referenced textures exist"
+  },
+  "requirements": {
+    "1_mana_hud": "implemented_not_verified_in_game",
+    "2_handbook_research_icons_recipes": "data_verified_ui_not_verified",
+    "3_service_projectors": "verified_native",
+    "4_doom_overhaul": "implemented_native_passed_client_visual_not_verified",
+    "5_weapon_gandr_staff_visuals": "gandr_and_staff_blast_done_other_weapon_visuals_not_changed",
+    "6_spiritual_displacement": "verified_native_client_not_verified",
+    "7_nobu_gauntlet_chains": "nobu_chains_gauntlet_verified_native",
+    "8_william": "loot_book_and_rotation_interpolation_verified_native",
+    "9_reality_marble_boss_morgan": "verified_native_client_not_verified",
+    "10_regression": "verified_native_progression_economy_parity",
+    "mystic_code_slot_reason": "tooltip and container caption explain the weapon-scroll refusal"
+  },
+  "native_script": "scripts/verify_032.ps1",
+  "client_guide": "docs/VERIFY-0.32.md",
+  "client_scenarios": ["hud-placement-check", "catalog-showrecipe-check", "translations-032-check", "hints-toggle-check", "research-controls-check", "doom-visual-check", "stage-nobu-guns", "stage-mystic-hand", "presentation-audio-check"],
+  "verification_owner": "Client and in-game visual acceptance is performed by the user; no client was launched and no screenshots were taken or reviewed in this session.",
+  "known_limits": [
+    "HUD disappearance cause was not reproduced; defensive isolation, screen-clamped placement, /showmahou feedback and join-time precondition logging were added.",
+    "Boss damage to real players is verified in game; the native fixture cannot damage its fake players and only proves target selection plus the same damage source on a creature.",
+    "William rotation interpolation was fixed and checked natively; other observed flight behaviour was not reproduced.",
+    "Weapon/scroll visuals beyond Gandr and the staff blast were not changed."
+  ],
+  "test_world_note": "Native checks used the disposable run/progression-checks world; worlds under run/server were not modified."
+}

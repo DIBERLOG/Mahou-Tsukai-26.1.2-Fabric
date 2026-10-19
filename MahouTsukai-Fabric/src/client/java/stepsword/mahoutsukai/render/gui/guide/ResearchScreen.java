@@ -20,9 +20,11 @@ public final class ResearchScreen extends Screen {
  private final Map<String,Button> buttons=new LinkedHashMap<>();
  private JsonObject selected;
  private int left,top,bookWidth,bookHeight,canvasRight;
- private double zoom=.85,panX=40,panY;
+ private double zoom=.85,panX,panY;
  private boolean dragging;
  private Button recipe;
+ private int detailOffset;
+ private static List<stepsword.mahoutsukai.item.guide.Page> guidePages;
  public ResearchScreen(GuideCatalogScreen parent){
   super(Component.translatable("mahoutsukai.research.title"));this.parent=parent;
   for(var value:GuideCatalogScreen.research()){var node=value.getAsJsonObject();nodes.add(node);byKey.put(key(node),node);}
@@ -31,8 +33,14 @@ public final class ResearchScreen extends Screen {
  private static String key(JsonObject node){return node.get("key").getAsString();}
  private static String tr(String key,Object...args){return Component.translatable("mahoutsukai.research."+key,args).getString();}
  private static ItemStack icon(JsonObject node){var id=Identifier.parse(node.get("item").getAsString());return BuiltInRegistries.ITEM.containsKey(id)?new ItemStack(BuiltInRegistries.ITEM.getValue(id)):ItemStack.EMPTY;}
+ private static String itemName(String id){
+  var key=Identifier.parse(id);
+  if(BuiltInRegistries.ITEM.containsKey(key))return new ItemStack(BuiltInRegistries.ITEM.getValue(key)).getHoverName().getString();
+  var block=BuiltInRegistries.BLOCK.getValue(key);
+  return block==null?id:block.getName().getString();
+ }
  private static String name(JsonObject node){
-  String key=key(node);if(key.startsWith("learn_")){var icon=icon(node);return icon.isEmpty()?BuiltInRegistries.BLOCK.getValue(Identifier.parse(node.get("item").getAsString())).getName().getString():icon.getHoverName().getString();}
+  String key=key(node);if(key.startsWith("learn_")){var icon=icon(node);if(!icon.isEmpty())return icon.getHoverName().getString();return itemName(node.get("item").getAsString());}
   return tr(key+".title");
  }
  private static boolean done(JsonObject node){return node.get("done").getAsBoolean();}
@@ -41,9 +49,42 @@ public final class ResearchScreen extends Screen {
  private int x(JsonObject node){return (int)(left+panX+node.get("column").getAsInt()*104*zoom);}
  private int y(JsonObject node){return (int)(top+38+panY+node.get("row").getAsInt()*60*zoom);}
  private boolean inside(double x,double y){return x>=left+8&&x<canvasRight-8&&y>=top+34&&y<top+bookHeight-42;}
+ private boolean insideDetail(double x,double y){return x>=canvasRight+8&&x<left+bookWidth-8&&y>=top+34&&y<top+bookHeight-40;}
+ private static List<stepsword.mahoutsukai.item.guide.Page> guidePages(){
+  if(guidePages==null)guidePages=new stepsword.mahoutsukai.item.guide.GuidebookInstance().getPages();
+  return guidePages;
+ }
+ /** Finds the handbook article whose ritual recipe matches this node, so its purpose stays authoritative. */
+ private static stepsword.mahoutsukai.item.guide.SpellPage pageFor(JsonObject node){
+  if(!node.has("ingredients"))return null;
+  for(var page:guidePages())if(page instanceof stepsword.mahoutsukai.item.guide.SpellPage spell&&GuideCatalogScreen.matches(spell.getRecipe(),node))return spell;
+  return null;
+ }
+ /** Builds the concrete acquisition hint from the same recipe data the catalogue uses. */
+ private static String acquisition(JsonObject node){
+  if(!node.has("ingredients"))return tr("learn.body");
+  var counts=new LinkedHashMap<String,Integer>();
+  node.getAsJsonArray("ingredients").forEach(v->{String id=v.getAsString();if(!id.equals("mahoutsukai:spell_cloth"))counts.merge(id,1,Integer::sum);});
+  var parts=new ArrayList<String>();
+  counts.forEach((id,n)->parts.add(n+" × "+itemName(id)));
+  String list=String.join(", ",parts);
+  boolean craft=node.has("entryKind")&&node.get("entryKind").getAsString().equals("craft");
+  if(craft)return tr("learn.craft",list);
+  boolean cloth=node.has("cloth")&&node.get("cloth").getAsBoolean();
+  return tr(cloth?"learn.ritual_cloth":"learn.ritual",list);
+ }
+ private String body(JsonObject node){
+  String key=key(node);
+  if(key.startsWith("learn_")){
+   var page=pageFor(node);
+   return tr("learn.card",page!=null?page.getDescription():tr("learn.purpose_unknown",name(node)),acquisition(node));
+  }
+  if(key.startsWith("family_"))return tr("family.body");
+  return tr(key+".body");
+ }
  @Override protected void init(){
-  bookWidth=Math.min(790,width-16);bookHeight=Math.min(410,height-16);left=(width-bookWidth)/2;top=(height-bookHeight)/2;canvasRight=left+bookWidth-Math.min(220,bookWidth/3);panY=(bookHeight-80)/2.0;buttons.clear();
-  var search=new EditBox(font,left+140,top+6,Math.max(80,canvasRight-left-156),20,Component.translatable("mahoutsukai.catalog.search"));search.setHint(Component.translatable("mahoutsukai.catalog.search"));search.setResponder(value->{if(!value.isBlank())for(var node:nodes)if(name(node).toLowerCase(Locale.ROOT).contains(value.toLowerCase(Locale.ROOT))){selected=node;center();break;}});addRenderableWidget(search);
+  bookWidth=Math.min(790,width-16);bookHeight=Math.min(410,height-16);left=(width-bookWidth)/2;top=(height-bookHeight)/2;canvasRight=left+bookWidth-Math.min(220,bookWidth/3);panY=(bookHeight-80)/2.0;buttons.clear();detailOffset=0;
+  var search=new EditBox(font,left+140,top+6,Math.max(80,canvasRight-left-156),20,Component.translatable("mahoutsukai.catalog.search"));search.setHint(Component.translatable("mahoutsukai.catalog.search"));search.setResponder(value->{if(!value.isBlank())for(var node:nodes)if(name(node).toLowerCase(Locale.ROOT).contains(value.toLowerCase(Locale.ROOT))){selected=node;detailOffset=0;center();break;}});addRenderableWidget(search);
   for(var node:nodes){
    class ResearchButton extends Button {
     ResearchButton(){super(0,0,30,30,Component.literal(name(node)+" — "+statusLabel(node)),b->select(node),DEFAULT_NARRATION);}
@@ -52,22 +93,23 @@ public final class ResearchScreen extends Screen {
      if(node==selected||isHoveredOrFocused())circle(g,getX()+15,getY()+15,18,0xFFDEC8F7);
      circle(g,getX()+15,getY()+15,16,color);circle(g,getX()+15,getY()+15,14,0xFF292735);
      var stack=icon(node);if(!stack.isEmpty())g.item(stack,getX()+7,getY()+7);
+     else if(GuideGlyphs.itemlessRitual(node))GuideGlyphs.ritual(g,getX()+7,getY()+7);
      else {int cx=getX()+15,cy=getY()+15;circle(g,cx,cy,8,0xFFB5A0D4);circle(g,cx,cy,7,0xFF292735);markStroke(g,cx-5,cy,cx+4,cy,0xFFB5A0D4);markStroke(g,cx,cy-5,cx,cy+4,0xFFB5A0D4);circle(g,cx,cy,3,0xFFE0D1F4);}
      statusBadge(g,getX()+26,getY()+4,done(node),available(node));
     }
    }var button=new ResearchButton();buttons.put(key(node),button);addRenderableWidget(button);
   }
-  addRenderableWidget(Button.builder(Component.translatable("mahoutsukai.research.home"),b->{zoom=.85;panX=40;panY=(bookHeight-80)/2.0;selected=nodes.isEmpty()?null:nodes.getFirst();}).bounds(left+12,top+bookHeight-30,74,20).build());
+  addRenderableWidget(Button.builder(Component.translatable("mahoutsukai.research.home"),b->{zoom=.85;panX=40;panY=(bookHeight-80)/2.0;selected=nodes.isEmpty()?null:nodes.getFirst();detailOffset=0;}).bounds(left+12,top+bookHeight-30,74,20).build());
   addRenderableWidget(Button.builder(Component.literal("−"),b->zoom(.8)).bounds(left+92,top+bookHeight-30,24,20).build());
   addRenderableWidget(Button.builder(Component.literal("+"),b->zoom(1.25)).bounds(left+120,top+bookHeight-30,24,20).build());
   addRenderableWidget(Button.builder(Component.literal("‹"),b->step(-1)).bounds(left+152,top+bookHeight-30,24,20).build());
   addRenderableWidget(Button.builder(Component.literal("›"),b->step(1)).bounds(left+180,top+bookHeight-30,24,20).build());
-  recipe=addRenderableWidget(Button.builder(Component.translatable("mahoutsukai.research.recipe"),b->{if(selected!=null){minecraft.setScreen(parent);parent.filter(selected.get("item").getAsString());}}).bounds(canvasRight+12,top+bookHeight-58,bookWidth-(canvasRight-left)-24,20).build());
+  recipe=addRenderableWidget(Button.builder(Component.translatable("mahoutsukai.research.recipe"),b->{if(selected!=null){minecraft.setScreen(parent);parent.showRecipe(selected.get("item").getAsString());}}).bounds(canvasRight+12,top+bookHeight-58,bookWidth-(canvasRight-left)-24,20).build());
   addRenderableWidget(Button.builder(Component.translatable("gui.back"),b->onClose()).bounds(canvasRight+12,top+bookHeight-30,bookWidth-(canvasRight-left)-24,20).build());
  }
- private void select(JsonObject node){selected=node;}
- public void focusNode(String key){if(byKey.containsKey(key)){selected=byKey.get(key);center();}}
- private void step(int direction){if(nodes.isEmpty())return;selected=nodes.get(Math.floorMod(nodes.indexOf(selected)+direction,nodes.size()));center();}
+ private void select(JsonObject node){if(node!=selected)detailOffset=0;selected=node;}
+ public void focusNode(String key){if(byKey.containsKey(key)){selected=byKey.get(key);detailOffset=0;center();}}
+ private void step(int direction){if(nodes.isEmpty())return;select(nodes.get(Math.floorMod(nodes.indexOf(selected)+direction,nodes.size())));center();}
  private void center(){if(selected!=null){panX=(canvasRight-left)/2.0-selected.get("column").getAsInt()*104*zoom;panY=(bookHeight-80)/2.0-selected.get("row").getAsInt()*60*zoom;}}
  private void zoom(double factor){zoom=Math.clamp(zoom*factor,.55,1.5);center();}
  private static void circle(GuiGraphicsExtractor g,int x,int y,int radius,int color){for(int dy=-radius;dy<=radius;dy++){int dx=(int)Math.sqrt(radius*radius-dy*dy);g.fill(x-dx,y+dy,x+dx+1,y+dy+1,color);}}
@@ -102,9 +144,15 @@ public final class ResearchScreen extends Screen {
   if(selected!=null){
    sy=text(g,name(selected),sx,sy,sw,bottom,0xFFF0DDF9)+7;
    statusBadge(g,sx+7,sy+5,done(selected),available(selected));sy=text(g,statusLabel(selected),sx+22,sy,sw-22,bottom,0xFFA8CBB8)+9;
-   String key=key(selected),description=key.startsWith("learn_")?tr("learn.body"):key.startsWith("family_")?tr("family.body"):tr(key+".body");
-   sy=text(g,description,sx,sy,sw,bottom,0xFFCCBED6)+6;
-   if(!available(selected)){sy=text(g,tr("requires"),sx,sy,sw,bottom,0xFFB39BCA);for(var value:selected.getAsJsonArray("parents")){var node=byKey.get(value.getAsString());if(node!=null&&!done(node))sy=text(g,"• "+name(node),sx,sy,sw,bottom,0xFFBBAEC6);}}
+   if(!available(selected)){
+    sy=text(g,tr("requires"),sx,sy,sw,bottom,0xFFB39BCA);
+    for(var value:selected.getAsJsonArray("parents")){var node=byKey.get(value.getAsString());if(node!=null&&!done(node))sy=text(g,"• "+name(node),sx,sy,sw,bottom,0xFFBBAEC6);}
+    sy+=2;
+   }
+   String body=body(selected);var lines=font.split(Component.literal(body),sw);int lineHeight=font.lineHeight+3;int visible=Math.max(1,(bottom-sy)/lineHeight);
+   detailOffset=Math.clamp(detailOffset,0,Math.max(0,lines.size()-visible));
+   for(int i=0;i<visible&&i+detailOffset<lines.size();i++)g.text(font,lines.get(i+detailOffset),sx,sy+i*lineHeight,0xFFCCBED6);
+   if(lines.size()>visible){int trackTop=sy,trackBottom=bottom;g.fill(sx+sw-1,trackTop,sx+sw,trackBottom,0x553D3548);int barHeight=Math.max(8,(trackBottom-trackTop)*visible/Math.max(1,lines.size()));int barTop=trackTop+(trackBottom-trackTop-barHeight)*detailOffset/Math.max(1,lines.size()-visible);g.fill(sx+sw-1,barTop,sx+sw,barTop+barHeight,0xFFB895D7);}
   }else text(g,tr("empty"),sx,sy,sw,bottom,0xFFCCBED6);
   recipe.active=selected!=null;
   recipe.setMessage(Component.translatable(selected!=null&&key(selected).equals("doom")?"mahoutsukai.catalog.details":"mahoutsukai.research.recipe"));
@@ -114,7 +162,7 @@ public final class ResearchScreen extends Screen {
  @Override public boolean mouseClicked(MouseButtonEvent event,boolean doubleClick){if(super.mouseClicked(event,doubleClick))return true;if(inside(event.x(),event.y())){dragging=true;return true;}return false;}
  @Override public boolean mouseDragged(MouseButtonEvent event,double dx,double dy){if(dragging){panX+=dx;panY+=dy;return true;}return super.mouseDragged(event,dx,dy);}
  @Override public boolean mouseReleased(MouseButtonEvent event){dragging=false;return super.mouseReleased(event);}
- @Override public boolean mouseScrolled(double x,double y,double dx,double dy){if(inside(x,y)){zoom(dy>0?1.12:1/1.12);return true;}return super.mouseScrolled(x,y,dx,dy);}
+ @Override public boolean mouseScrolled(double x,double y,double dx,double dy){if(insideDetail(x,y)){detailOffset=Math.max(0,detailOffset+(dy>0?-3:3));return true;}if(inside(x,y)){zoom(dy>0?1.12:1/1.12);return true;}return super.mouseScrolled(x,y,dx,dy);}
  @Override public void onClose(){minecraft.setScreen(parent);}
  @Override public boolean isPauseScreen(){return false;}
 }

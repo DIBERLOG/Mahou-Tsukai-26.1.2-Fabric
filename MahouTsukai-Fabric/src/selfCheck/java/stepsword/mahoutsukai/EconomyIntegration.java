@@ -26,6 +26,8 @@ public final class EconomyIntegration implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        if(Boolean.getBoolean("mahoutsukai.battlePreview")){BattleReplay.init();return;}
+        if(Boolean.getBoolean("mahoutsukai.audit032")){Audit032ServerChecks.init();return;}
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             try {
                 if(Boolean.getBoolean("mahoutsukai.progressionOnly")){Progression026Checks.start(server);return;}
@@ -143,6 +145,7 @@ public final class EconomyIntegration implements ModInitializer {
                 circuit.setChanged();
                 server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "forceload add 0 0 16 16");
                 server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "forceload add 448 448 592 592");
+                server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "forceload add 600 512 720 576");
                 net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(new net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.EndTick() {
                     int ticks;
                     public void onEndTick(net.minecraft.server.MinecraftServer running) {
@@ -150,8 +153,10 @@ public final class EconomyIntegration implements ModInitializer {
                         if(ticks<40) return;
                         try {
                             if(ticks==40) {
+                            MentalDisplacementChecks.run(player);
                             Nobu031Checks.run(player);
                             Fireball031Checks.run(player);
+                            ArchmageCombat034Checks.run(player);
                             MagicIntegration.run(player);
                             RitualIntegration.run(player);
                             DefenseIntegration.run(player);
@@ -181,16 +186,22 @@ public final class EconomyIntegration implements ModInitializer {
                             return;
                             }
                             if(ticks==42){SwordMarbleIntegration.verify();return;}
-                            if(ticks==43)SwordMarbleIntegration.finish();
+                            if(ticks==43){SwordMarbleIntegration.requestReturn();return;}
+                            if(ticks==44){SwordMarbleIntegration.finish();running.execute(()->MultiplayerMarble036Checks.start(player));return;}
+                            if(ticks==45){MultiplayerMarble036Checks.verifyArrived();return;}
+                            if(ticks==46){MultiplayerMarble036Checks.verifyFirstReturned();return;}
+                            if(ticks==47)MultiplayerMarble036Checks.finish();
                             if(!BlackFlameIntegration.verifyNativeTicks()) return;
                             if(!StrengtheningClarentIntegration.verifyWoundTick()) return;
                             DoomIntegration.run(player);
                             running.getCommands().performPrefixedCommand(running.createCommandSourceStack(), "forceload remove 448 448 592 592");
+                            running.getCommands().performPrefixedCommand(running.createCommandSourceStack(), "forceload remove 600 512 720 576");
                             running.getCommands().performPrefixedCommand(running.createCommandSourceStack(), "forceload remove 0 0 16 16");
                             Files.writeString(Path.of("economy-checks.passed"), "PASS: economy, regeneration, 53 original ritual families, defense, contracts, barriers, eyes, souls, Kodoku, weapons and DOOM server integration\n");
                             System.out.println("PASS: ECONOMY_INTEGRATION");
                             running.halt(false);
                         } catch (Exception | AssertionError failure) {
+                            MultiplayerMarble036Checks.cleanup();
                             throw new IllegalStateException("Deferred gameplay integration failed", failure);
                         }
                     }

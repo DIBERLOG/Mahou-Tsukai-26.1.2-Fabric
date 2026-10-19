@@ -25,6 +25,9 @@ public class SetMahouVisible {
             mahou.setHasMagic(true);
             mahou.setVisible(!mahou.getVisible());
             PlayerManaManager.updateClientMahou((ServerPlayer)player, mahou);
+            boolean visible = mahou.getVisible();
+            context.getSource().sendSuccess(() -> net.minecraft.network.chat.Component.translatable(
+               visible ? "mahoutsukai.command.showmahou.on" : "mahoutsukai.command.showmahou.off"), false);
          }
       }
 

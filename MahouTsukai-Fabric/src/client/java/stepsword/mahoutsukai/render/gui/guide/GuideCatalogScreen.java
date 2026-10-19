@@ -72,6 +72,13 @@ public final class GuideCatalogScreen extends Screen {
 
  public static JsonArray research(){var result=new JsonArray();for(var value:received)if(value.getAsJsonObject().get("kind").getAsString().equals("research"))result.add(value);return result;}
  public void filter(String value){search.setValue(value);}
+ public void showRecipe(String itemId){
+  search.setValue("");
+  selected=entries.stream().filter(row->id(row).equals(itemId)).findFirst().orElse(null);
+  page=selected==null?0:entries.indexOf(selected)/rowCount;
+  refresh();
+ }
+ private static String usage(String itemId){String key="mahoutsukai.catalog.usage_"+Identifier.parse(itemId).getPath();return net.minecraft.client.resources.language.I18n.exists(key)?Component.translatable(key).getString():"";}
  private void refresh(){
 
   filtered.clear();for(var row:entries)if((name(row)+" "+id(row)).toLowerCase(java.util.Locale.ROOT).contains(query.toLowerCase(java.util.Locale.ROOT)))filtered.add(row);
@@ -80,7 +87,7 @@ public final class GuideCatalogScreen extends Screen {
 
   for(int i=0;i<rows.size();i++){int offset=page*rowCount+i;var button=rows.get(i);button.visible=offset<filtered.size();if(button.visible){var row=filtered.get(offset);button.setMessage(Component.literal(fit((row.get("unlocked").getAsBoolean()?"":"• ")+name(row),listWidth-24)));button.active=row!=selected;}}
 
-  previous.active=page>0;next.active=(page+1)*rowCount<filtered.size();details.active=selected!=null&&selected.get("unlocked").getAsBoolean()&&(!selected.get("kind").getAsString().equals("craft")||item(id(selected)) instanceof SpellScroll);
+  previous.active=page>0;next.active=(page+1)*rowCount<filtered.size();details.active=selected!=null&&selected.get("unlocked").getAsBoolean()&&(!selected.get("kind").getAsString().equals("craft")||item(id(selected)) instanceof SpellScroll||!usage(id(selected)).isEmpty());
 
  }
 
@@ -88,8 +95,11 @@ public final class GuideCatalogScreen extends Screen {
 
   if(selected==null||!selected.get("unlocked").getAsBoolean())return;
 
+  if(id(selected).equals("mahoutsukai:william")){Minecraft.getInstance().setScreen(new HandbookScreen(this,"william"));return;}
   if(id(selected).equals("mahoutsukai:scroll_doom")){Minecraft.getInstance().setScreen(new HandbookScreen(this,"doom"));return;}
   if(id(selected).equals("mahoutsukai:scroll_fireball")){Minecraft.getInstance().setScreen(new HandbookScreen(this,"fireball"));return;}
+  if(id(selected).equals("mahoutsukai:fog_projector")){Minecraft.getInstance().setScreen(new HandbookScreen(this,"fog_projector"));return;}
+  if(id(selected).equals("mahoutsukai:mahoujin_projector")){Minecraft.getInstance().setScreen(new HandbookScreen(this,"projector"));return;}
 
   var book=new stepsword.mahoutsukai.item.guide.GuidebookInstance();
 
@@ -99,7 +109,7 @@ public final class GuideCatalogScreen extends Screen {
 
  }
 
- private static boolean matches(stepsword.mahoutsukai.util.UnorderedList recipe,JsonObject row){
+ static boolean matches(stepsword.mahoutsukai.util.UnorderedList recipe,JsonObject row){
 
   var original=new ArrayList<String>();for(String key:recipe.getKeys())for(int i=0;i<recipe.get(key);i++)original.add(BuiltInRegistries.ITEM.getKey(stepsword.mahoutsukai.block.spells.MahoujinRecipeRegistrar.ingredients.get(key)).toString());
 
@@ -135,15 +145,16 @@ public final class GuideCatalogScreen extends Screen {
 
   else{
 
-   var selectedItem=item(id(selected));if(selectedItem!=null)graphics.item(new ItemStack(selectedItem),x,y);y=text(graphics,name(selected),x+22,y,w-22,bottom,0xFFF0E1F4)+8;
+   var selectedItem=item(id(selected));if(selectedItem!=null)graphics.item(new ItemStack(selectedItem),x,y);else if(GuideGlyphs.itemlessRitual(selected))GuideGlyphs.ritual(graphics,x,y);y=text(graphics,name(selected),x+22,y,w-22,bottom,0xFFF0E1F4)+8;
 
-   y=text(graphics,mana(selectedItem),x,y,w,bottom,0xFFCCB0DF)+5;
+   String purpose=usage(id(selected));if(!purpose.isEmpty())y=text(graphics,purpose,x,y,w,bottom,0xFFCCB0DF)+5;
+   String cost=mana(selectedItem);if(!cost.isEmpty())y=text(graphics,cost,x,y,w,bottom,0xFFCCB0DF)+5;
 
    if(!selected.get("unlocked").getAsBoolean())text(graphics,tr("locked",(selected.getAsJsonArray("ingredients").size()+1)/2),x,y,w,bottom,0xFFC9BDCD);
 
    else{
 
-    String kind=id(selected).equals("mahoutsukai:scroll_doom")?"secret":selected.get("kind").getAsString();y=text(graphics,tr(kind),x,y,w,bottom,0xFFBCACC7)+4;
+    String kind=id(selected).equals("mahoutsukai:scroll_doom")?"secret":selected.get("kind").getAsString();if(!kind.equals("craft"))y=text(graphics,tr(kind),x,y,w,bottom,0xFFBCACC7)+4;
 
     var ingredients=kind.equals("secret")?new JsonArray():selected.getAsJsonArray("ingredients");var counts=new LinkedHashMap<String,Integer>();ingredients.forEach(v->counts.merge(v.getAsString(),1,Integer::sum));
 

@@ -61,7 +61,7 @@ public final class ResearchProgress {
   if(node.key().equals("first_scroll")||node.key().startsWith("family_"))return inventory.keySet().stream().anyMatch(id->{var item=net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(net.minecraft.resources.Identifier.parse(id));return item instanceof SpellScroll&&(node.key().equals("first_scroll")||family(id).equals(node.key().substring(7)));});
   if(node.goals().isEmpty())return false;var counts=new HashMap<String,Integer>();node.goals().forEach(id->counts.merge(id,1,Integer::sum));return counts.entrySet().stream().allMatch(e->inventory.getOrDefault(e.getKey(),0)>=e.getValue());
  }
- public static void append(JsonArray rows,List<GuideCatalog.Entry> recipes,Set<String> known){
-  for(var node:nodes(recipes)){var row=new Gson().toJsonTree(node).getAsJsonObject();row.addProperty("kind","research");row.addProperty("done",known.contains("research/"+node.key()));row.addProperty("available",node.parents().stream().allMatch(p->known.contains("research/"+p)));rows.add(row);}
+ public static void append(JsonArray rows,List<GuideCatalog.Entry> recipes,Set<String> known,boolean creative){
+  for(var node:nodes(recipes)){var row=new Gson().toJsonTree(node).getAsJsonObject();row.addProperty("kind","research");row.addProperty("done",known.contains("research/"+node.key()));row.addProperty("available",node.parents().stream().allMatch(p->known.contains("research/"+p)));var entry=node.recipe().isEmpty()?null:recipes.stream().filter(e->e.id().equals(node.recipe())).findFirst().orElse(null);if(entry!=null&&(creative||known.contains(entry.id())||!entry.item().startsWith("mahoutsukai:scroll_"))){row.add("ingredients",new Gson().toJsonTree(entry.ingredients()));row.addProperty("cloth",entry.cloth());row.addProperty("entryKind",entry.kind());}rows.add(row);}
  }
 }

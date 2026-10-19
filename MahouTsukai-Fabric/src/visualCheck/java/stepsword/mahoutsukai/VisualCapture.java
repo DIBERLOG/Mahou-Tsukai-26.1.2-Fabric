@@ -24,6 +24,9 @@ public final class VisualCapture implements ClientModInitializer {
     String name = Files.readString(request).strip();
     Files.delete(request);
     if (!name.matches("[a-z0-9-]+")) throw new IllegalArgumentException("Invalid capture name");
+    if(name.equals("battle-respawn")){if(client.player.isDeadOrDying())client.player.respawn();client.setScreen(null);return;}
+    if(name.equals("archmage-model-check")){try{ArchmageVisualChecks.run(client);}catch(Exception failure){throw new RuntimeException(failure);}return;}
+    if(name.equals("stage-hud-unawakened")){var mana=stepsword.mahoutsukai.util.Utils.getPlayerMahou(client.player);mana.setHasMagic(false);mana.setVisible(true);client.setScreen(null);return;}
     if(name.equals("activation-geometry-check")){try{ActivationVisualChecks.run();}catch(Exception failure){throw new RuntimeException(failure);}return;}
     if(name.equals("handbook-open")){client.setScreen(new stepsword.mahoutsukai.render.gui.guide.HandbookScreen(client.screen));return;}
     if(name.equals("research-open")){if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.GuideCatalogScreen book))throw new AssertionError("Open server catalogue before research");client.setScreen(new stepsword.mahoutsukai.render.gui.guide.ResearchScreen(book));return;}
@@ -140,6 +143,37 @@ public final class VisualCapture implements ClientModInitializer {
     if(name.equals("fog-use-shaders")){stepsword.mahoutsukai.config.MTConfig.NO_SHADERS=false;client.setScreen(null);return;}
     if(name.equals("parity-window")){client.options.pauseOnLostFocus=false;client.getWindow().setWindowed(1280,720);client.options.guiScale().set(0);client.resizeGui();client.setScreen(null);return;}
     if(name.equals("parity-close")){client.setScreen(null);return;}
+    if(name.equals("hud-placement-check")){
+     try{
+      var xm=stepsword.mahoutsukai.render.gui.MahouGui.class.getDeclaredMethod("hudX");xm.setAccessible(true);
+      var ym=stepsword.mahoutsukai.render.gui.MahouGui.class.getDeclaredMethod("hudY");ym.setAccessible(true);
+      int oldX=stepsword.mahoutsukai.config.MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_X,oldY=stepsword.mahoutsukai.config.MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_Y;
+      try{
+       stepsword.mahoutsukai.config.MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_X=1_000_000;stepsword.mahoutsukai.config.MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_Y=1_000_000;
+       int x=(int)xm.invoke(null),y=(int)ym.invoke(null);
+       if(x>client.getWindow().getGuiScaledWidth()||y>client.getWindow().getGuiScaledHeight())throw new AssertionError("HUD clamp allowed an off-screen origin: "+x+","+y);
+       Files.writeString(Path.of("hud-placement-check.passed"),"PASS: absurd placement is clamped to the visible screen ("+x+","+y+" of "+client.getWindow().getGuiScaledWidth()+"x"+client.getWindow().getGuiScaledHeight()+")\n");
+      }finally{stepsword.mahoutsukai.config.MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_X=oldX;stepsword.mahoutsukai.config.MTConfig.CLIENT_GUI_MAHOU_PLACEMENT_Y=oldY;}
+     }catch(ReflectiveOperationException e){throw new RuntimeException(e);}return;
+    }
+    if(name.equals("catalog-showrecipe-check")){
+     if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.GuideCatalogScreen book))throw new AssertionError("Open the server catalogue first");
+     try{
+      book.showRecipe("mahoutsukai:guidebook");
+      var searchField=book.getClass().getDeclaredField("search");searchField.setAccessible(true);var search=(net.minecraft.client.gui.components.EditBox)searchField.get(book);
+      var selectedField=book.getClass().getDeclaredField("selected");selectedField.setAccessible(true);var selected=(com.google.gson.JsonObject)selectedField.get(book);
+      if(search==null||!search.getValue().isEmpty())throw new AssertionError("Recipe jump left a technical query in the search box");
+      if(selected==null||!selected.get("item").getAsString().equals("mahoutsukai:guidebook"))throw new AssertionError("Recipe jump did not select the compendium row");
+      Files.writeString(Path.of("catalog-showrecipe-check.passed"),"PASS: research-to-recipe jump clears the search and selects the real compendium item\n");
+     }catch(ReflectiveOperationException e){throw new RuntimeException(e);}return;
+    }
+    if(name.equals("translations-032-check")){
+     for(String key:java.util.List.of("mahoutsukai.mystic_code.tooltip","mahoutsukai.mystic_code.slot_restriction","mahoutsukai.hud.hidden_hint","mahoutsukai.command.showmahou.on","mahoutsukai.command.showmahou.off","mahoutsukai.mental.countdown","mahoutsukai.subtitle.doom.rumble","mahoutsukai.subtitle.doom.impact","mahoutsukai.subtitle.mystic.explosion_big","entity.mahoutsukai.reality_marble_boss","mahoutsukai.marble.boss_reward")){
+      if(!net.minecraft.client.resources.language.I18n.exists(key))throw new AssertionError("Missing 0.32 translation: "+key);
+      if(net.minecraft.client.resources.language.I18n.get(key).equals(key))throw new AssertionError("Untranslated 0.32 key: "+key);
+     }
+     Files.writeString(Path.of("translations-032-check.passed"),"PASS: all new 0.32 texts resolve in the active language\n");return;
+    }
     if(name.equals("compat-quit")){client.stop();return;}
     if(name.equals("confusion-input-check")){
      var keys=new net.minecraft.client.player.KeyboardInput(client.options);boolean old=client.options.keyUp.isDown();boolean jump=client.options.keyJump.isDown();
