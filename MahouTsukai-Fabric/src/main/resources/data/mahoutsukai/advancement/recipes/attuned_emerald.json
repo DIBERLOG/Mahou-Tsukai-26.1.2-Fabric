@@ -1,0 +1,28 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "materials": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mahoutsukai:attuner"
+          },
+          {
+            "items": "minecraft:emerald"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "materials"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "mahoutsukai:attuned_emerald"
+    ]
+  }
+}

@@ -50,8 +50,8 @@ public final class ProjectionIntegration {
         var memorized=ProjectionSpellEffect.memorize(player);
         require(memorized==zombie.getMainHandItem(),"Projection strict cursor finds equipped weapon");
         var scroll=new ItemStack(ModItems.REGISTERED.get("scroll_projection"));
-        ((SpellScroll)scroll.getItem()).releaseUsing(scroll,world,player,71999);
-        require(scroll.getCount()==1 && Utils.getStackHolderMahou(scroll).getStack().isPresent() && mana.getStoredMana()==5000,"Original memorization charges mana and retains scroll");
+        ((SpellScroll)scroll.getItem()).releaseUsing(scroll,world,player,71900);
+        require(scroll.getCount()==1 && Utils.getStackHolderMahou(scroll).getStack().isPresent() && mana.getStoredMana()==5500,"Original memorization charges mana and retains scroll");
         zombie.getMainHandItem().setDamageValue(200);
         require(Utils.getStackHolderMahou(scroll).getStack().orElseThrow().getDamageValue()==100,"Memorized weapon is a snapshot");
         var copiedScroll=scroll.copy();var holder=Utils.getStackHolderMahou(copiedScroll);holder.getStack().orElseThrow().setDamageValue(300);Utils.setStackHolderMahou(copiedScroll,holder);
@@ -62,10 +62,10 @@ public final class ProjectionIntegration {
         var wire=new net.minecraft.network.RegistryFriendlyByteBuf(io.netty.buffer.Unpooled.buffer(),world.registryAccess());
         try {ItemStack.STREAM_CODEC.encode(wire,scroll);var received=ItemStack.STREAM_CODEC.decode(wire);require(Utils.getStackHolderMahou(received).getStack().orElseThrow().getDamageValue()==100,"Memorized item survives native registry network codec");}finally{wire.release();}
         MTConfig.PROJECTION_ENCHANTMENT_BLACKLIST=List.of("minecraft:sharpness");
-        ((SpellScroll)scroll.getItem()).releaseUsing(scroll,world,player,71999);
+        ((SpellScroll)scroll.getItem()).releaseUsing(scroll,world,player,71900);
         ItemStack projected=ItemStack.EMPTY;
         for(var stack:player.getInventory()) if(ProjectionSpellEffect.getProjected(stack)) projected=stack;
-        require(scroll.isEmpty() && mana.getStoredMana()==4000 && !projected.isEmpty(),"Projection consumes memorized scroll and original thousand mana");
+        require(scroll.isEmpty() && mana.getStoredMana()==5000 && !projected.isEmpty(),"Projection consumes memorized scroll and original thousand mana");
         require(projected.getDamageValue()==projected.getMaxDamage()-5 && StrengtheningSpellEffect.getStrengthened(projected)==0 && !projected.has(net.minecraft.core.component.DataComponents.UNBREAKABLE),"Copy has original five durability and loses temporary strengthening");
         require(EnchantmentHelper.getItemEnchantmentLevel(sharpness,projected)==0 && EnchantmentHelper.getItemEnchantmentLevel(unbreaking,projected)==3 && EnchantmentHelper.getItemEnchantmentLevel(sharpness,sword)==2,"Only projected copy loses blacklisted enchantment");
         MTConfig.PROJECTION_ENCHANTMENT_BLACKLIST=List.of();MTConfig.PROJECTION_EXPLICIT_WHITELIST=List.of();StrengtheningSpellEffect.reduceStrengthened(sword,5);MTConfig.PROJECTION_BLACKLIST=List.of("minecraft");

@@ -66,6 +66,8 @@ public final class CombatProbe {
    if((flags&16)!=0)t.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,200,3));
    if((flags&64)!=0){t.startUsingItem(InteractionHand.MAIN_HAND);USE.setInt(t,t.getUseItem().getUseDuration(t)-10);if(!t.isBlocking())throw new AssertionError("Shield fixture is not blocking");}
    effect(t,first,0,a);effect(t,second,1,a);ATTACK.setInt(a,100);SWAP.setInt(a,100);
+   // Entity death equipment drops must use identical random inputs on both loaders.
+   a.getRandom().setSeed(260026L);t.getRandom().setSeed(260026L);
    boolean accepted;
    if(melee){float health=t.getHealth();a.attack(t);accepted=t.getHealth()!=health||t.hurtTime>0;}
    else accepted=t.hurtServer(world,source(a,t,channel),amount);
@@ -88,7 +90,7 @@ public final class CombatProbe {
    String key=mask+"/"+channel+"/"+amount;defenses.add(key,trial(world,true,"minecraft:diamond_sword",mask,channel,amount,null,null,180,false,false));count++;
   }
   all.add("defense_power_set",defenses);System.out.println("COMBAT_PROGRESS defenses="+defenses.size());
-  var weapons=BuiltInRegistries.ITEM.keySet().stream().filter(id->id.getNamespace().equals("mahoutsukai")&&!Set.of("scroll_doom","rhongomyniad").contains(id.getPath())).sorted().map(Object::toString).toList();
+  var weapons=BuiltInRegistries.ITEM.keySet().stream().filter(id->id.getNamespace().equals("mahoutsukai")&&!id.getPath().startsWith("scroll_mana_")&&!Set.of("powdered_sculk","scroll_doom","rhongomyniad").contains(id.getPath())).sorted().map(Object::toString).toList();
   var attacks=new JsonObject();
   for(String weapon:weapons)for(boolean pvp:new boolean[]{false,true})for(int flags:new int[]{0,1,2,12,32,64,48,255})for(int facing:new int[]{0,180})for(boolean boost:new boolean[]{false,true}){
    String key=weapon+"/"+pvp+"/"+flags+"/"+facing+"/"+boost;attacks.add(key,trial(world,pvp,weapon,flags,"player",4,null,null,facing,boost,true));count++;

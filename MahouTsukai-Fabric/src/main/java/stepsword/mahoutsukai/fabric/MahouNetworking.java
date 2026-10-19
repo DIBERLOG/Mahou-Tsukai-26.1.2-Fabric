@@ -7,6 +7,11 @@ import stepsword.mahoutsukai.networking.PlayerMahouPacket;
 
 public final class MahouNetworking {
     public static void register() {
+        PayloadTypeRegistry.clientboundPlay().register(stepsword.mahoutsukai.networking.SpellVisualPacket.TYPE,stepsword.mahoutsukai.networking.SpellVisualPacket.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(stepsword.mahoutsukai.networking.GuideCatalogPacket.TYPE,stepsword.mahoutsukai.networking.GuideCatalogPacket.STREAM_CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(stepsword.mahoutsukai.networking.StopMagicPacket.TYPE,stepsword.mahoutsukai.networking.StopMagicPacket.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(stepsword.mahoutsukai.networking.StopMagicPacket.TYPE,(packet,context)->stepsword.mahoutsukai.networking.StopMagicPacket.handle(context.player()));
+        PayloadTypeRegistry.clientboundPlay().register(stepsword.mahoutsukai.networking.SpellStatusPacket.TYPE,stepsword.mahoutsukai.networking.SpellStatusPacket.STREAM_CODEC);
         PayloadTypeRegistry.serverboundPlay().register(stepsword.mahoutsukai.networking.TurnedPagePacket.TYPE,stepsword.mahoutsukai.networking.TurnedPagePacket.STREAM_CODEC);
         ServerPlayNetworking.registerGlobalReceiver(stepsword.mahoutsukai.networking.TurnedPagePacket.TYPE,(packet,context)->stepsword.mahoutsukai.networking.TurnedPagePacket.handle(packet,context.player()));
 

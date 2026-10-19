@@ -1,0 +1,40 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "materials": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dirt"
+          },
+          {
+            "items": "minecraft:carrot"
+          },
+          {
+            "items": "minecraft:potato"
+          },
+          {
+            "items": "minecraft:poisonous_potato"
+          },
+          {
+            "items": "minecraft:rotten_flesh"
+          },
+          {
+            "items": "minecraft:nether_wart"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "materials"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "mahoutsukai:kodoku"
+    ]
+  }
+}

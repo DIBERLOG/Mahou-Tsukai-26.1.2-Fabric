@@ -18,18 +18,18 @@ import stepsword.mahoutsukai.potion.ModEffects;
 public final class SoulsKodokuIntegration {
  private static void require(boolean value,String message) { if(!value) throw new AssertionError(message); }
  private static ItemStack cast(ServerPlayer player,String name) {
-  var stack=new ItemStack(ModItems.REGISTERED.get("scroll_"+name));((SpellScroll)stack.getItem()).releaseUsing(stack,player.level(),player,71999);return stack;
+  var stack=new ItemStack(ModItems.REGISTERED.get("scroll_"+name));((SpellScroll)stack.getItem()).releaseUsing(stack,player.level(),player,71900);return stack;
  }
  public static void run(ServerPlayer player) {
   var world=player.level();var mahou=((MahouHolder)player).mahoutsukai$getMahou();
   player.getInventory().clearContent();mahou.setStoredMana(1000);mahou.setMaxMana(1000);mahou.setDeathCollectionUsesLeft(0);
   var arrow=new net.minecraft.world.entity.projectile.arrow.Arrow(world,player,new ItemStack(Items.ARROW),null);arrow.setPos(550,252,550);world.addFreshEntity(arrow);
   require(mahou.getLastArrowShot().equals(arrow.getUUID()),"Native projectile load tracks original last arrow UUID");
-  require(cast(player,"projectile_displacement").isEmpty() && player.getX()==550 && player.getY()==253 && mahou.getStoredMana()==950,"Projectile scroll teleports to last arrow and charges fifty");arrow.discard();
+  require(cast(player,"projectile_displacement").isEmpty() && player.getX()==550 && player.getY()==253 && mahou.getStoredMana()==975,"Projectile scroll teleports to last arrow and charges fifty");arrow.discard();
   int before=mahou.getStoredMana();require(!cast(player,"projectile_displacement").isEmpty() && mahou.getStoredMana()==before,"Missing arrow retains scroll and mana");
   var collector=DoomIntegration.player(world,"SoulCheck",GameType.SURVIVAL,550);collector.setPos(550.5,250,560.5);collector.setYRot(180);collector.setYHeadRot(180);collector.setXRot(0);
   var souls=((MahouHolder)collector).mahoutsukai$getMahou();souls.setMaxMana(1000);souls.setStoredMana(1000);souls.setDeathCollectionUsesLeft(0);
-  require(cast(collector,"death_collection").isEmpty() && souls.getStoredMana()==600 && collector.hasEffect(ModEffects.DEATH_COLLECTION_EYES),"Original soul scroll costs four hundred");
+  require(cast(collector,"death_collection").isEmpty() && souls.getStoredMana()==800 && collector.hasEffect(ModEffects.DEATH_COLLECTION_EYES),"Original soul scroll costs four hundred");
   for(int i=0;i<4;i++) {
    var cow=EntityType.COW.create(world,EntitySpawnReason.COMMAND);cow.setPos(550.5,250,555.5);world.addFreshEntity(cow);cow.hurtServer(world,cow.damageSources().genericKill(),1000);cow.discard();
   }

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:sculk",
+    "mahoutsukai:hammer"
+  ],
+  "result": {
+    "id": "mahoutsukai:powdered_sculk",
+    "count": 1
+  }
+}

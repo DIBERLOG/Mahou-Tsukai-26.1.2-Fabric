@@ -42,7 +42,7 @@ public final class EntitiesProjectorsIntegration {
    var lance=new ItemStack(Items.STICK);lance.set(stepsword.mahoutsukai.datacomponents.DataComponents.LANCE_COMPONENT,new stepsword.mahoutsukai.datacomponents.lance.LanceMahou(9,3));
    var rhongo=new RhongomyniadEntity(world,p,1,lance);rhongo.setPos(p.position());require(world.addFreshEntity(rhongo),"Rhongomyniad native insertion");
    int before=Utils.getPlayerMahou(p).getStoredMana();
-   require(RhongomyniadEntity.operate(world,p.getUUID(),pos)&&Utils.getPlayerMahou(p).getStoredMana()==before-stepsword.mahoutsukai.config.MTConfig.RHONGOMYNIAD_MANA_COST,"Rhongomyniad actual mana cost");
+   require(RhongomyniadEntity.operate(world,p.getUUID(),pos)&&Utils.getPlayerMahou(p).getStoredMana()==before-stepsword.mahoutsukai.mana.PlayerManaManager.spellCost(stepsword.mahoutsukai.config.MTConfig.RHONGOMYNIAD_MANA_COST),"Rhongomyniad actual mana cost");
    var zombie=RemainingFamiliesIntegration.mob(p,EntityType.ZOMBIE,622.5,280,620.5);rhongo.setLife(39);rhongo.tick();
    var smites=world.getEntitiesOfClass(SmiteEntity.class,zombie.getBoundingBox().inflate(1),e->e.target==zombie);
    require(!smites.isEmpty()&&smites.getFirst().damage==9,"Rhongomyniad auto-strikes original special targets using stored lance damage");

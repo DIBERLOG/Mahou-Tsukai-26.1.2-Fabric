@@ -1,0 +1,28 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "materials": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:gold_ingot"
+          },
+          {
+            "items": "mahoutsukai:hammer"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "materials"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "mahoutsukai:powdered_gold"
+    ]
+  }
+}

@@ -80,7 +80,10 @@ public final class ParityMigrationIntegration {
         report.add("current_config_differences",configDiff);
         Files.writeString(Path.of("../../../analysis/phase018-parity-report.json"),new GsonBuilder().setPrettyPrinting().create().toJson(report)+"\n");
         require(missing.isEmpty(),"Missing original registered IDs: "+missing);
-        require(configDiff.isEmpty(),"Configured defaults differ from original: "+configDiff);
+        var intended=java.util.Map.of("PROXIMITY_PROJECTION_DURABILITY",130.0,"POWER_CONSOLIDATION_FOG_RADIUS",24.0,"NOBU_DISTANCE_REQUIREMENT",100.0,"CLARENT_ATTACK_CAP",1600.0);
+        var unexplained=configDiff.deepCopy();
+        intended.forEach((name,value)->{require(configDiff.has(name)&&configDiff.getAsJsonObject(name).get("fabric").getAsDouble()==value,"Missing requested progression default: "+name);unexplained.remove(name);});
+        require(unexplained.isEmpty(),"Unrequested configured-default differences: "+unexplained);
         System.out.println("PASS: ORIGINAL_MIGRATION_PARITY original player/living/colors/chunk/circle + "+items+" item stacks + seven registries");
     }
 }

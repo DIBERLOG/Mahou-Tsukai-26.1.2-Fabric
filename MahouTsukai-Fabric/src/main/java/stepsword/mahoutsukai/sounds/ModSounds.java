@@ -24,5 +24,21 @@ public final class ModSounds {
  public static final Supplier<SoundEvent> TAIKO3=register("nobu.taiko3");
  public static final Supplier<SoundEvent> TAIKOFIRE=register("nobu.taikofire");
  public static final Supplier<SoundEvent> TAIKOBOSS=register("nobu.taikoboss");
- public static void init() {}
+ public static final Supplier<SoundEvent> DOOM_ARRIVAL_HORN=register("doom.arrival_horn");
+ public static final Supplier<SoundEvent> DOOM_IMPACT_HORN=register("doom.impact_horn");
+ private static final java.util.Map<String,Supplier<SoundEvent>> CAST_SOUNDS=new java.util.HashMap<>();
+ static {for(String family:java.util.List.of("doom","projection","displacement","familiar","eyes","boundary","secret","mystic","exchange"))for(String stage:java.util.List.of("charge","release"))CAST_SOUNDS.put(family+"."+stage,register("cast."+family+"."+stage));}
+ public static SoundEvent cast(String family,boolean release){return CAST_SOUNDS.get(family+(release?".release":".charge")).get();}
+ private static final java.util.Map<net.minecraft.world.item.Item,SoundEvent[]> SPELL_SOUNDS=new java.util.IdentityHashMap<>();
+ public static SoundEvent spellCast(net.minecraft.world.item.Item spell,boolean release){
+  var sounds=SPELL_SOUNDS.get(spell);
+  return sounds==null?cast(stepsword.mahoutsukai.fabric.SpellPresentation.of(spell).soundKey(),release):sounds[release?1:0];
+ }
+ public static void init() {
+  // Called after ModItems.init(): accessing the items here cannot recurse during their construction.
+  for(var entry:stepsword.mahoutsukai.item.ModItems.REGISTERED.entrySet())if(entry.getValue() instanceof stepsword.mahoutsukai.item.spells.SpellScroll&&!SPELL_SOUNDS.containsKey(entry.getValue())){
+   String name=entry.getKey().replaceFirst("^scroll_","");
+   SPELL_SOUNDS.put(entry.getValue(),new SoundEvent[]{register("spell."+name+".charge").get(),register("spell."+name+".release").get()});
+  }
+ }
 }

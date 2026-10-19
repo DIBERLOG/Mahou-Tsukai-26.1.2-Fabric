@@ -30,7 +30,7 @@ public final class BoundaryIntegration {
   var friendCircle=(ContractMahoujinTileEntity)ExchangeCircleIntegration.ritual(friend,friendPos,"contract",false,"emerald","emerald","ender");
   require(contract.getTargets().contains(friend),"Contract finds owner standing on adjacent contract circle");contract.ifEntityFoundAbove(player);
   var save=stepsword.mahoutsukai.util.Utils.getWorldMahou(world);
-  require(save.doesContractExist(player.getUUID(),friend.getUUID()) && mahou.getStoredMana()==990 && friendMahou.getStoredMana()==90,"Original two-circle contract charges both players ten");
+  require(save.doesContractExist(player.getUUID(),friend.getUUID()) && mahou.getStoredMana()==995 && friendMahou.getStoredMana()==95,"Original two-circle contract charges both players ten");
   var roundtrip=stepsword.mahoutsukai.dataattachments.worldsave.MahouSavedData.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE,
     stepsword.mahoutsukai.dataattachments.worldsave.MahouSavedData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE,save).getOrThrow()).getOrThrow();
   require(roundtrip.doesContractExist(friend.getUUID(),player.getUUID()),"Original world contract codec round trips both directions");
@@ -74,7 +74,7 @@ public final class BoundaryIntegration {
   var column=pos.offset(-MTConfig.ENCLOSURE_BARRIER_RADIUS,-MTConfig.ENCLOSURE_BARRIER_RADIUS+1,0);
   for(int y=-10;y<12;y++) world.setBlockAndUpdate(column.above(y),Blocks.AIR.defaultBlockState());world.setBlockAndUpdate(column,Blocks.STONE.defaultBlockState());
   mahou.setStoredMana(100);raise.mahoujinTick(world,pos,raise.getBlockState(),raise);
-  require(mahou.getStoredMana()==80 && world.getBlockState(column).isAir() && world.getBlockState(column.above()).is(Blocks.STONE),"Enclosure raises original outer column and charges twenty");
+  require(mahou.getStoredMana()==90 && world.getBlockState(column).isAir() && world.getBlockState(column.above()).is(Blocks.STONE),"Enclosure raises original outer column and charges twenty");
   cow.setHealth(10);cow.invulnerableTime=0;player.setHealth(10);drain.doBarrier(List.of(cow));
   require(player.getHealth()==10,"Original Drain Life restoration is deferred to server task queue");
   deferred=()-> {require(player.getHealth()==10.5f,"Deferred native Drain Life task heals original caster");player.setHealth(20);};

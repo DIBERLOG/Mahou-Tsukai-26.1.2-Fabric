@@ -1,0 +1,31 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "materials": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:leather"
+          },
+          {
+            "items": "minecraft:paper"
+          },
+          {
+            "items": "minecraft:red_dye"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "materials"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "mahoutsukai:guidebook"
+    ]
+  }
+}

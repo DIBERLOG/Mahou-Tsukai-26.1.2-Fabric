@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:emerald",
+    "mahoutsukai:mortar_and_pestle"
+  ],
+  "result": {
+    "id": "mahoutsukai:powdered_emerald",
+    "count": 2
+  }
+}

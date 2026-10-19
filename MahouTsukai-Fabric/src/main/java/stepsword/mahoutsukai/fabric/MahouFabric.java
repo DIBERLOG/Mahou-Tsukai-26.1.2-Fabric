@@ -28,6 +28,15 @@ public final class MahouFabric implements ModInitializer {
         net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.serverboundPlay().register(stepsword.mahoutsukai.networking.FogProjectorUpdatePacket.TYPE,stepsword.mahoutsukai.networking.FogProjectorUpdatePacket.STREAM_CODEC);
         net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.registerGlobalReceiver(stepsword.mahoutsukai.networking.MahoujinProjectorUpdatePacket.TYPE,(packet,context)->stepsword.mahoutsukai.networking.MahoujinProjectorUpdatePacket.handle(packet,context.player()));
         net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.registerGlobalReceiver(stepsword.mahoutsukai.networking.FogProjectorUpdatePacket.TYPE,(packet,context)->stepsword.mahoutsukai.networking.FogProjectorUpdatePacket.handle(packet,context.player()));
+        net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.register((player,world,hand)-> {
+            if(player.isShiftKeyDown() && player.getItemInHand(hand).isEmpty() && stepsword.mahoutsukai.util.EffectUtil.hasBuff(player,stepsword.mahoutsukai.potion.ModEffects.BLACK_FLAME_EYES)){
+             if(!world.isClientSide()){stepsword.mahoutsukai.util.EffectUtil.debuff(player,stepsword.mahoutsukai.potion.ModEffects.BLACK_FLAME_EYES);player.sendOverlayMessage(net.minecraft.network.chat.Component.translatable("mahoutsukai.black_flame.stopped"));}
+             return net.minecraft.world.InteractionResult.SUCCESS;
+            }
+            return net.minecraft.world.InteractionResult.PASS;
+        });
+        net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.DISCONNECT.register((handler,server)->SpellCasting.cancel(handler.player));
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register(server->SpellCasting.clear());
         net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.register((player,world,hand)->{if(!world.isClientSide() && !player.isSpectator())stepsword.mahoutsukai.networking.TurnedPagePacket.openedBook(player,player.getItemInHand(hand));return net.minecraft.world.InteractionResult.PASS;});
 
         net.fabricmc.fabric.api.event.player.UseBlockCallback.EVENT.register((player,world,hand,hit)->{if(!world.isClientSide() && !player.isSpectator())stepsword.mahoutsukai.item.william.William.createWilliam(player,player.getItemInHand(hand),hit.getBlockPos());return net.minecraft.world.InteractionResult.PASS;});
@@ -75,6 +84,8 @@ public final class MahouFabric implements ModInitializer {
         stepsword.mahoutsukai.containers.ModContainers.init();
         net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents.AFTER.register((world,player,pos,state,be)->stepsword.mahoutsukai.item.replica.Replica.replicaBreakBlock(player));
         ModItems.init();
+        DungeonScrollLoot.init();
+        GuideCatalog.init();
         net.fabricmc.fabric.api.event.player.AttackEntityCallback.EVENT.register((player,world,hand,target,hit)->
             stepsword.mahoutsukai.potion.BoundPotion.boundAttackFromPlayer(player) || target instanceof net.minecraft.world.entity.LivingEntity living && stepsword.mahoutsukai.effects.secret.GeasEffect.hasGeas(player,living)
                 ? net.minecraft.world.InteractionResult.FAIL : net.minecraft.world.InteractionResult.PASS);

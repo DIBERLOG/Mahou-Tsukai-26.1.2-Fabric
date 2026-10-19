@@ -93,7 +93,7 @@ public class AttunedGem extends ItemBase {
       int manaDifference = (int)Math.ceil(playerMaxMana * chargeRate);
       if (storedMana < this.getMaxMana()) {
          manaDifference = Math.min(manaDifference, this.getMaxMana() - storedMana);
-         manaDifference = PlayerManaManager.drainMana(player, manaDifference, true, false);
+         manaDifference = PlayerManaManager.drainManaExact(player, manaDifference, true, false);
          gemMahou.setStoredMana(storedMana + manaDifference);
       }
 

@@ -13,6 +13,7 @@ public final class MahouFabricClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(ServerSettingsPacket.TYPE,(packet,context)->packet.apply());
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler,client)->stepsword.mahoutsukai.config.MTConfig.resetServerSettings());
         SixFamilyClient.init();
+        SpellVisuals.init();
         ProjectorClient.init();
         net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(stepsword.mahoutsukai.tile.ModTileEntities.cupOfHeaven.get(),stepsword.mahoutsukai.render.tile.MahoujinRenderer::new);
         net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(stepsword.mahoutsukai.tile.ModTileEntities.clairvoyanceEyes.get(),stepsword.mahoutsukai.render.tile.MahoujinRenderer::new);
@@ -107,6 +108,10 @@ public final class MahouFabricClient implements ClientModInitializer {
             stepsword.mahoutsukai.tile.ModTileEntities.circuit.get(), stepsword.mahoutsukai.render.tile.ManaCircuitRenderer::new);
         net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(
             stepsword.mahoutsukai.tile.ModTileEntities.circuitMagitech.get(), stepsword.mahoutsukai.render.tile.ManaCircuitMagitechRenderer::new);
+        ClientPlayNetworking.registerGlobalReceiver(stepsword.mahoutsukai.networking.GuideCatalogPacket.TYPE,(packet,context)->context.client().setScreen(new stepsword.mahoutsukai.render.gui.guide.GuideCatalogScreen(packet.json())));
+        ClientPlayNetworking.registerGlobalReceiver(stepsword.mahoutsukai.networking.SpellStatusPacket.TYPE,(packet,context)->stepsword.mahoutsukai.render.gui.MahouGui.doomTicks=packet.doomTicks());
+        net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(c->{if(stepsword.mahoutsukai.render.gui.MahouGui.doomTicks>0)stepsword.mahoutsukai.render.gui.MahouGui.doomTicks--;});
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler,c)->stepsword.mahoutsukai.render.gui.MahouGui.doomTicks=0);
         ClientPlayNetworking.registerGlobalReceiver(PlayerMahouPacket.TYPE, (packet, context) -> {
             ((MahouHolder) context.player()).mahoutsukai$getMahou().copyMahou(packet.state());
             LoggerFactory.getLogger("mahoutsukai").info("Received original player mahou state: {}/{}",

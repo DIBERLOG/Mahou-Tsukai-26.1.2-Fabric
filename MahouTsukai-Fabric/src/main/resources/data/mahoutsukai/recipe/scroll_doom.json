@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mahoutsukai:powdered_ender",
+    "mahoutsukai:powdered_ender",
+    "mahoutsukai:powdered_sculk"
+  ],
+  "result": {
+    "id": "mahoutsukai:scroll_doom",
+    "count": 1
+  }
+}

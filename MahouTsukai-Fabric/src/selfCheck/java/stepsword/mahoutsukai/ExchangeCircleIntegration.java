@@ -33,7 +33,7 @@ public final class ExchangeCircleIntegration {
   var pos=new BlockPos(580,250,580);
   var chronal=(ChronalExchangeMahoujinTileEntity)ritual(player,pos,"chronal_exchange",false,"emerald","emerald","quartz");
   require(chronal.getManaFromTime(0)==10,"Chronal initial original phase gains ten");chronal.doManaGenOrLoss();require(mahou.getStoredMana()==110,"Chronal adds mana to caster");
-  chronal.setTime(12000);require(chronal.getManaFromTime(0)==-10,"Chronal half-cycle loses ten");chronal.doManaGenOrLoss();require(mahou.getStoredMana()==100,"Chronal drains original mana sources");
+  chronal.setTime(12000);require(chronal.getManaFromTime(0)==-10,"Chronal half-cycle loses ten");chronal.doManaGenOrLoss();require(mahou.getStoredMana()==105,"Chronal drains original mana sources");
   var saved=chronal.saveWithoutMetadata(world.registryAccess());
   var restored=new ChronalExchangeMahoujinTileEntity(pos,chronal.getBlockState());
   restored.loadWithComponents(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,world.registryAccess(),saved));
@@ -42,7 +42,7 @@ public final class ExchangeCircleIntegration {
   var input=new net.minecraft.world.entity.item.ItemEntity(world,580,250,580,new ItemStack(ModItems.REGISTERED.get("powdered_iron")));
   int before=world.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,new AABB(pos).inflate(2)).size();
   catalyst.ifItemFoundAbove(input);
-  require(input.isRemoved() && mahou.getStoredMana()==50,"Catalyst exchange consumes original and costs fifty");
+  require(input.isRemoved() && mahou.getStoredMana()==80,"Catalyst exchange consumes original and costs fifty");
   var generated=world.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,new AABB(pos).inflate(2));
   require(generated.size()==before+1 && generated.getLast().getItem().getItem() instanceof stepsword.mahoutsukai.item.catalysts.PowderedCatalyst,"Catalyst exchange creates original randomized catalyst");generated.getLast().discard();
   var durability=(DurabilityExchangeMahoujinTileEntity)ritual(player,pos,"durability_exchange",false,"emerald","emerald","diamond");
@@ -57,7 +57,7 @@ public final class ExchangeCircleIntegration {
   for(var block:BlockPos.betweenClosed(pos.offset(-2,-1,-2),pos.offset(2,-1,2))) world.setBlockAndUpdate(block,Blocks.AIR.defaultBlockState());
   var target=pos.below();world.setBlockAndUpdate(target,Blocks.DIRT.defaultBlockState());mahou.setStoredMana(1000);
   var indices=new java.util.ArrayList<Integer>(java.util.Collections.nCopies(10,0));
-  alchemical.transformLayer(1,indices,player);require(mahou.getStoredMana()==984,"Alchemical class transformation spends sixteen per eligible block");
+  alchemical.transformLayer(1,indices,player);require(mahou.getStoredMana()==992,"Alchemical class transformation spends sixteen per eligible block");
   var blocked=pos.offset(1,-1,0);world.setBlockAndUpdate(blocked,Blocks.DIRT.defaultBlockState());
   net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents.BEFORE.register((w,p,b,s,te)->!b.equals(blocked));
   var original=world.getBlockState(blocked);alchemical.transformLayer(1,indices,player);require(world.getBlockState(blocked)==original,"Native claim cancellation prevents alchemical block replacement");

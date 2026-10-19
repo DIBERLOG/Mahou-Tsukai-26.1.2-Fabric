@@ -14,7 +14,7 @@ public final class ModEffects {
  public static final Holder<MobEffect> ACTING=Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT,Identifier.fromNamespaceAndPath("mahoutsukai","acting"),new ActingPotion());
  public static final Holder<MobEffect> ABYSS=Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT,Identifier.fromNamespaceAndPath("mahoutsukai","abyss"),new AbyssPotion());
  public static final Holder<MobEffect> MANA_TAKEN_COOLDOWN=Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT,Identifier.fromNamespaceAndPath("mahoutsukai","mana_taken_cooldown"),new ManaTakenCooldownPotion());
- public static int getColorNumber(int r, int g, int b) { return r << 16 + g << 8 + b; }
+ public static int getColorNumber(int r, int g, int b) { return (r << 16) | (g << 8) | b; }
  public static final Holder<MobEffect> IMMUNITY_EXCHANGE = Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT,Identifier.fromNamespaceAndPath("mahoutsukai","immunity_exchange"),new ImmunityExchangePotion());
  public static final Holder<MobEffect> BINDING_EYES = Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT,Identifier.fromNamespaceAndPath("mahoutsukai","binding_eyes"),new BindingEyesPotion());
  public static final Holder<MobEffect> BOUND = Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT,Identifier.fromNamespaceAndPath("mahoutsukai","bound"),new BoundPotion());

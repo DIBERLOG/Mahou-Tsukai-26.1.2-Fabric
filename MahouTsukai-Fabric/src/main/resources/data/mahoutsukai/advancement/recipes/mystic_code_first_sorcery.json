@@ -1,0 +1,31 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "materials": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mahoutsukai:fae_essence"
+          },
+          {
+            "items": "mahoutsukai:powdered_diamond"
+          },
+          {
+            "items": "mahoutsukai:spell_cloth"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "materials"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "mahoutsukai:mystic_code_first_sorcery"
+    ]
+  }
+}

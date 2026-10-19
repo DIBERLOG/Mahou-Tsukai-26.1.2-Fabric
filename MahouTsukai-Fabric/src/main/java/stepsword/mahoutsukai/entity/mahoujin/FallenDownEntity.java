@@ -81,7 +81,8 @@ public class FallenDownEntity extends MahoujinEntity {
             return;
          }
 
-         if (PlayerManaManager.drainMana(caster, mana, false, false, true, false) == mana && this.getLife() > 20) {
+         if(this.getLife()<=52)return;
+         if (PlayerManaManager.drainMana(caster, mana, false, false, true, false) == mana) {
             ((ServerLevel)this.level()).rainLevel = Math.min(this.getLife() / 40.0F, 4.8F);
             AABB aabb = new AABB(
                this.blockPosition().getX() - radius,

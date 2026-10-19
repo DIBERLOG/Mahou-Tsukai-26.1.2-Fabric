@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "materials": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:sugar"
+          },
+          {
+            "items": "minecraft:wheat"
+          },
+          {
+            "items": "mahoutsukai:fae_essence"
+          },
+          {
+            "items": "minecraft:egg"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "materials"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "mahoutsukai:faecake"
+    ]
+  }
+}

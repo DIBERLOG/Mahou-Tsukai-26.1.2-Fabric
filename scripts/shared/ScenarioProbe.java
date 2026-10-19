@@ -55,7 +55,7 @@ public final class ScenarioProbe {
    result.addProperty("recipe_count",MahoujinRecipeRegistrar.recipes.size());
    var items=new JsonObject();
    for(var item:BuiltInRegistries.ITEM.stream().filter(i->BuiltInRegistries.ITEM.getKey(i).getNamespace().equals("mahoutsukai")).sorted(Comparator.comparing(i->BuiltInRegistries.ITEM.getKey(i).toString())).toList()){
-    String id=BuiltInRegistries.ITEM.getKey(item).toString();if(id.equals("mahoutsukai:scroll_doom")||id.equals("mahoutsukai:rhongomyniad"))continue;
+    String id=BuiltInRegistries.ITEM.getKey(item).toString();if(id.startsWith("mahoutsukai:scroll_mana_")||id.equals("mahoutsukai:powdered_sculk")||id.equals("mahoutsukai:scroll_doom")||id.equals("mahoutsukai:rhongomyniad"))continue;
     var stack=new ItemStack(item);var entry=new JsonObject();entry.addProperty("max_damage",stack.getMaxDamage());entry.addProperty("max_stack",stack.getMaxStackSize());
     entry.addProperty("duration",item.getUseDuration(stack,player));entry.addProperty("animation",item.getUseAnimation(stack).toString());
     if(item instanceof SpellScroll scroll)entry.addProperty("initial_mana_cost",scroll.getInitialManaCost());

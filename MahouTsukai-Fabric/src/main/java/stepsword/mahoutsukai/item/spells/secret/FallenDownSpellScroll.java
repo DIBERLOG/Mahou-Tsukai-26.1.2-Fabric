@@ -56,6 +56,7 @@ public class FallenDownSpellScroll extends SpellScroll {
    }
 
    public void onUseTick(Level level, LivingEntity player, ItemStack stack, int count) {
+      super.onUseTick(level,player,stack,count);
       if (!player.level().isClientSide()) {
          if (storages.containsKey(player.getUUID())) {
             FallenDownSpellScroll.FallenDownUserStorage storage = storages.get(player.getUUID());

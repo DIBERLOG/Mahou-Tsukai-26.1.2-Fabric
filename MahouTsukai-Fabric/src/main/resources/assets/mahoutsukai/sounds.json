@@ -82,5 +82,995 @@
     "sounds": [
       "mahoutsukai:taikoboss"
     ]
+  },
+  "cast.doom.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/doom_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.doom.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/doom_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.projection.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/projection_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.projection.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/projection_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.displacement.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/displacement_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.displacement.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/displacement_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.familiar.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/familiar_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.familiar.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/familiar_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.eyes.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/eyes_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.eyes.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/eyes_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.boundary.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/boundary_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.boundary.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/boundary_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.secret.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/secret_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.secret.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/secret_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.mystic.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/mystic_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.mystic.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/mystic_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.exchange.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/exchange_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "cast.exchange.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:cast/exchange_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "doom.arrival_horn": {
+    "subtitle": "mahoutsukai.subtitle.doom.arrival_horn",
+    "sounds": [
+      {
+        "name": "mahoutsukai:doom/tripod_film",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "doom.impact_horn": {
+    "subtitle": "mahoutsukai.subtitle.doom.impact_horn",
+    "sounds": [
+      {
+        "name": "mahoutsukai:doom/tripod_film",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "spell.ascension.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/ascension_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.ascension.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/ascension_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.black_flame.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/black_flame_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.black_flame.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/black_flame_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.borrowed_authority.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/borrowed_authority_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.borrowed_authority.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/borrowed_authority_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.boundary_alarm.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/boundary_alarm_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.boundary_alarm.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/boundary_alarm_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.boundary_displacement.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/boundary_displacement_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.boundary_displacement.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/boundary_displacement_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.boundary_drain_life.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/boundary_drain_life_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.boundary_drain_life.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/boundary_drain_life_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.boundary_gravity.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/boundary_gravity_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.boundary_gravity.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/boundary_gravity_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.boundary_raise_enclosure.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/boundary_raise_enclosure_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.boundary_raise_enclosure.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/boundary_raise_enclosure_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.boundary_tangible.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/boundary_tangible_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.boundary_tangible.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/boundary_tangible_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.butterfly_effect.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/butterfly_effect_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.butterfly_effect.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/butterfly_effect_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.cup_of_heaven.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/cup_of_heaven_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.cup_of_heaven.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/cup_of_heaven_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.damage_exchange.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/damage_exchange_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.damage_exchange.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/damage_exchange_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.damage_replication.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/damage_replication_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.damage_replication.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/damage_replication_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.death_collection.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/death_collection_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.death_collection.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/death_collection_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.doom.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/doom_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.doom.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/doom_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.fallen_down.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/fallen_down_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.fallen_down.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/fallen_down_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.familiars_garden.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/familiars_garden_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.familiars_garden.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/familiars_garden_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.fay_sight.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/fay_sight_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.fay_sight.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/fay_sight_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.gandr.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/gandr_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.gandr.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/gandr_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.geas.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/geas_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.geas.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/geas_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.immunity_exchange.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/immunity_exchange_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.immunity_exchange.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/immunity_exchange_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.insight.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/insight_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.insight.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/insight_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.mental_displacement.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/mental_displacement_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.mental_displacement.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/mental_displacement_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.mystic_eyes.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/mystic_eyes_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.mystic_eyes.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/mystic_eyes_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.mystic_staff.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/mystic_staff_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.mystic_staff.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/mystic_staff_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.possess_entity.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/possess_entity_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.possess_entity.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/possess_entity_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.prediction.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/prediction_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.prediction.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/prediction_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.presence_concealment.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/presence_concealment_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.presence_concealment.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/presence_concealment_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.probability_alter.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/probability_alter_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.probability_alter.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/probability_alter_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.projectile_displacement.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/projectile_displacement_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.projectile_displacement.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/projectile_displacement_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.projection.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/projection_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.projection.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/projection_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.protective_displacement.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/protective_displacement_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.protective_displacement.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/protective_displacement_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.proximity_projection.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/proximity_projection_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.proximity_projection.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/proximity_projection_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.reality_marble.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/reality_marble_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.reality_marble.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/reality_marble_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.recall_familiar.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/recall_familiar_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.recall_familiar.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/recall_familiar_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.retribution.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/retribution_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.retribution.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/retribution_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.reversion_eyes.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/reversion_eyes_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.reversion_eyes.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/reversion_eyes_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.rho_aias.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/rho_aias_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.rho_aias.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/rho_aias_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.selective_displacement.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/selective_displacement_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.selective_displacement.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/selective_displacement_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.spatial_disorientation.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/spatial_disorientation_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.spatial_disorientation.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/spatial_disorientation_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.strengthening.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/strengthening_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.strengthening.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/strengthening_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.summon_familiar.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/summon_familiar_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.summon_familiar.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/summon_familiar_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.swap_familiar.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/swap_familiar_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.swap_familiar.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/swap_familiar_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.treasury_projection.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/treasury_projection_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.treasury_projection.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/treasury_projection_release",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.weapon_shooter.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/weapon_shooter_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.weapon_shooter.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/weapon_shooter_release",
+        "attenuation_distance": 24
+      }
+    ]
   }
 }

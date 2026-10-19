@@ -104,7 +104,7 @@ public final class RitualIntegration {
   var cow=net.minecraft.world.entity.EntityType.COW.create(world,net.minecraft.world.entity.EntitySpawnReason.COMMAND);
   cow.setPos(ascent.getX()+0.5,ascent.getY(),ascent.getZ()+0.5);world.addFreshEntity(cow);
   ascender.checkAbove(ascender);
-  require(cow.getY()==upper.getY()+1 && battery.getMana()==70,"Ascension ground circle teleports entity above roof and drains 30 battery mana");
+  require(cow.getY()==upper.getY()+1 && battery.getMana()==85,"Ascension ground circle teleports entity above roof and drains 30 battery mana");
   cow.discard();
   // Two probability circles + chorus fruit produce the original Rule Breaker modulus.
   var anchor1=pos.offset(0,0,5);var anchor2=pos.offset(3,0,5);
@@ -116,9 +116,9 @@ public final class RitualIntegration {
   }
   player.getInventory().clearContent();mahou.setMaxMana(6000);mahou.setStoredMana(6000);player.setPos(529,250,531);
   var probability=new ItemStack(ModItems.REGISTERED.get("scroll_probability_alter"));
-  ((stepsword.mahoutsukai.item.spells.SpellScroll)probability.getItem()).releaseUsing(probability,world,player,71999);
+  ((stepsword.mahoutsukai.item.spells.SpellScroll)probability.getItem()).releaseUsing(probability,world,player,71900);
   var weapons=player.getInventory().getNonEquipmentItems().stream().filter(st->st.is(ModItems.ruleBreaker.get())).toList();
-  require(probability.isEmpty() && mahou.getStoredMana()==1000 && weapons.size()==1
+  require(probability.isEmpty() && mahou.getStoredMana()==3500 && weapons.size()==1
    && stepsword.mahoutsukai.item.rulebreaker.RuleBreaker.getModulus(weapons.getFirst())==2,"Probability Alter consumes fruit anchors and 5000 mana to create modulus-two Rule Breaker");
   var geasPos=pos.offset(8,0,5);
   world.setBlockAndUpdate(geasPos,ModBlocks.mahoujin.get().defaultBlockState());

@@ -16,7 +16,7 @@ import stepsword.mahoutsukai.potion.*;
 public final class DisplacementEyesIntegration {
  private static void require(boolean value,String message) { if(!value) throw new AssertionError(message); }
  private static ItemStack cast(ServerPlayer player,String name) {
-  var scroll=new ItemStack(ModItems.REGISTERED.get("scroll_"+name));((SpellScroll)scroll.getItem()).releaseUsing(scroll,player.level(),player,71999);return scroll;
+  var scroll=new ItemStack(ModItems.REGISTERED.get("scroll_"+name));((SpellScroll)scroll.getItem()).releaseUsing(scroll,player.level(),player,71900);return scroll;
  }
  public static void run(ServerPlayer player) {
   var world=player.level();var mahou=((MahouHolder)player).mahoutsukai$getMahou();
@@ -28,9 +28,9 @@ public final class DisplacementEyesIntegration {
   var third=(OrderedDisplacementMahoujinTileEntity)ExchangeCircleIntegration.ritual(player,p3,"ordered_displacement",false,"ender","ender","ender");third.setTeleporterId(30);
   require(first.getTarget().equals(p2) && second.getTarget().equals(p3) && third.getTarget().equals(p1),"Original ordered circles follow creation sequence and wrap");
   var cow=EntityType.COW.create(world,EntitySpawnReason.COMMAND);cow.setPos(Vec3.atCenterOf(p1));world.addFreshEntity(cow);first.ifEntityFoundAbove(cow);
-  require(cow.getX()==p2.getX()+0.5 && mahou.getStoredMana()==960 && !second.preConditions(),"Ordered transport costs forty and enforces receiving cooldown");
+  require(cow.getX()==p2.getX()+0.5 && mahou.getStoredMana()==980 && !second.preConditions(),"Ordered transport costs forty and enforces receiving cooldown");
   for(int i=0;i<15;i++) second.mahoujinTick(world,p2,second.getBlockState(),second);require(second.preConditions(),"Ordered receiving cooldown expires");
-  cow.setShiftKeyDown(true);second.ifEntityFoundAbove(cow);require(cow.getX()==p2.getX()+0.5 && mahou.getStoredMana()==960,"Sneaking entity does not trigger ordered transport");cow.setShiftKeyDown(false);
+  cow.setShiftKeyDown(true);second.ifEntityFoundAbove(cow);require(cow.getX()==p2.getX()+0.5 && mahou.getStoredMana()==980,"Sneaking entity does not trigger ordered transport");cow.setShiftKeyDown(false);
   for(var pos:List.of(p1,p2,p3)) world.setBlockAndUpdate(pos,Blocks.AIR.defaultBlockState());
   var aPos=new BlockPos(500,250,570);var bPos=aPos.offset(4,0,0);
   var a=(EquivalentDisplacementMahoujinTileEntity)ExchangeCircleIntegration.ritual(player,aPos,"equivalent_displacement",false,"ender","ender","emerald");
@@ -41,7 +41,7 @@ public final class DisplacementEyesIntegration {
   require(a.getTargetLocation().equals(bPos) && b.getTargetLocation().equals(aPos) && mahou.getMemorizedEDMTE()==null,"Native shift-click binds equivalent circle pair in both directions");
   cow.setPos(Vec3.atCenterOf(aPos));var pig=EntityType.PIG.create(world,EntitySpawnReason.COMMAND);pig.setPos(Vec3.atCenterOf(bPos));world.addFreshEntity(pig);
   mahou.setStoredMana(1000);a.ifEntityFoundAbove(cow);
-  require(cow.getX()==bPos.getX()+0.5 && pig.getX()==aPos.getX()+0.5 && mahou.getStoredMana()==940,"Equivalent displacement exchanges actual entities for sixty mana");
+  require(cow.getX()==bPos.getX()+0.5 && pig.getX()==aPos.getX()+0.5 && mahou.getStoredMana()==970,"Equivalent displacement exchanges actual entities for sixty mana");
   require(!a.preConditions() && !b.preConditions(),"Equivalent swap cools both circles");a.loadChunks();a.releaseChunks();
   var saved=a.saveWithoutMetadata(world.registryAccess());var restored=new EquivalentDisplacementMahoujinTileEntity(aPos,a.getBlockState());
   restored.loadWithComponents(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,world.registryAccess(),saved));
@@ -51,7 +51,7 @@ public final class DisplacementEyesIntegration {
   var binder=DoomIntegration.player(world,"EyesCheck",GameType.SURVIVAL,470);binder.setPos(470.5,250,540.5);binder.setYRot(180);binder.setYHeadRot(180);binder.setXRot(8);
   players.put(binder.getUUID(),binder);var binderMahou=((MahouHolder)binder).mahoutsukai$getMahou();binderMahou.setStoredMana(1000);binderMahou.setMaxMana(1000);
   var creep=EntityType.CREEPER.create(world,EntitySpawnReason.COMMAND);creep.setPos(470.5,250,537.5);creep.setYRot(0);creep.setYHeadRot(0);world.addFreshEntity(creep);
-  require(cast(binder,"mystic_eyes").isEmpty() && binderMahou.getStoredMana()==680 && binder.hasEffect(ModEffects.BINDING_EYES),"Binding eyes scroll costs three hundred twenty and gives original effect");
+  require(cast(binder,"mystic_eyes").isEmpty() && binderMahou.getStoredMana()==840 && binder.hasEffect(ModEffects.BINDING_EYES),"Binding eyes scroll costs three hundred twenty and gives original effect");
   BindingEyesPotion.bindingEyesPlayerTick(binder);require(creep.hasEffect(ModEffects.BOUND),"Original gaze/facing binds hostile creeper");
   require(stepsword.mahoutsukai.config.MandatoryFun.meetsFunReq(binder,stepsword.mahoutsukai.config.MandatoryFun.FUN_REQS.CREEPER_BINDING_EYES),"Binding actual creeper records original progression marker");
   int ticks=creep.tickCount;world.tickNonPassenger(creep);require(creep.tickCount==ticks+1,"World tick retains native tick counter while skipping bound mob tick");
@@ -60,7 +60,7 @@ public final class DisplacementEyesIntegration {
   require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker().interact(binder,world,net.minecraft.world.InteractionHand.MAIN_HAND)==net.minecraft.world.InteractionResult.FAIL,"Bound player cannot use held item");binder.removeEffect(ModEffects.BOUND);binder.removeEffect(ModEffects.BINDING_EYES);creep.discard();
   binder.setYRot(180);binder.setYHeadRot(180);binder.setXRot(8);binder.setHealth(10);binderMahou.setStoredMana(1000);
   var target=EntityType.COW.create(world,EntitySpawnReason.COMMAND);target.setPos(470.5,250,535.5);target.setHealth(10);world.addFreshEntity(target);
-  var retribution=cast(binder,"retribution");require(retribution.isEmpty() && binder.getHealth()==20 && target.getHealth()==5 && binderMahou.getStoredMana()==400,"Retribution swaps health ratios and charges original absolute health difference");
+  var retribution=cast(binder,"retribution");require(retribution.isEmpty() && binder.getHealth()==20 && target.getHealth()==5 && binderMahou.getStoredMana()==700,"Retribution swaps health ratios and charges original absolute health difference");
   binder.setHealth(10);target.setHealth(10);binderMahou.setStoredMana(100);require(!cast(binder,"retribution").isEmpty() && binder.getHealth()==10 && target.getHealth()==10 && binderMahou.getStoredMana()==100,"Insufficient retribution mana changes nothing and retains scroll");
   var ritualPos=new BlockPos(475,250,540);ExchangeCircleIntegration.ritual(binder,ritualPos,"mystic_eyes",true,"eye","eye","gold");world.setBlockAndUpdate(ritualPos,Blocks.AIR.defaultBlockState());ExchangeCircleIntegration.ritual(binder,ritualPos,"retribution",true,"emerald","iron","diamond");world.setBlockAndUpdate(ritualPos,Blocks.AIR.defaultBlockState());
   target.discard();binder.discard();players.remove(binder.getUUID());players.remove(player.getUUID());

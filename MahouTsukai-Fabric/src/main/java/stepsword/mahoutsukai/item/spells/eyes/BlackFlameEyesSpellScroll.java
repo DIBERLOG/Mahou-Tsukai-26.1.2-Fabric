@@ -13,6 +13,13 @@ public class BlackFlameEyesSpellScroll extends SpellScroll {
       super("black_flame");
    }
 
+   @Override public net.minecraft.world.InteractionResult use(net.minecraft.world.level.Level level,Player player,net.minecraft.world.InteractionHand hand){
+    if(player.isShiftKeyDown() && EffectUtil.hasBuff(player,ModEffects.BLACK_FLAME_EYES)){
+     if(!level.isClientSide()){EffectUtil.debuff(player,ModEffects.BLACK_FLAME_EYES);player.sendOverlayMessage(net.minecraft.network.chat.Component.translatable("mahoutsukai.black_flame.stopped"));}
+     return net.minecraft.world.InteractionResult.SUCCESS;
+    }
+    return super.use(level,player,hand);
+   }
    @Override
    public int getInitialManaCost() {
       return MTConfig.BLACK_FLAME_MANA_COST;

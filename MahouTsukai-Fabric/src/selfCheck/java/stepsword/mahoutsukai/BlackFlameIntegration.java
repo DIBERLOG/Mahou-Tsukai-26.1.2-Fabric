@@ -32,8 +32,8 @@ public final class BlackFlameIntegration {
         owner.snapTo(470.5,250,490.5,180,12);owner.setYHeadRot(180);
         var mana=((MahouHolder)owner).mahoutsukai$getMahou();mana.setMaxMana(1000);mana.setStoredMana(1000);
         world.getEntities(owner,owner.getBoundingBox().inflate(5)).forEach(e->e.discard());
-        var scroll=new ItemStack(ModItems.REGISTERED.get("scroll_black_flame"));((SpellScroll)scroll.getItem()).releaseUsing(scroll,world,owner,71999);
-        require(scroll.isEmpty() && mana.getStoredMana()==700 && owner.getEffect(ModEffects.BLACK_FLAME_EYES).getDuration()==100,"Black flame eyes cost three hundred and last one hundred ticks");
+        var scroll=new ItemStack(ModItems.REGISTERED.get("scroll_black_flame"));((SpellScroll)scroll.getItem()).releaseUsing(scroll,world,owner,71900);
+        require(scroll.isEmpty() && mana.getStoredMana()==850 && owner.getEffect(ModEffects.BLACK_FLAME_EYES).getDuration()==100,"Black flame eyes cost three hundred and last one hundred ticks");
         burning=EntityType.COW.create(world,EntitySpawnReason.COMMAND);burning.snapTo(470.5,250,486.5,0,0);burning.setNoAi(true);burning.setNoGravity(true);world.addFreshEntity(burning);
         BlackFlameEyesPotion.blackFlameEyesPlayerTick(owner);
         require(burning.hasEffect(ModEffects.BLACK_BURNING) && burning.getEffect(ModEffects.BLACK_BURNING).getDuration()==180,"Strict gaze applies original black burning debuff");

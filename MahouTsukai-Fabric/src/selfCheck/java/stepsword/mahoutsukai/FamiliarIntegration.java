@@ -27,7 +27,7 @@ public final class FamiliarIntegration {
     private static void require(boolean value,String message) {if(!value)throw new AssertionError(message);}
     private static ItemStack cast(ServerPlayer player,String name) {
         var stack=new ItemStack(ModItems.REGISTERED.get("scroll_"+name));
-        ((SpellScroll)stack.getItem()).releaseUsing(stack,player.level(),player,71999);return stack;
+        ((SpellScroll)stack.getItem()).releaseUsing(stack,player.level(),player,71900);return stack;
     }
     public static void run(ServerPlayer fixture) {
         var world=fixture.level();var player=DoomIntegration.player(world,"FamiliarCheck",GameType.SURVIVAL,540);
@@ -36,7 +36,7 @@ public final class FamiliarIntegration {
         var mana=((MahouHolder)player).mahoutsukai$getMahou();mana.setMaxMana(4000);mana.setStoredMana(3000);
         require(cast(player,"summon_familiar").isEmpty(),"Summon scroll consumed");
         var familiar=SummonFamiliarSpellEffect.familiarMap.get(player.getUUID());
-        require(familiar!=null && familiar.isAlive() && familiar.getOwner()==player && familiar.getMaxHealth()==10 && familiar.getFamiliarId()!=null && mana.getStoredMana()==2800,"Original familiar is tamed, has unique identity/ten health and costs two hundred mana");
+        require(familiar!=null && familiar.isAlive() && familiar.getOwner()==player && familiar.getMaxHealth()==10 && familiar.getFamiliarId()!=null && mana.getStoredMana()==2900,"Original familiar is tamed, has unique identity/ten health and costs two hundred mana");
         var original=familiar;cast(player,"summon_familiar");familiar=SummonFamiliarSpellEffect.familiarMap.get(player.getUUID());
         require(original.isRemoved() && familiar!=original && familiar.getFamiliarId()!=original.getFamiliarId(),"Resummoning replaces previous familiar");
         player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.DIAMOND_ORE));SummonFamiliarSpellEffect.familiarRightClick(player,familiar,InteractionHand.MAIN_HAND);
@@ -44,11 +44,11 @@ public final class FamiliarIntegration {
         player.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);boolean holiday=familiar.getHoliday();SummonFamiliarSpellEffect.familiarRightClick(player,familiar,InteractionHand.MAIN_HAND);
         require(familiar.getHoliday()!=holiday && familiar.getSearchBlock()==null,"Owner empty-hand interaction toggles holiday color and clears search");
         familiar.snapTo(540.5,250,480.5,0,0);int before=mana.getStoredMana();
-        require(cast(player,"recall_familiar").isEmpty() && familiar.position().equals(player.position()) && mana.getStoredMana()==before-20,"Recall moves familiar to owner and costs twenty");
+        require(cast(player,"recall_familiar").isEmpty() && familiar.position().equals(player.position()) && mana.getStoredMana()==before-10,"Recall moves familiar to owner and costs twenty");
         familiar.snapTo(543.5,250,480.5,0,0);var ownerPos=player.position();var targetPos=familiar.blockPosition();before=mana.getStoredMana();
-        require(cast(player,"swap_familiar").isEmpty() && familiar.position().equals(ownerPos) && player.position().equals(Vec3.atLowerCornerOf(targetPos)) && mana.getStoredMana()==before-40,"Swap exchanges familiar position with owner's block destination and costs forty");
+        require(cast(player,"swap_familiar").isEmpty() && familiar.position().equals(ownerPos) && player.position().equals(Vec3.atLowerCornerOf(targetPos)) && mana.getStoredMana()==before-20,"Swap exchanges familiar position with owner's block destination and costs forty");
         familiar.snapTo(player.position());before=mana.getStoredMana();
-        require(cast(player,"familiars_garden").isEmpty() && familiar.getGardenTicks()==1200 && mana.getStoredMana()==before-200,"Original garden costs two hundred and lasts twelve hundred ticks");
+        require(cast(player,"familiars_garden").isEmpty() && familiar.getGardenTicks()==1200 && mana.getStoredMana()==before-100,"Original garden costs two hundred and lasts twelve hundred ticks");
         var cow=EntityType.COW.create(world,EntitySpawnReason.COMMAND);cow.snapTo(familiar.getX()+2,250,familiar.getZ(),0,0);cow.setNoAi(true);world.addFreshEntity(cow);
         var hostile=EntityType.ZOMBIE.create(world,EntitySpawnReason.COMMAND);hostile.snapTo(familiar.getX()+3,250,familiar.getZ(),0,0);hostile.setNoAi(true);world.addFreshEntity(hostile);hostile.setTarget(player);hostile.setLastHurtByMob(player);
         familiar.gardenUpdate();

@@ -23,6 +23,7 @@ loom {
     accessWidenerPath = file('src/main/resources/mahoutsukai.accesswidener')
     runs {
         server { runDir 'run/server' }
+        progressionPreview { server(); runDir 'run/progression-preview'; programArgs 'nogui' }
         client { runDir 'run/client' }
     }
     splitEnvironmentSourceSets()
@@ -60,6 +61,13 @@ loom {
         mahoutsukai_selfcheck { sourceSet sourceSets.selfCheck }
     }
     runs {
+        progressionChecks {
+            server()
+            source sourceSets.selfCheck
+            runDir 'run/progression-checks'
+            vmArgs '-Dmahoutsukai.progressionOnly=true'
+            programArgs 'nogui'
+        }
         economyChecks {
             server()
             source sourceSets.selfCheck
@@ -118,4 +126,11 @@ loom {
             programArgs '--username', 'Player733', '--quickPlayMultiplayer', '127.0.0.1:25585', '--width', '1280', '--height', '720'
         }
     }
+}
+
+// The focused progression runner requires its fresh native-server completion receipt.
+tasks.named('runProgressionChecks') {
+    def marker = file('../analysis/phase026-progression-server.passed')
+    doFirst { marker.delete() }
+    doLast { if (!marker.isFile()) throw new GradleException('Progression server checks did not complete') }
 }

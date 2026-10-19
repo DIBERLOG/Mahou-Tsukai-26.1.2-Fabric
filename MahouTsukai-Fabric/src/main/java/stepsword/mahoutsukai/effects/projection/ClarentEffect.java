@@ -67,6 +67,7 @@ public class ClarentEffect {
       if (e instanceof Player && !e.level().isClientSide() && target != null && amount > 0.0F) {
          Player player = (Player)e;
          if (player.getMainHandItem().getItem() instanceof Clarent) {
+            Clarent.decay(player.getMainHandItem(),player.level().getGameTime());
             float d1 = Clarent.calculateDamageFromWeapon(target.getMainHandItem());
             float d2 = Clarent.calculateDamageFromWeapon(target.getOffhandItem());
             d1 = Math.max(d1, d2);
@@ -79,11 +80,11 @@ public class ClarentEffect {
                   d1 = (float)(d1 + getDamageFromManaClarent(mana));
                }
 
-               mahou.setAttackDamage(0.0F);
+               // Damage never exceeds the requested cap, including the copied target weapon damage.
             }
 
             Utils.setSwordMahou(player.getMainHandItem(), mahou);
-            amount=d1;
+            amount=Math.min(Clarent.cap(),d1);
             EffectUtil.buff(target, ModEffects.WOUNDED, false, MTConfig.CLARENT_WOUND_TICKS);
             if (target instanceof ServerPlayer) {
                ((ServerPlayer)target).sendOverlayMessage(Component.translatable("mahoutsukai.clarent.wounded"));
@@ -108,17 +109,12 @@ public class ClarentEffect {
       LivingEntity target = victim;
       if (!target.level().isClientSide() && target.isUsingItem() && target.getUseItem().getItem() instanceof Clarent) {
          target.getUseItem().hurtAndBreak(1, target, EquipmentSlot.MAINHAND);
+         Clarent.decay(target.getUseItem(),target.level().getGameTime());
          SwordMahou mahou = Utils.getSwordMahou(target.getUseItem());
-         mahou.setAttackDamage(Math.min(MTConfig.CLARENT_ATTACK_CAP, mahou.getAttackDamage() + amount * (float)MTConfig.CLARENT_STORED_FACTOR));
+         mahou.setAttackDamage(Math.min(Clarent.cap(), mahou.getAttackDamage() + amount * (float)MTConfig.CLARENT_STORED_FACTOR));
          Utils.setSwordMahou(target.getUseItem(), mahou);
       }
 
-      Entity e = source.getEntity();
-      if (e instanceof LivingEntity && ((LivingEntity)e).getMainHandItem().getItem() == ModItems.REGISTERED.get("clarent") && target.isBlocking()) {
-         SwordMahou mahou = Utils.getSwordMahou(((LivingEntity)e).getMainHandItem());
-         mahou.setAttackDamage(0.0F);
-         Utils.setSwordMahou(((LivingEntity)e).getMainHandItem(), mahou);
-      }
    }
 
    public static boolean blacklisted(ItemStack s, Level level) {

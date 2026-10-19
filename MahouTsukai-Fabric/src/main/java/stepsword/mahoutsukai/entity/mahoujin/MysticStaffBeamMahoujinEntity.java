@@ -103,7 +103,7 @@ public class MysticStaffBeamMahoujinEntity extends MahoujinEntity {
       float goal_circle_size = 1.5F;
       float goal_mini_speed = 6.0F;
       float goal_beam_size = 0.7F;
-      float goal_beam_len = 64.0F;
+      float goal_beam_len = 128.0F;
       float goal_sphere_size = 0.7F;
       this.prev_beam_size = this.getBeamSize();
       this.prev_beam_len = this.getBeamLength();

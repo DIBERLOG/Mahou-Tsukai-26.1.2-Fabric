@@ -62,6 +62,7 @@ public class GandrSpellScroll extends SpellScroll {
    }
 
    public void onUseTick(Level level, LivingEntity player, ItemStack stack, int count) {
+      super.onUseTick(level,player,stack,count);
       if (!player.level().isClientSide()) {
          if (gandrs.containsKey(player.getUUID())) {
             GandrSpellScroll.GandrUserStorage storage = gandrs.get(player.getUUID());
@@ -95,15 +96,10 @@ public class GandrSpellScroll extends SpellScroll {
          if (entityLiving instanceof Player user) {
             int cost = this.getManaCostScaling(Utils.getPlayerMahou((Player)entityLiving));
             if (matchCaster(user, scrollMahou)) {
-               if (PlayerManaManager.drainMana(user, cost, false, false) == cost) {
-                  if (this.shouldConsume(user, scrollMahou, consume, stack)) {
-                     stack.shrink(1);
-                  }
-               } else if (gandrs.containsKey(user.getUUID())) {
-                  GandrSpellScroll.GandrUserStorage storage = gandrs.get(user.getUUID());
-                  storage.gandr.discard();
-                  gandrs.remove(user.getUUID());
-               }
+               if(PlayerManaManager.castPaid(user,cost,()->doSpell(user,scrollMahou,stack))){
+                if(consume && (!user.isCreative()||MTConfig.CREATIVE_MODE_SPELLS))stack.shrink(1);
+                stepsword.mahoutsukai.fabric.SpellCasting.completed(user,this);
+               }else cancelCharge(user);
             }
          }
       }
@@ -194,6 +190,8 @@ public class GandrSpellScroll extends SpellScroll {
       gandrs.remove(user.getUUID());
       return true;
    }
+
+   public static void cancelCharge(Player player){var storage=gandrs.remove(player.getUUID());if(storage!=null && storage.gandr!=null)storage.gandr.discard();}
 
    public class GandrUserStorage {
       GandrEntity gandr;

@@ -28,6 +28,16 @@ public final class EconomyConfigCheck {
         var directory = Files.createTempDirectory("mahou-economy-config-");
         var path = directory.resolve("economy.json");
         try {
+            Files.writeString(path,"{\"PROXIMITY_PROJECTION_DURABILITY\":30,\"NOBU_DISTANCE_REQUIREMENT\":200,\"POWER_CONSOLIDATION_FOG_RADIUS\":8}");
+            String legacy=Files.readString(path);MTConfig.load(path);
+            require(MTConfig.PROXIMITY_PROJECTION_DURABILITY==130&&MTConfig.NOBU_DISTANCE_REQUIREMENT==100&&MTConfig.POWER_CONSOLIDATION_FOG_RADIUS==24,"Upgrade old shipped balance defaults");
+            require(Files.readString(path.resolveSibling(path.getFileName()+".before-0.26")).equals(legacy),"Migration preserves exact config backup");
+            Files.writeString(path,"{\"PROXIMITY_PROJECTION_DURABILITY\":30,\"NOBU_DISTANCE_REQUIREMENT\":175}");MTConfig.load(path);
+            require(MTConfig.PROXIMITY_PROJECTION_DURABILITY==30&&MTConfig.NOBU_DISTANCE_REQUIREMENT==175,"Subsequent user edits preserved even when matching old defaults");
+            Files.delete(path.resolveSibling(path.getFileName()+".progression-0.26"));
+            Files.writeString(path,"{\"PROXIMITY_PROJECTION_DURABILITY\":90,\"NOBU_DISTANCE_REQUIREMENT\":175,\"POWER_CONSOLIDATION_FOG_RADIUS\":12}");MTConfig.load(path);
+            require(MTConfig.PROXIMITY_PROJECTION_DURABILITY==90&&MTConfig.NOBU_DISTANCE_REQUIREMENT==175&&MTConfig.POWER_CONSOLIDATION_FOG_RADIUS==12,"First upgrade preserves custom settings");
+            Files.writeString(path,"{}");
             MTConfig.load(path);
             Files.writeString(path, "{\"ATTUNED_DIAMOND_CAPACITY\":12000}");
             MTConfig.load(path);
@@ -45,8 +55,21 @@ public final class EconomyConfigCheck {
             require(MTConfig.ATTUNED_DIAMOND_CAPACITY == 10000, "World switch resets omitted keys to originals");
         } finally {
             Files.deleteIfExists(path);
+            Files.deleteIfExists(path.resolveSibling(path.getFileName()+".clarent-0.27"));
+            Files.deleteIfExists(path.resolveSibling(path.getFileName()+".before-0.27"));
+            Files.deleteIfExists(path.resolveSibling(path.getFileName()+".progression-0.26"));
+            Files.deleteIfExists(path.resolveSibling(path.getFileName()+".before-0.26"));
             Files.deleteIfExists(directory);
         }
+        var clientDir=Files.createTempDirectory("mahou-hints-config-");var clientPath=clientDir.resolve("client.json");boolean oldHints=MTConfig.SHOW_CAST_HINTS;
+        try {
+            require(MTConfig.defaultSettings().get("SHOW_CAST_HINTS").getAsBoolean(),"Hints enabled by shipped default");
+            MTConfig.loadClient(clientPath);require(MTConfig.SHOW_CAST_HINTS,"New client enables hints");
+            MTConfig.SHOW_CAST_HINTS=false;MTConfig.saveClient(clientPath);MTConfig.SHOW_CAST_HINTS=true;MTConfig.loadClient(clientPath);
+            require(!MTConfig.SHOW_CAST_HINTS,"Hint toggle persists across reload");
+            require(!MTConfig.serverSettings().has("SHOW_CAST_HINTS"),"Server cannot override local hint preference");
+            Files.writeString(clientPath,"{}");MTConfig.loadClient(clientPath);require(MTConfig.SHOW_CAST_HINTS,"Older client configs default hints on");
+        }finally{MTConfig.SHOW_CAST_HINTS=oldHints;Files.deleteIfExists(clientPath);Files.deleteIfExists(clientDir);}
         System.out.println("PASS: economy capacity sync, partial config, atomic validation and world reset");
     }
 }

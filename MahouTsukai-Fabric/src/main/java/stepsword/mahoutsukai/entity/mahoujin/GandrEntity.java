@@ -125,7 +125,7 @@ public class GandrEntity extends MahoujinEntity {
          } else {
             Player player = this.level().getPlayerByUUID(this.getCasterUUID());
             if (!this.getFired()
-               && (player == null || !stepsword.mahoutsukai.item.mysticcode.MysticCode.isChanneling(player,GandrSpellScroll.class))) {
+               && (player == null || !stepsword.mahoutsukai.item.mysticcode.MysticCode.isChanneling(player,GandrSpellScroll.class) && !stepsword.mahoutsukai.item.mysticcode.MysticCode.isChanneling(player,stepsword.mahoutsukai.doom.DoomScroll.class))) {
                this.discard();
             }
          }

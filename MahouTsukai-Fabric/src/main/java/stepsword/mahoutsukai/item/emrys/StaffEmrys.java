@@ -229,6 +229,8 @@ public class StaffEmrys extends ItemBase {
       if(source.getEntity() instanceof Player attacker && attacker.getOffhandItem().getItem()==ModItems.emrysStaff.get())zap(target,false,attacker);
       return damage;
    }
+   public static void emrysInRain(Player player){if(!player.level().isClientSide() && player.level().isRainingAt(player.blockPosition()))emrysStruckByLightning(player);}
+
    public static void emrysStruckByLightning(net.minecraft.world.entity.Entity target){if(target instanceof Player player && !player.level().isClientSide() && !MTConfig.DISABLE_EMRYS && player.getOffhandItem().is(Items.STICK) && StrengtheningSpellEffect.getStrengthened(player.getOffhandItem())>0)turnStickIntoItem(player,new ItemStack(ModItems.emrysStaff.get()));}
    public static void turnStickIntoItem(Player player, ItemStack change) {
       if (!player.getInventory().isEmpty()) {

@@ -82,6 +82,7 @@ public final class ModItems {
         register("scroll_damage_exchange",stepsword.mahoutsukai.item.spells.exchange.DamageExchangeSpellScroll::new);
         register("scroll_geas",stepsword.mahoutsukai.item.spells.secret.GeasSpellScroll::new);
         register("scroll_probability_alter", stepsword.mahoutsukai.item.spells.secret.ProbabilityAlterSpellScroll::new);
+        for(int amount:new int[]{50,100,250,500,1000})register("scroll_mana_"+amount,()->new ManaCapacityScroll(amount));
         register("scroll_doom", stepsword.mahoutsukai.doom.DoomScroll::new);
         register("scroll_fay_sight", stepsword.mahoutsukai.item.spells.eyes.FaySightEyesSpellScroll::new);
         register("scroll_ascension", stepsword.mahoutsukai.item.spells.displacement.AscensionSpellScroll::new);
@@ -93,6 +94,7 @@ public final class ModItems {
         register("powdered_diamond", PowderedDiamond::new);
         register("powdered_emerald", PowderedEmerald::new);
         register("powdered_ender", PowderedEnder::new);
+        register("powdered_sculk", () -> new ItemBase("powdered_sculk"));
         register("powdered_eye", PowderedEye::new);
         register("powdered_gold", PowderedGold::new);
         register("powdered_iron", PowderedIron::new);

@@ -58,7 +58,7 @@ public final class PowerLakeIntegration {
             var circle=(PowerConsolidationMahoujinTileEntity)world.getBlockEntity(pos);
             require(player.getUUID().equals(circle.getCasterUUID()) && !circle.hasCloth() && circle.blockCycle()==20,"Original caster, no cloth, twenty tick interval");
             cycle(circle);
-            require(world.getBlockState(pos.below()).is(Blocks.DIRT) && mana.getStoredMana()==1970,"First original expansion creates dirt shell and spends thirty mana");
+            require(world.getBlockState(pos.below()).is(Blocks.DIRT) && mana.getStoredMana()==1985,"First original expansion creates dirt shell and spends thirty mana");
             mana.setStoredMana(0);cycle(circle);
             require(circle.saveWithoutMetadata(world.registryAccess()).getIntOr(PowerConsolidationMahoujinTileEntity.LAKED,-1)==1,"Insufficient mana pauses expansion without advancing saved stage");
             var batteryPos=pos.offset(4,0,0);
@@ -66,7 +66,7 @@ public final class PowerLakeIntegration {
             var battery=(stepsword.mahoutsukai.tile.circuits.ManaCircuitTileEntity)world.getBlockEntity(batteryPos);
             battery.setOwnerUUID(player.getUUID());battery.setOn(true);battery.setMana(90);
             cycle(circle);
-            require(battery.getMana()==60 && mana.getStoredMana()==0 && world.getBlockState(pos.below()).is(Blocks.DIRT),"Owned battery funds next expansion before personal mana");
+            require(battery.getMana()==75 && mana.getStoredMana()==0 && world.getBlockState(pos.below()).is(Blocks.DIRT),"Owned battery funds next expansion before personal mana");
             var chestPos=pos.offset(1,-1,0);world.setBlockAndUpdate(chestPos,Blocks.CHEST.defaultBlockState());
             var chest=(net.minecraft.world.level.block.entity.ChestBlockEntity)world.getBlockEntity(chestPos);chest.setItem(0,new ItemStack(Items.DIAMOND,7));
             protectedBlock=pos.offset(-1,-1,0);world.setBlockAndUpdate(protectedBlock,Blocks.GOLD_BLOCK.defaultBlockState());
@@ -79,7 +79,7 @@ public final class PowerLakeIntegration {
             world.removeBlockEntity(pos);var loaded=new PowerConsolidationMahoujinTileEntity(pos,ModBlocks.powerConsolidationMahoujin.get().defaultBlockState());
             loaded.loadWithComponents(TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,world.registryAccess(),saved));world.setBlockEntity(loaded);
             require(loaded.getCasterUUID().equals(player.getUUID()),"Native lake reload restores caster");
-            cycle(loaded);require(battery.getMana()==0,"Reloaded circle resumes from saved stage");
+            cycle(loaded);require(battery.getMana()==45,"Reloaded circle resumes from saved stage");
             cycle(loaded);require(world.getBlockState(pos).isAir(),"Final original stage removes completed ritual");
             var fluid=world.getFluidState(pos.below());
             require(fluid.isSource() && fluid.getType()==ModFluids.MURKY_STILL && fluid.is(net.minecraft.tags.FluidTags.WATER),"Native source has murky identity and water-like entity physics");

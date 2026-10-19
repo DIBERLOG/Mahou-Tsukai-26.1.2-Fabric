@@ -5,8 +5,9 @@ import struct
 import sys
 
 root = Path(__file__).resolve().parents[1]
+import os
 properties = {}
-for line in (root/'MahouTsukai-Fabric/run/server/server.properties').read_text().splitlines():
+for line in (root/os.environ.get('MAHOU_RCON_PROPERTIES','MahouTsukai-Fabric/run/server/server.properties')).read_text().splitlines():
     if '=' in line and not line.startswith('#'):
         key, value = line.split('=', 1)
         properties[key] = value

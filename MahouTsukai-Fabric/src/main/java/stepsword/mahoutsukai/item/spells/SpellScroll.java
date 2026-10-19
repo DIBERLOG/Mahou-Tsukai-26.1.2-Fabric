@@ -35,6 +35,10 @@ public class SpellScroll extends ItemBase {
 
    public void appendHoverText(ItemStack stack, TooltipContext pContext, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag pTooltipFlag) {
       super.appendHoverText(stack, pContext, display, tooltip, pTooltipFlag);
+      tooltip.accept(Component.translatable(stepsword.mahoutsukai.fabric.SpellCasting.summonsWeapon(stack)?"mahoutsukai.cast.weapon_hint":"mahoutsukai.cast.scroll_hint",stepsword.mahoutsukai.fabric.SpellCasting.requiredTicks(stack)/20.0));
+      if(getInitialManaCost()>0)tooltip.accept(Component.translatable("mahoutsukai.cast.price",PlayerManaManager.spellCost(getInitialManaCost())));
+      if(stack.getItem() instanceof stepsword.mahoutsukai.item.spells.secret.FallenDownSpellScroll)tooltip.accept(Component.translatable("mahoutsukai.help.fallen_down"));
+      if(stack.getItem() instanceof stepsword.mahoutsukai.item.spells.eyes.BlackFlameEyesSpellScroll)tooltip.accept(Component.translatable("mahoutsukai.black_flame.stop_tooltip"));
       Item item = stack.getItem();
       if (item instanceof SpellScroll && Utils.getScrollMahou(stack) != null) {
          ScrollMahou scrollMahou = Utils.getScrollMahou(stack);
@@ -63,31 +67,39 @@ public class SpellScroll extends ItemBase {
    }
 
    public boolean releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft) {
+      if(getUseDuration(stack,entityLiving)-timeLeft<stepsword.mahoutsukai.fabric.SpellCasting.requiredTicks(stack)){
+       if(entityLiving instanceof Player player){stepsword.mahoutsukai.fabric.SpellCasting.cancel(player);if(this instanceof stepsword.mahoutsukai.item.spells.secret.GandrSpellScroll)stepsword.mahoutsukai.item.spells.secret.GandrSpellScroll.cancelCharge(player);}
+       return false;
+      }
       this.useAction(stack, worldIn, entityLiving, true);
+      if(entityLiving instanceof Player player)stepsword.mahoutsukai.fabric.SpellCasting.cancel(player);
       return true;
    }
 
    public void useAction(ItemStack stack, Level worldIn, LivingEntity entityLiving, boolean consume) {
       if (!worldIn.isClientSide()) {
-         int cost = this.getInitialManaCost();
-         ScrollMahou scrollMahou = Utils.getScrollMahou(stack);
-         if (entityLiving instanceof Player user
-            && scrollMahou != null
-            && (
-               scrollMahou.getCasterUUID().isEmpty()
-                  || user.getUUID().equals(scrollMahou.getCasterUUID().get())
-                  || scrollMahou.getCasterUUID().get().equals(MahouIds.FAE_UUID)
-                  || user.isCreative()
-            )
-            && PlayerManaManager.drainMana(user, cost, false, false) == cost
-            && this.shouldConsume(user, scrollMahou, consume, stack)) {
-            stack.shrink(1);
+         int cost=getInitialManaCost();
+         ScrollMahou binding=Utils.getScrollMahou(stack);
+         if(entityLiving instanceof Player user && binding!=null && matchCaster(user,binding)){
+          if(!PlayerManaManager.canPay(user,cost)){user.sendOverlayMessage(Component.translatable("mahoutsukai.cast.no_mana"));return;}
+          CastOutcome[] outcome={new CastOutcome(false,false)};
+          if(PlayerManaManager.castPaid(user,cost,()->{outcome[0]=cast(user,binding,stack);return outcome[0].success();})){
+           if(consume && outcome[0].consumeScroll() && (!user.isCreative()||MTConfig.CREATIVE_MODE_SPELLS))stack.shrink(1);
+           stepsword.mahoutsukai.fabric.SpellCasting.completed(user,this);
+          }else user.sendOverlayMessage(Component.translatable("mahoutsukai.cast.invalid_target"));
          }
       }
    }
 
+   @Override public void onUseTick(Level level,LivingEntity entity,ItemStack stack,int remaining){stepsword.mahoutsukai.fabric.SpellCasting.tick(level,entity,stack,remaining);}
+
+   public record CastOutcome(boolean success,boolean consumeScroll){}
+   public CastOutcome cast(Player user,ScrollMahou binding,ItemStack stack){boolean success=doSpell(user,binding,stack);return new CastOutcome(success,success);}
+
    public boolean shouldConsume(Player user, ScrollMahou scrollMahou, boolean consume, ItemStack stack) {
-      return this.doSpell(user, scrollMahou, stack) && (!user.isCreative() || MTConfig.CREATIVE_MODE_SPELLS) && consume;
+      boolean success=this.doSpell(user,scrollMahou,stack);
+      if(success)stepsword.mahoutsukai.fabric.SpellCasting.completed(user,this);
+      return success && (!user.isCreative() || MTConfig.CREATIVE_MODE_SPELLS) && consume;
    }
 
    public int getInitialManaCost() {

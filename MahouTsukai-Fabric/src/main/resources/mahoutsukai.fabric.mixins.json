@@ -4,6 +4,8 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "PlayerMahouMixin",
+    "FoodManaMixin",
+    "DoomRecipeSecrecyMixin",
     "LivingMahouMixin",
     "LivingCombatAccessor",
     "RuleBreakerDurabilityMixin",

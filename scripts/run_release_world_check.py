@@ -20,7 +20,7 @@ def hashes(directory):
 
 
 def main():
-    marker = ROOT / "analysis/phase025-release-world.passed"
+    marker = ROOT / "analysis/phase027-release-world.passed"
     marker.unlink(missing_ok=True)
     original = ROOT / "tools/neoforge-parity/parity-original"
     before = hashes(original)
@@ -48,7 +48,7 @@ def main():
         "execute in mahoutsukai:reality_marble if block 8 90 8 minecraft:stone run say MARBLE_PERSISTED\n"
         "stop\n"
     ], 1):
-        log = ROOT / f"analysis/phase025-release-world-{index}.log"
+        log = ROOT / f"analysis/phase027-release-world-{index}.log"
         with log.open("w", encoding="utf-8") as output:
             process = subprocess.Popen([str(JAVA), "-Xmx2G", "-jar", "fabric-server-launch.jar", "nogui"],
                                        cwd=RUN, stdin=subprocess.PIPE, text=True, encoding="utf-8",

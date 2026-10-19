@@ -19,6 +19,7 @@ public final class MTConfig {
  public static int LEY_RENDER_HEIGHT=70;
  public static boolean LEY_RUNES=true;
 
+ public static boolean SHOW_CAST_HINTS=true;
  public static int CLIENT_GUI_MAHOU_PLACEMENT_X=10;
  public static int CLIENT_GUI_MAHOU_PLACEMENT_Y=20;
 
@@ -215,7 +216,7 @@ public final class MTConfig {
     public static double KODOKU_ARMOR_FACTOR_MOB = 0.0;
     public static double KODOKU_HEALTH_FACTOR = 0.1;
     public static double KODOKU_ARMOR_FACTOR = 0.0;
-    public static int CLARENT_ATTACK_CAP = 500000;
+    public static int CLARENT_ATTACK_CAP = 1600;
     public static boolean CLARENT_BLACKLIST_TOGGLE = true;
     public static double CLARENT_DECREASE_PER_BLOCKING_TICK = 0.02;
     public static int CLARENT_DURABILITY = 1500;
@@ -226,7 +227,7 @@ public final class MTConfig {
     public static double CLARENT_WOUND_DAMAGE = 0.2;
     public static int CLARENT_WOUND_DAMAGE_HITS = 3;
     public static int CLARENT_WOUND_TICKS = 600;
-    public static double POWER_CONSOLIDATION_FOG_RADIUS=8.0;
+    public static double POWER_CONSOLIDATION_FOG_RADIUS=24.0;
     public static int POWER_CONSOLIDATION_LAKE_MANA_COST=30;
     public static int POWER_CONSOLIDATION_LAKE_CYCLE=20;
     public static int POWER_CONSOLIDATION_LAKE_RADIUS=12;
@@ -247,7 +248,7 @@ public final class MTConfig {
     public static int PROJECTION_MANA_COST=1000, PROJECTION_DURABILITY_FACTOR=5;
     public static boolean PROJECTION_IS_BLACKLIST=true,PROJECTION_DURABILITY_FLAT=true,PROJECTION_ANVIL_CANCEL=false;
     public static java.util.List<String> PROJECTION_BLACKLIST=java.util.List.of(), PROJECTION_ENCHANTMENT_BLACKLIST=java.util.List.of(),PROJECTION_EXPLICIT_WHITELIST=java.util.List.of();
-    public static int PROXIMITY_PROJECTION_MANA_COST=160,PROXIMITY_PROJECTION_DURABILITY=30;
+    public static int PROXIMITY_PROJECTION_MANA_COST=160,PROXIMITY_PROJECTION_DURABILITY=130;
     public static int FAMILIARS_GARDEN_MANA_COST = 200;
     public static int FAMILIARS_GARDEN_RANGE = 7;
     public static int FAMILIARS_GARDEN_TIME = 1200;
@@ -536,7 +537,7 @@ public final class MTConfig {
     public static int NOBU_AUTONOMOUS_LIFE_TICKS=600;
     public static double NOBU_BULLET_DAMAGE=8.0;
     public static double NOBU_CIRCLE_RADIUS=15.0;
-    public static double NOBU_DISTANCE_REQUIREMENT=200.0;
+    public static double NOBU_DISTANCE_REQUIREMENT=100.0;
     public static int NOBU_DURABILITY=10000;
     public static boolean NOBU_ENABLED=true;
     public static double NOBU_FIRING_LINE_SPACE=20.0;
@@ -991,7 +992,7 @@ public final class MTConfig {
         return values;
     }
 
-    private static final java.util.Set<String> CLIENT_FIELDS=java.util.Set.of("HEAVENS_CUP_CLIENT_CIRCLE","MYSTIC_STAFF_EXPLOSION_SOUND","POWER_CONSOLIDATION_CALIBURN_RING_SPEED","LEY_RENDER_DISTANCE","FAE_NOISE","CLIENT_GUI_MAHOU_PLACEMENT_X","CLIENT_GUI_MAHOU_PLACEMENT_Y","MYSTIC_CODE_RING_SPEED","SHOW_BLEEDING","MYSTIC_STAFF_BEAM_VOLUME_FACTOR","INSIGHT_LEFT_X","INSIGHT_LEFT_Y","INSIGHT_RIGHT_X","INSIGHT_RIGHT_Y","INSIGHT_BOTTOM_X","INSIGHT_BOTTOM_Y","CHAIN_QUALITY","EXPLOSION_PARTICLE_QUALITY","SMOKE_RING_PARTICLE_QUALITY","SHOW_MORGAN_CALIBURN_COOLDOWN","NO_SHADERS","SHOW_SELECTED_ENTITY","SELECTIVE_DISPLACEMENT_HOLD_TIME","CACHE_IMAGES");
+    private static final java.util.Set<String> CLIENT_FIELDS=java.util.Set.of("SHOW_CAST_HINTS","HEAVENS_CUP_CLIENT_CIRCLE","MYSTIC_STAFF_EXPLOSION_SOUND","POWER_CONSOLIDATION_CALIBURN_RING_SPEED","LEY_RENDER_DISTANCE","FAE_NOISE","CLIENT_GUI_MAHOU_PLACEMENT_X","CLIENT_GUI_MAHOU_PLACEMENT_Y","MYSTIC_CODE_RING_SPEED","SHOW_BLEEDING","MYSTIC_STAFF_BEAM_VOLUME_FACTOR","INSIGHT_LEFT_X","INSIGHT_LEFT_Y","INSIGHT_RIGHT_X","INSIGHT_RIGHT_Y","INSIGHT_BOTTOM_X","INSIGHT_BOTTOM_Y","CHAIN_QUALITY","EXPLOSION_PARTICLE_QUALITY","SMOKE_RING_PARTICLE_QUALITY","SHOW_MORGAN_CALIBURN_COOLDOWN","NO_SHADERS","SHOW_SELECTED_ENTITY","SELECTIVE_DISPLACEMENT_HOLD_TIME","CACHE_IMAGES");
 
     public static JsonObject defaultSettings() { return DEFAULTS.deepCopy(); }
     public static JsonObject snapshot() { return defaults(); }
@@ -1005,8 +1006,15 @@ public final class MTConfig {
     public static void resetServerSettings() {
         JsonObject values=DEFAULTS.deepCopy();CLIENT_FIELDS.forEach(values::remove);applyServerSettings(values);
     }
-    public static void loadClient(Path path) throws IOException {
+    public static void saveClient(Path path) throws IOException {
         JsonObject local=defaults();local.entrySet().removeIf(e->!CLIENT_FIELDS.contains(e.getKey()));
+        Files.createDirectories(path.getParent());
+        Path pending=Files.createTempFile(path.getParent(),"mahou-client-",".tmp");
+        try {Files.writeString(pending,JSON.toJson(local)+"\n");Files.move(pending,path,java.nio.file.StandardCopyOption.REPLACE_EXISTING);}
+        finally {Files.deleteIfExists(pending);}
+    }
+    public static void loadClient(Path path) throws IOException {
+        JsonObject local=DEFAULTS.deepCopy();local.entrySet().removeIf(e->!CLIENT_FIELDS.contains(e.getKey()));
         if(!Files.exists(path)){Files.createDirectories(path.getParent());Files.writeString(path,JSON.toJson(local)+"\n");}
         else {
             JsonObject overrides=JsonParser.parseString(Files.readString(path)).getAsJsonObject();
@@ -1015,7 +1023,33 @@ public final class MTConfig {
         JsonObject values=defaults();local.entrySet().forEach(e->values.add(e.getKey(),e.getValue()));apply(values);
     }
 
+    /** Migrate only the three old shipped defaults once; preserve custom values and the original file. */
+    private static void migrateProgressionDefaults(Path path) throws IOException {
+        Path marker=path.resolveSibling(path.getFileName()+".progression-0.26");
+        if(Files.exists(marker))return;
+        if(Files.exists(path)){
+            JsonObject values=JsonParser.parseString(Files.readString(path)).getAsJsonObject();boolean changed=false;
+            String[] names={"PROXIMITY_PROJECTION_DURABILITY","NOBU_DISTANCE_REQUIREMENT","POWER_CONSOLIDATION_FOG_RADIUS"};double[] old={30,200,8},current={130,100,24};
+            for(int i=0;i<names.length;i++)if(values.has(names[i])&&values.get(names[i]).isJsonPrimitive()&&values.get(names[i]).getAsJsonPrimitive().isNumber()&&values.get(names[i]).getAsDouble()==old[i]){values.addProperty(names[i],current[i]);changed=true;}
+            if(changed){Path backup=path.resolveSibling(path.getFileName()+".before-0.26");if(!Files.exists(backup))Files.copy(path,backup);Files.writeString(path,JSON.toJson(values)+"\n");}
+        }
+        Files.createDirectories(path.getParent());Files.writeString(marker,"Progression defaults migrated; subsequent custom overrides are preserved.\n");
+    }
+
+    private static void migrateClarentLimit(Path path) throws IOException {
+        Path marker=path.resolveSibling(path.getFileName()+".clarent-0.27");if(Files.exists(marker))return;
+        if(Files.exists(path)){
+            JsonObject values=JsonParser.parseString(Files.readString(path)).getAsJsonObject();
+            if(values.has("CLARENT_ATTACK_CAP")&&values.get("CLARENT_ATTACK_CAP").isJsonPrimitive()&&values.get("CLARENT_ATTACK_CAP").getAsJsonPrimitive().isNumber()&&values.get("CLARENT_ATTACK_CAP").getAsDouble()==500000){
+                Path backup=path.resolveSibling(path.getFileName()+".before-0.27");if(!Files.exists(backup))Files.copy(path,backup);values.addProperty("CLARENT_ATTACK_CAP",1600);Files.writeString(path,JSON.toJson(values)+"\n");
+            }
+        }
+        Files.createDirectories(path.getParent());Files.writeString(marker,"Clarent default limit migrated.\n");
+    }
+
     public static void load(Path path) throws IOException {
+        migrateClarentLimit(path);
+        migrateProgressionDefaults(path);
         JsonObject values = DEFAULTS.deepCopy();
         if (!Files.exists(path)) {
             Files.createDirectories(path.getParent());

@@ -28,6 +28,12 @@ public final class EconomyIntegration implements ModInitializer {
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             try {
+                if(Boolean.getBoolean("mahoutsukai.progressionOnly")){Progression026Checks.start(server);return;}
+                // A failed dense-blast run can leave its stone fixture across other aiming tests.
+                // This is the isolated integration world, never a player's world.
+                for(var cleanup:BlockPos.betweenClosed(new BlockPos(497,235,497),new BlockPos(527,265,527)))server.overworld().setBlock(cleanup,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),18);
+                var progressionFixture=DoomIntegration.player(server.overworld(),"ProgressionFixture",net.minecraft.world.level.GameType.CREATIVE,550);
+                Progression026Checks.run(progressionFixture);server.overworld().removePlayerImmediately(progressionFixture,net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
                 ParityMigrationIntegration.run(server);
                 ScenarioParityChecks.run(server);
                 CombatParityChecks.run(server);
@@ -53,11 +59,11 @@ public final class EconomyIntegration implements ModInitializer {
                 require(mahou.getStoredMana() == 1000, "Sleep recovery clamps to maximum");
                 mahou.setDeathCollectionUsesLeft(20);
                 player.stopSleepInBed(false, false);
-                require(mahou.getStoredMana() == 980, "Full mana still pays original soul penalty");
-                mahou.setDeathCollectionUsesLeft(600);
+                require(mahou.getStoredMana() == 990, "Full mana still pays original soul penalty");
+                mahou.setDeathCollectionUsesLeft(1200);
                 mahou.setStoredMana(0);
                 player.stopSleepInBed(false, false);
-                require(mahou.getStoredMana() == 0 && mahou.getDeathCollectionUsesLeft() == 599,
+                require(mahou.getStoredMana() == 0 && mahou.getDeathCollectionUsesLeft() == 1199,
                     "Negative recovery clamps mana and removes one player soul value");
                 mahou.setDeathCollectionUsesLeft(0);
                 server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "time set 13000");
@@ -101,11 +107,11 @@ public final class EconomyIntegration implements ModInitializer {
                 var gemData = GemData.get(gem);
                 gemData.setStoredMana(70);
                 GemData.set(gem, gemData);
-                int spent = PlayerManaManager.drainMana(player, 150, false, false);
+                int spent = PlayerManaManager.drainManaExact(player, 150, false, false);
                 require(spent == 150 && mahou.getStoredMana() == 0, "Spend personal mana first");
                 require(GemData.get(gem).getStoredMana() == 0 && circuit.getMana() == 150, "Then gems, then owned batteries");
                 require(mahou.getManaToUseCounter() == 70, "Only personal spending grows max mana counter");
-                require(PlayerManaManager.drainMana(player, 9999, false, false) == 0 && circuit.getMana() == 150,
+                require(PlayerManaManager.drainManaExact(player, 9999, false, false) == 0 && circuit.getMana() == 150,
                     "Insufficient combined mana leaves resources unchanged");
                 circuit.setOwnerUUID(UUID.randomUUID());
                 require(PlayerManaManager.countMana(player) == 0, "Other owners' batteries cannot be drained");

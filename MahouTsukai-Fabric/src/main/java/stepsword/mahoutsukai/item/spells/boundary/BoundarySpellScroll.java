@@ -105,6 +105,7 @@ public class BoundarySpellScroll extends SpellScroll {
 
                   if (te instanceof BoundaryMahoujinTileEntity && player != null) {
                      ((BoundaryMahoujinTileEntity)te).toggle(player);
+                     stepsword.mahoutsukai.fabric.SpellCasting.present(player,BoundarySpellScroll.this,net.minecraft.world.phys.Vec3.atCenterOf(placeHere));
                   }
                }
             }

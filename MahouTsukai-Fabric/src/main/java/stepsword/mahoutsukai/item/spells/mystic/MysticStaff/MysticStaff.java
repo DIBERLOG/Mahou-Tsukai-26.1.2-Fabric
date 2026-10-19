@@ -45,6 +45,8 @@ import stepsword.mahoutsukai.util.EffectUtil;
 import stepsword.mahoutsukai.util.Utils;
 
 public class MysticStaff extends ItemBase {
+   public static final int BIG_CHARGE_TICKS=35+(int)Math.ceil(Math.log(.6/.1)/Math.log(1.026))+1;
+   public static int chargeTicks(ItemStack stack){return switch(Utils.getMode(stack)){case 0->BIG_CHARGE_TICKS;case 1->Math.max(1,MTConfig.MYSTIC_STAFF_AOE_DELAY);default->MysticStaffBeamMahoujinEntity.dyingticks*2+42;};}
    private String MODE_TAG = "MAHOUTSUKAI_AOE_MODE_ON";
    private static final int beamGrowthStart = 35;
    private static final float beamGrowthRate = 1.026F;
@@ -95,6 +97,7 @@ public class MysticStaff extends ItemBase {
    }
 
    public void onUseTick(Level world, LivingEntity player, ItemStack stack, int count) {
+      stepsword.mahoutsukai.fabric.SpellCasting.tick(world,player,stack,count);
       if (player instanceof Player) {
          MysticStaff.MysticStaffUserStorage storage = null;
          if (staffs.containsKey(player.getUUID())) {
@@ -363,6 +366,7 @@ public class MysticStaff extends ItemBase {
                      radius, (float)x, (float)y + (radius / 2 + 2), (float)z, getExplosionDamage(false, Utils.getPlayerMahou(player))
                   );
                   explosion.explosionA(world, player);
+                  stepsword.mahoutsukai.fabric.SpellCasting.completed(player,this);
                   ModTriggers.BAKURETSU.trigger((ServerPlayer)player);
                   float[] colors = this.getColor(player, 0);
 

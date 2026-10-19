@@ -24,6 +24,10 @@ public class GeasSpellScroll extends SpellScroll {
       return MTConfig.GEAS_MANA_COST;
    }
 
+   @Override public CastOutcome cast(Player user,ScrollMahou binding,ItemStack stack){
+      var before=new java.util.HashSet<>(Utils.getPlayerMahou(user).getGeas());boolean added=doSpell(user,binding,stack);
+      return new CastOutcome(added || !before.equals(Utils.getPlayerMahou(user).getGeas()),added);
+   }
    @Override
    public boolean doSpell(Player user, ScrollMahou scrollMahou, ItemStack stack) {
       return GeasEffect.geasEffect(user);

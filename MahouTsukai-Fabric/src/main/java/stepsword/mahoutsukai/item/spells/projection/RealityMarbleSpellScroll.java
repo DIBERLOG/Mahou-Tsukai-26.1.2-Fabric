@@ -28,7 +28,7 @@ public class RealityMarbleSpellScroll extends SpellScroll {
    @Override
    public boolean releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft) {
       if (!EffectUtil.getDimension(worldIn).toString().equals("mahoutsukai:reality_marble")) {
-         this.useAction(stack, worldIn, entityLiving, true);
+         return super.releaseUsing(stack,worldIn,entityLiving,timeLeft);
       }
 
       return true;

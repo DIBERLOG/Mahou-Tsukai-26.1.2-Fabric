@@ -41,16 +41,14 @@ public final class DoomScroll extends SpellScroll {
   doom.setOwner(player.getUUID());
   if (!level.addFreshEntity(doom)) return;
   if (!player.isCreative()) {
-   int cost = Math.max(1, (int)Math.ceil(mahou.getStoredMana() * 0.95));
+   int cost = Math.max(1, (int)Math.ceil(mahou.getStoredMana() * 0.475));
    mahou.setStoredMana(mahou.getStoredMana() - cost);
    stepsword.mahoutsukai.mana.PlayerManaManager.updateManaCounter(player, cost);
   }
+  stepsword.mahoutsukai.fabric.SpellCasting.completed(player,this);
   holder.mahoutsukai$setDoomReadyAt(now + COOLDOWN);
   player.getCooldowns().addCooldown(stack, COOLDOWN);
+  stepsword.mahoutsukai.networking.SpellStatusPacket.sync(player);
   if (consume && (!player.isCreative() || stepsword.mahoutsukai.config.MTConfig.CREATIVE_MODE_SPELLS)) stack.shrink(1);
-  level.playSound(null, doom.getX(), doom.getY(), doom.getZ(), net.minecraft.sounds.SoundEvents.ENDER_DRAGON_GROWL,
-   net.minecraft.sounds.SoundSource.PLAYERS, 8, 0.55F);
-  level.playSound(null, doom.getX(), doom.getY(), doom.getZ(), net.minecraft.sounds.SoundEvents.BEACON_ACTIVATE,
-   net.minecraft.sounds.SoundSource.PLAYERS, 8, 0.6F);
  }
 }

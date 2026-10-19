@@ -1,0 +1,12 @@
+{
+  "criteria": {
+    "secret": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "secret"
+    ]
+  ]
+}

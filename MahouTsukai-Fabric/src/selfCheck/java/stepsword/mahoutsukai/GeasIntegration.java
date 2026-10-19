@@ -23,16 +23,16 @@ public final class GeasIntegration {
   require(stepsword.mahoutsukai.util.Utils.selectGeasTarget(player)==null,"Opaque wall blocks Geas selection");
   world.setBlockAndUpdate(wall,Blocks.AIR.defaultBlockState());
   int before=stepsword.mahoutsukai.mana.PlayerManaManager.getManaRegen(player);
-  ((SpellScroll)scroll.getItem()).releaseUsing(scroll,world,player,71999);
-  require(scroll.isEmpty() && mahou.getStoredMana()==70 && GeasEffect.hasGeas(player,cow),"Original Geas scroll creates vow, spends 30 and consumes scroll");
+  ((SpellScroll)scroll.getItem()).releaseUsing(scroll,world,player,71900);
+  require(scroll.isEmpty() && mahou.getStoredMana()==85 && GeasEffect.hasGeas(player,cow),"Original Geas scroll creates vow, spends 30 and consumes scroll");
   require(stepsword.mahoutsukai.mana.PlayerManaManager.getManaRegen(player)==before+3,"Real Geas adds original regeneration bonus");
   float health=cow.getHealth();cow.hurtServer(world,player.damageSources().playerAttack(player),5);
   require(cow.getHealth()==health,"Native incoming damage hook enforces Geas");
   require(net.fabricmc.fabric.api.event.player.AttackEntityCallback.EVENT.invoker().interact(player,world,net.minecraft.world.InteractionHand.MAIN_HAND,cow,null)
    ==net.minecraft.world.InteractionResult.FAIL,"Native attack callback enforces Geas before attacking");
   var second=new ItemStack(ModItems.REGISTERED.get("scroll_geas"));
-  ((SpellScroll)second.getItem()).releaseUsing(second,world,player,71999);
-  require(!second.isEmpty() && mahou.getStoredMana()==40 && !GeasEffect.hasGeas(player,cow),"Removing existing vow still costs mana but retains original scroll");
+  ((SpellScroll)second.getItem()).releaseUsing(second,world,player,71900);
+  require(!second.isEmpty() && mahou.getStoredMana()==70 && !GeasEffect.hasGeas(player,cow),"Removing existing vow still costs mana but retains original scroll");
   var diamond=new ItemEntity(world,548.5,250,532.5,new ItemStack(Items.DIAMOND));
   require(GeasEffect.addGeas(player,diamond),"Item vow created");
   diamond.playerTouch(player);

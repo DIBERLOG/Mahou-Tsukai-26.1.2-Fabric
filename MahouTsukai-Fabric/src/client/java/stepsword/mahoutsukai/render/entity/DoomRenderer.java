@@ -50,15 +50,31 @@ public final class DoomRenderer extends EntityRenderer<DoomEntity, DoomRenderSta
     });
     matrix.popPose();
    }
-  } else if (age < DoomEntity.PREPARATION_TICKS + 50) {
-   float progress = (age - DoomEntity.PREPARATION_TICKS) / 50F;
-   float radius = progress * 90;
+  } else if (age < DoomEntity.PREPARATION_TICKS + 60) {
+   float progress = (age - DoomEntity.PREPARATION_TICKS) / 60F;
+   float radius = (float)Math.pow(progress,.65)*110;
    collector.submitCustomGeometry(matrix, TYPE, (pose, buffer) -> {
     ring(buffer, pose.pose(), radius, radius + 3 * (1 - progress), age, 0);
     ring(buffer, pose.pose(), radius * 0.8F, radius * 0.8F + 1.5F, -age, 1);
     sphere(buffer, pose.pose(), Math.max(0.1F, radius), 0.6F, 0.16F, 1, 0.13F * (1 - progress));
     if(progress < 0.25F)sphere(buffer, pose.pose(), DoomEntity.VISUAL_RADIUS * (1 - progress * 4), 0.9F, 0.72F, 1, 1 - progress * 4);
+    // Short white-violet starburst, followed by a transparent shock shell.
+    float flash=(float)Math.pow(Math.max(0,1-progress*3),2);
+    if(flash>0)for(int i=0;i<48;i++){
+     double angle=i*Math.PI/24,dx=Math.cos(angle),dz=Math.sin(angle),rise=Math.sin(angle*7)*.65;
+     double outer=8+radius*1.2,inner=outer*.25,w=(.4+flash)*2;
+     vertex(buffer,pose.pose(),dx*inner-dz*w,rise*inner,dz*inner+dx*w,1,.9F,1,flash);
+     vertex(buffer,pose.pose(),dx*outer,rise*outer,dz*outer,.75F,.3F,1,0);
+     vertex(buffer,pose.pose(),dx*outer,rise*outer+.2,dz*outer,.75F,.3F,1,0);
+     vertex(buffer,pose.pose(),dx*inner+dz*w,rise*inner,dz*inner-dx*w,1,.9F,1,flash);
+    }
    });
+   for(int band=0;band<3;band++){
+    float p=(progress-band*.07F);if(p<=0)continue;
+    float r=(float)Math.pow(p,.7)*110;
+    matrix.pushPose();matrix.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(band*60));matrix.mulPose(com.mojang.math.Axis.XP.rotationDegrees(30+band*35));
+    collector.submitCustomGeometry(matrix,TYPE,(pose,buffer)->{ring(buffer,pose.pose(),r,r+Math.max(.2F,5*(1-progress)),age,2);});matrix.popPose();
+   }
   }
   matrix.popPose();
  }

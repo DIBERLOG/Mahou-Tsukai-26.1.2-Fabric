@@ -36,6 +36,8 @@ public final class RenderPowerConsolidation {
    double factor=1-Math.min(50-50/top*d,60)/60;
    double scale=factor*factor*factor*factor;
    float start=fog.environmentalStart,end=fog.environmentalEnd;
+   fog.environmentalEnd=Math.min(end,(float)(6+d*2));
+   end=fog.environmentalEnd;
    fog.environmentalStart=start==0?0:net.minecraft.util.Mth.clamp((float)(scale*start),1,start);
    fog.environmentalEnd=net.minecraft.util.Mth.clamp((float)(scale*end),4,end);
   }

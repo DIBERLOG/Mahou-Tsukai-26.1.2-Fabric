@@ -54,6 +54,11 @@ public class ProjectionSpellScroll extends SpellScroll {
       }
    }
 
+   @Override public CastOutcome cast(Player user,ScrollMahou binding,ItemStack stack){
+      boolean memorized=Utils.getStackHolderMahou(stack).getStack().isPresent();
+      boolean produced=doSpell(user,binding,stack);
+      return new CastOutcome(produced || !memorized && Utils.getStackHolderMahou(stack).getStack().isPresent(),produced);
+   }
    @Override
    public boolean doSpell(Player user, ScrollMahou scrollMahou, ItemStack stack) {
       StackHolderMahou mahou = Utils.getStackHolderMahou(stack);

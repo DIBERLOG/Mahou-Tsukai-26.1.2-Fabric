@@ -23,7 +23,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import stepsword.mahoutsukai.util.EffectUtil;
 
-/** Persistent, bounded work queue. User-authored addition; never vanilla createExplosion(40). */
+/** One-tick, claim-aware detonation with a wider gravity well during preparation. */
 public final class DoomEntity extends Entity {
  public static final int PREPARATION_TICKS = 160;
  public static final float VISUAL_RADIUS = 28;
@@ -33,8 +33,9 @@ public final class DoomEntity extends Entity {
  }
  public static final int BLOCK_RADIUS = 40;
  public static final int LETHAL_RADIUS = 60;
- public static final int CHECKS_PER_TICK = 4096;
- public static final int BREAKS_PER_TICK = 512;
+ public static final int PULL_RADIUS = 96;
+ public static final int CHECKS_PER_TICK = 81 * 81 * 81;
+ public static final int BREAKS_PER_TICK = CHECKS_PER_TICK;
  private static final int WIDTH = BLOCK_RADIUS * 2 + 1;
  private static final int VOLUME = WIDTH * WIDTH * WIDTH;
  private static final EntityDataAccessor<Integer> AGE = SynchedEntityData.defineId(DoomEntity.class, EntityDataSerializers.INT);
@@ -60,6 +61,7 @@ public final class DoomEntity extends Entity {
   int age = age() + 1;
   entityData.set(AGE, age);
   if (age < PREPARATION_TICKS) {
+   attract(world,age);
    float radius = visualRadius(age);
    if (age % 4 == 0) {
     // Send a bounded set of inward particle trails rather than a large volume each tick.
@@ -69,6 +71,7 @@ public final class DoomEntity extends Entity {
      world.sendParticles(ParticleTypes.REVERSE_PORTAL, true, false, getX() + x, getY() + Math.sin(angle * 2) * radius * 0.18, getZ() + z, 0, -x, 0, -z, 0.035);
     }
    }
+   if(age==1)world.playSound(null,getX(),getY(),getZ(),stepsword.mahoutsukai.sounds.ModSounds.DOOM_ARRIVAL_HORN.get(),SoundSource.PLAYERS,8,1F);
    if (age % 20 == 0) world.playSound(null, getX(), getY(), getZ(), SoundEvents.BEACON_AMBIENT, SoundSource.PLAYERS, 8, 0.5F + age / 320F);
    int interval = age < 80 ? 20 : age < 120 ? 10 : 5;
    if (age % interval == 0) world.playSound(null, getX(), getY(), getZ(), SoundEvents.WARDEN_HEARTBEAT, SoundSource.PLAYERS, 8, 0.6F + age / 200F);
@@ -80,7 +83,19 @@ public final class DoomEntity extends Entity {
    detonate(world);
   }
   clearNextBatch(world);
-  if (cursor >= VOLUME && age >= PREPARATION_TICKS + 40) discard();
+  if (cursor >= VOLUME && age >= PREPARATION_TICKS + 60) discard();
+ }
+ public void attract(ServerLevel world,int age) {
+  var targets=new java.util.LinkedHashSet<LivingEntity>(world.getEntitiesOfClass(LivingEntity.class,getBoundingBox().inflate(PULL_RADIUS)));
+  targets.addAll(world.players());
+  for(var target:targets){
+   if(!target.isAlive()||target.isSpectator())continue;
+   var delta=position().subtract(target.position().add(0,target.getBbHeight()*.4,0));double distance=delta.length();if(distance>PULL_RADIUS||distance<.5)continue;
+   double force=(.045+.20*(1-distance/PULL_RADIUS))*(.5+.5*Math.min(1,age/(double)PREPARATION_TICKS));
+   var velocity=target.getDeltaMovement().scale(.92).add(delta.scale(force/distance));if(velocity.lengthSqr()>4)velocity=velocity.normalize().scale(2);
+   target.setDeltaMovement(velocity);target.hurtMarked=true;target.fallDistance=0;
+   if(target instanceof ServerPlayer player&&age%2==0)player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(target));
+  }
  }
  private Player caster(ServerLevel world) {
   if (owner == null) return null;
@@ -105,8 +120,14 @@ public final class DoomEntity extends Entity {
   }
   world.playSound(null, getX(), getY(), getZ(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 10, 0.6F);
   world.playSound(null, getX(), getY(), getZ(), SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 8, 0.55F);
-  world.playSound(null, getX(), getY(), getZ(), SoundEvents.END_PORTAL_SPAWN, SoundSource.PLAYERS, 8, 0.65F);
+  world.playSound(null,getX(),getY(),getZ(),stepsword.mahoutsukai.sounds.ModSounds.DOOM_IMPACT_HORN.get(),SoundSource.PLAYERS,8,1F);
   world.sendParticles(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH, 0xFFA96CFF), true, false, getX(), getY(), getZ(), 1, 0, 0, 0, 0);
+  for(int ring=0;ring<3;ring++)for(int i=0;i<48;i++){
+   double angle=i*Math.PI/24, radius=8+ring*14;
+   world.sendParticles(ParticleTypes.END_ROD,true,false,getX()+Math.cos(angle)*radius,getY()+(ring-1)*5,getZ()+Math.sin(angle)*radius,0,Math.cos(angle),.18*(ring-1),Math.sin(angle),.6);
+  }
+  world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,true,false,getX(),getY(),getZ(),160,12,8,12,.35);
+  world.sendParticles(ParticleTypes.LARGE_SMOKE,true,false,getX(),getY(),getZ(),100,8,6,8,.2);
   world.sendParticles(ParticleTypes.EXPLOSION_EMITTER, true, false, getX(), getY(), getZ(), 1, 0, 0, 0, 0);
  }
  private void clearNextBatch(ServerLevel world) {
@@ -126,7 +147,8 @@ public final class DoomEntity extends Entity {
    var state = world.getBlockState(pos);
    if (state.isAir() || EffectUtil.unchangableBlock(state.getBlock()) || state.getDestroySpeed(world, pos) < 0) continue;
    if (!world.mayInteract(caster, pos) || !PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(world, caster, pos, state, world.getBlockEntity(pos))) continue;
-   if (world.destroyBlock(pos, false, caster, 3)) destroyed++;
+   // Single tick; native section updates coalesce the changed blocks, without per-block break particles.
+   if (world.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 18)) destroyed++;
   }
  }
  @Override protected void readAdditionalSaveData(ValueInput input) {

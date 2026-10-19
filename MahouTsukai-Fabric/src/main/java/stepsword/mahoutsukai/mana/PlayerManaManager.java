@@ -31,7 +31,10 @@ import stepsword.mahoutsukai.entity.fae.FaeEntity;
 public class PlayerManaManager {
    public static void onPlayerTick(Player player, long tick) {
       if (!player.level().isClientSide()) stepsword.mahoutsukai.potion.FearPotion.fearPlayerTick(player);
+      if(!player.level().isClientSide() && tick%20==0 && player instanceof ServerPlayer p)stepsword.mahoutsukai.networking.SpellStatusPacket.sync(p);
       if (tick % 100L == 0L) regenMana(player, false);
+      if (!player.level().isClientSide() && tick % 20L == 0L) stepsword.mahoutsukai.item.emrys.StaffEmrys.emrysInRain(player);
+      if (!player.level().isClientSide()) {stepsword.mahoutsukai.item.clarent.Clarent.aura(player);if(!player.isUsingItem())stepsword.mahoutsukai.fabric.SpellCasting.cancel(player); }
       if (tick % 4L == 0L) stepsword.mahoutsukai.potion.FaySightEyesPotion.faySightEyesPlayerTick(player);
    }
 
@@ -52,7 +55,7 @@ public class PlayerManaManager {
          double sleepregen = MTConfig.MANA_RECOVERY_SLEEP;
          int playerMaxMana = mahou.getMaxMana();
          int playerStoredMana = mahou.getStoredMana();
-         int punishment = (int)(MTConfig.DEATH_COLLECTION_DRAIN_PER_SOUL * mahou.getDeathCollectionUsesLeft());
+         int punishment = spellCost((int)(MTConfig.DEATH_COLLECTION_DRAIN_PER_SOUL * mahou.getDeathCollectionUsesLeft()));
          if (playerMaxMana <= playerStoredMana) {
             mahou.setStoredMana(Math.max(0, playerMaxMana - punishment));
          } else {
@@ -121,7 +124,8 @@ public class PlayerManaManager {
          + (int)Math.ceil((hunger + saturation) * regenRatio * MTConfig.MANA_REGEN_HUNGER_FACTOR)
          + (int)addonleymana
          + (int)Math.min(MTConfig.GEAS_MAX_MANA_REGEN, GeasEffect.getUniqueGeasCount(player) * MTConfig.MANA_REGEN_PER_GEAS)
-         + (int)(William.itemWilliamPlethora(player) * MTConfig.WILLIAM_PERSONAL_MANA_FACTOR);
+         + (int)(William.itemWilliamPlethora(player) * MTConfig.WILLIAM_PERSONAL_MANA_FACTOR)
+         + stepsword.mahoutsukai.fabric.MageProgression.regenBonus(mahou.getMaxMana());
    }
 
 
@@ -143,7 +147,7 @@ public class PlayerManaManager {
    }
 
    public static void donateManaToFakePlayer(SafeFakePlayer fake, Player player, int mana) {
-      if (drainMana(player, mana, false, false) == mana) {
+      if (drainManaExact(player, mana, false, false) == mana) {
          fake.setMana(mana);
       }
    }
@@ -156,7 +160,28 @@ public class PlayerManaManager {
       return drainMana(player, drain, nogems, nocircuits, maxincr, noupdate, false);
    }
 
+   /** Spell prices are halved; the return value keeps callers' requested-cost contract. */
+   public static int spellCost(int requested) { return requested <= 0 ? 0 : requested / 2 + requested % 2; }
+   public static boolean canPay(Player player,int requested){return player.isCreative() && MTConfig.CREATIVE_IGNORES_MANA_COSTS || countMana(player)>=spellCost(requested);}
    public static int drainMana(Player player, int drain, boolean nogems, boolean nocircuits, boolean maxincr, boolean noupdate, boolean drainifnotenough) {
+      int price=spellCost(drain);
+      if(price==0)return 0;
+      if(!drainifnotenough && !(player.isCreative()&&MTConfig.CREATIVE_IGNORES_MANA_COSTS)){
+       int available=Utils.getPlayerMahou(player).getStoredMana();
+       if(player instanceof SafeFakePlayer fake)available=fake.getMana();
+       if(!nogems)available+=countManaInGems(gemsInInventory(player));
+       if(!nocircuits)available+=countManaInNearbyBatteries(player.blockPosition(),player.level(),nearbyBatteries(player.blockPosition(),player.level()),player.getUUID());
+       if(available<price)return 0;
+      }
+      int paid=drainManaExact(player,price,nogems,nocircuits,maxincr,noupdate,drainifnotenough);
+      return paid==price?drain:Math.min(Math.max(0,drain-1),paid*2);
+   }
+   /** Transfers must remain one-for-one: gems and fake-player allocations cannot mint mana. */
+   public static int drainManaExact(Player player,int amount,boolean nogems,boolean nocircuits){return drainManaExact(player,amount,nogems,nocircuits,true,false,false);}
+   public static int drainManaExact(Player player, int drain, boolean nogems, boolean nocircuits, boolean maxincr, boolean noupdate, boolean drainifnotenough) {
+      return drainManaExact(player,drain,nogems,nocircuits,maxincr,noupdate,drainifnotenough,true);
+   }
+   private static int drainManaExact(Player player,int drain,boolean nogems,boolean nocircuits,boolean maxincr,boolean noupdate,boolean drainifnotenough,boolean applyDamage){
       IMahou mahou = Utils.getPlayerMahou(player);
       if (player != null && (!player.isCreative() || !MTConfig.CREATIVE_IGNORES_MANA_COSTS || player.level().isClientSide())) {
          BlockPos p = player.blockPosition();
@@ -253,7 +278,7 @@ public class PlayerManaManager {
                updateClientMahou((ServerPlayer)player, mahou);
             }
 
-            if (playerUsedMana > 0) {
+            if (playerUsedMana > 0 && applyDamage) {
                damagePlayer(player, playerUsedMana);
             }
          }
@@ -261,6 +286,25 @@ public class PlayerManaManager {
          return returnManaUsed;
       } else {
          return drain;
+      }
+   }
+
+   /** Reserve at the original location; refund a failed cast without health or growth side effects. */
+   public static boolean castPaid(Player player,int cost,java.util.function.BooleanSupplier spell){
+      if(!canPay(player,cost))return false;
+      int price=spellCost(cost);if(price==0 || player.isCreative()&&MTConfig.CREATIVE_IGNORES_MANA_COSTS)return spell.getAsBoolean();
+      IMahou state=Utils.getPlayerMahou(player);int stored=state.getStoredMana();boolean full=state.isManaFull();
+      var gems=new java.util.IdentityHashMap<ItemStack,GemMahou>();for(var stack:gemsInInventory(player))gems.put(stack,Utils.getGemMahou(stack).copy());
+      var batteries=new java.util.IdentityHashMap<ManaCircuitTileEntity,Integer>();for(var tile:nearbyBatteries(player.blockPosition(),player.level()))if(tile instanceof ManaCircuitTileEntity battery)batteries.put(battery,battery.getMana());
+      boolean success=false;
+      try{
+       if(drainManaExact(player,price,false,false,false,true,false,false)!=price)return false;
+       int personalSpent=stored-state.getStoredMana();
+       success=spell.getAsBoolean();
+       if(success){updateManaCounter((ServerPlayer)player,personalSpent);if(personalSpent>0)damagePlayer(player,personalSpent);updateClientMahou((ServerPlayer)player,state);}
+       return success;
+      }finally{
+       if(!success){state.setStoredMana(stored);state.setManaFull(full);gems.forEach(Utils::setGemMahou);batteries.forEach(ManaCircuitTileEntity::setMana);updateClientMahou((ServerPlayer)player,state);}
       }
    }
 
@@ -345,7 +389,7 @@ public class PlayerManaManager {
          return ret;
       } else {
          Utils.debug("Getting Mana from Batteries");
-         return getManaFromBatteriesFirst(new BlockPos(player.blockPosition()), player.level(), player.getUUID(), drain) ? drain : 0;
+         return getManaFromBatteriesFirstExact(new BlockPos(player.blockPosition()), player.level(), player.getUUID(), drain) ? drain : 0;
       }
    }
 
@@ -525,6 +569,9 @@ public class PlayerManaManager {
    }
 
    public static boolean getManaFromBatteriesFirst(BlockPos p, Level world, UUID uuid, int drain) {
+      return getManaFromBatteriesFirstExact(p,world,uuid,spellCost(drain));
+   }
+   private static boolean getManaFromBatteriesFirstExact(BlockPos p,Level world,UUID uuid,int drain){
       Set<BlockEntity> tes = nearbyBatteries(p, world);
       if (countManaInNearbyBatteries(p, world, tes, uuid) >= drain) {
          drainManaFromNearbyBatteries(p, world, tes, drain, uuid);
@@ -542,5 +589,5 @@ public class PlayerManaManager {
    public static void updateClientMahou(ServerPlayer player, IMahou mahou) {
       if (player != null && mahou != null) stepsword.mahoutsukai.fabric.MahouNetworking.sync(player);
    }
-   public static boolean hasMana(Player player, int drain) { return countMana(player) > drain; }
+   public static boolean hasMana(Player player, int drain) { return canPay(player,drain); }
 }

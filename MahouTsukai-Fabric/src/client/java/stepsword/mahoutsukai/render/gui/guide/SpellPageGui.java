@@ -22,6 +22,10 @@ public class SpellPageGui extends PageGui {
    @Override
    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
       super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+      if(!GuideCatalogScreen.knows(this.page.getRecipe())){
+         int x=(this.width-this.xSize)/2+30,y=(this.height-this.ySize)/2+40;
+         DoubleInfoPageGui.drawWordWrap(this.font,graphics,Component.translatable("mahoutsukai.catalog.locked",2),x,y,this.xSize-60,3355443);return;
+      }
       UnorderedList recipe = this.page.getRecipe();
       int m = (this.width - this.xSize) / 2;
       int n = (this.height - this.ySize) / 2;

@@ -212,6 +212,7 @@ public class CupOfHeavenSpellScroll extends SpellScroll {
    }
 
    public void deleteScroll(boolean doSpell, Player user, boolean consume, ItemStack stack) {
+      if(doSpell)stepsword.mahoutsukai.fabric.SpellCasting.completed(user,this);
       if (doSpell && (!user.isCreative() || MTConfig.CREATIVE_MODE_SPELLS) && consume) {
          stack.shrink(1);
       }

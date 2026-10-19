@@ -31,7 +31,12 @@ public class PlayerSettingsGUI extends Screen {
       int top = 30;
       int buttonheight = 24;
       this.buttons = new ButtonList(Minecraft.getInstance(), this.width, this.height, top, buttonheight, buttonheight);
-      int n = 0;
+      this.buttons.addEntry(this.buttons.new ButtonListEntry(Button.builder(castHintLabel(),button->{
+         boolean previous=stepsword.mahoutsukai.config.MTConfig.SHOW_CAST_HINTS;
+         stepsword.mahoutsukai.config.MTConfig.SHOW_CAST_HINTS=!previous;
+         try {stepsword.mahoutsukai.config.MTConfig.saveClient(net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("mahoutsukai-fabric-client.json"));button.setMessage(castHintLabel());}
+         catch(java.io.IOException e){stepsword.mahoutsukai.config.MTConfig.SHOW_CAST_HINTS=previous;Minecraft.getInstance().player.sendOverlayMessage(Component.translatable("mahoutsukai.hints.save_failed"));}
+      }).size(200,24).build()));
       this.addColorSettingButton("mahoutsukai.settings.rho_aias", MahouSettings.Spell.RHO_AIAS);
       this.addColorSettingButton("mahoutsukai.settings.gandr", MahouSettings.Spell.GANDR);
       this.addColorSettingButton("mahoutsukai.settings.treasury_weapons", MahouSettings.Spell.TREASURY_WEAPONS);
@@ -50,6 +55,8 @@ public class PlayerSettingsGUI extends Screen {
       this.addRenderableWidget(this.buttons);
       super.init();
    }
+
+   private static Component castHintLabel(){return Component.translatable("mahoutsukai.hints.setting",Component.translatable(stepsword.mahoutsukai.config.MTConfig.SHOW_CAST_HINTS?"options.on":"options.off"));}
 
    public void addColorSettingButton(String s, MahouSettings.Spell spell) {
       SpellSettingGUI gui = new SpellSettingGUI(Component.translatable(s), this.font, spell);

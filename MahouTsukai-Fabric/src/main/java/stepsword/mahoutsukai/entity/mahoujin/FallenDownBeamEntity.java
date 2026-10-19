@@ -98,7 +98,8 @@ public class FallenDownBeamEntity extends MahoujinEntity {
             return;
          }
 
-         if (PlayerManaManager.drainMana(caster, mana, false, false, true, false) == mana && this.getLife() > 20) {
+         if(this.getLife()<=52)return;
+         if (PlayerManaManager.drainMana(caster, mana, false, false, true, false) == mana) {
             AABB aabb = new AABB(
                this.blockPosition().getX() - radius,
                this.level().getMinY(),

@@ -83,6 +83,12 @@ public class MysticCode extends ItemBase implements MenuProvider {
             int slot = getSlot(stack);
             if (slot >= 0 && slot < 3) {
                ItemStack ammo = inventory.getItem(slot);
+               if(stepsword.mahoutsukai.fabric.SpellCasting.summonsWeapon(ammo)){
+                if(entityLiving instanceof Player p)p.sendOverlayMessage(Component.translatable("mahoutsukai.cast.weapon_code"));return false;
+               }
+               if(getUseDuration(stack,entityLiving)-timeLeft<stepsword.mahoutsukai.fabric.SpellCasting.requiredTicks(ammo)){
+                if(entityLiving instanceof Player p){stepsword.mahoutsukai.fabric.SpellCasting.cancel(p);if(ammo.getItem() instanceof GandrSpellScroll)GandrSpellScroll.cancelCharge(p);}return false;
+               }
                if (!EffectUtil.inItemBlacklist(ammo.getItem(), this.getBlacklist(), worldIn) && ammo.getItem() instanceof SpellScroll s) {
                   s.useAction(ammo, worldIn, entityLiving, this.consumesScroll());
                   inventory.setItem(slot,ammo);
@@ -91,6 +97,7 @@ public class MysticCode extends ItemBase implements MenuProvider {
                   }
 
                   this.saveCapabilityToStack(stack);
+                  if(entityLiving instanceof Player p)stepsword.mahoutsukai.fabric.SpellCasting.cancel(p);
                   return true;
                }
             }
@@ -217,7 +224,8 @@ public class MysticCode extends ItemBase implements MenuProvider {
          int slot = getSlot(stack);
          if (slot >= 0 && slot < 3) {
             ItemStack ammo = inventory.getItem(slot);
-            if (ammo.getItem() instanceof GandrSpellScroll || ammo.getItem() instanceof FallenDownSpellScroll) {
+            if (!stepsword.mahoutsukai.fabric.SpellCasting.accepts(ammo))return;
+            if (ammo.getItem() instanceof SpellScroll && !EffectUtil.inItemBlacklist(ammo.getItem(),getBlacklist(),level)) {
                ammo.getItem().onUseTick(level, player, ammo, count);
                inventory.setItem(slot,ammo);
             }

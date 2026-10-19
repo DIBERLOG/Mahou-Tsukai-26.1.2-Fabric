@@ -24,6 +24,56 @@ public final class VisualCapture implements ClientModInitializer {
     String name = Files.readString(request).strip();
     Files.delete(request);
     if (!name.matches("[a-z0-9-]+")) throw new IllegalArgumentException("Invalid capture name");
+    if(name.equals("activation-geometry-check")){try{ActivationVisualChecks.run();}catch(Exception failure){throw new RuntimeException(failure);}return;}
+    if(name.equals("handbook-open")){client.setScreen(new stepsword.mahoutsukai.render.gui.guide.HandbookScreen(client.screen));return;}
+    if(name.equals("research-open")){if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.GuideCatalogScreen book))throw new AssertionError("Open server catalogue before research");client.setScreen(new stepsword.mahoutsukai.render.gui.guide.ResearchScreen(book));return;}
+    if(name.equals("research-familiar")){if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.ResearchScreen research))throw new AssertionError("Research screen missing");research.focusNode("family_familiar");return;}
+    if(name.equals("research-doom")){if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.ResearchScreen research))throw new AssertionError("Research screen missing");research.focusNode("doom");return;}
+    if(name.startsWith("research-focus-")){if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.ResearchScreen research))throw new AssertionError("Research screen missing");research.focusNode("family_"+name.substring("research-focus-".length()));return;}
+    if(name.equals("research-controls-check")){
+     if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.ResearchScreen research))throw new AssertionError("Research screen missing");
+     var search=(net.minecraft.client.gui.components.EditBox)research.children().stream().filter(w->w instanceof net.minecraft.client.gui.components.EditBox).findFirst().orElseThrow();
+     search.setValue(net.minecraft.network.chat.Component.translatable("mahoutsukai.research.family_familiar.title").getString());
+     var selectedField=research.getClass().getDeclaredField("selected");selectedField.setAccessible(true);var selected=(com.google.gson.JsonObject)selectedField.get(research);
+     if(!selected.get("key").getAsString().equals("family_familiar"))throw new AssertionError("Native search did not find family branch");
+     var zoomField=research.getClass().getDeclaredField("zoom");zoomField.setAccessible(true);double before=zoomField.getDouble(research);
+     var leftField=research.getClass().getDeclaredField("left");leftField.setAccessible(true);var topField=research.getClass().getDeclaredField("top");topField.setAccessible(true);
+     if(!research.mouseScrolled(leftField.getInt(research)+50,topField.getInt(research)+80,0,1)||zoomField.getDouble(research)<=before)throw new AssertionError("Native research zoom failed");
+     research.onClose();if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.GuideCatalogScreen book))throw new AssertionError("Back did not restore catalogue");book.filter("scroll_summon_familiar");
+     Files.writeString(Path.of(name+".passed"),"PASS: native search widget finds family branch, mouse-wheel zoom and return to original catalogue preserve recipe navigation\n");return;
+    }
+    if(name.equals("presentation-third-person")){client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);client.setScreen(null);return;}
+    if(name.equals("presentation-audio-check")){
+     int individual=0;for(var item:stepsword.mahoutsukai.item.ModItems.REGISTERED.values())if(item instanceof stepsword.mahoutsukai.item.spells.SpellScroll)for(boolean release:new boolean[]{false,true}){
+      var sound=net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(stepsword.mahoutsukai.sounds.ModSounds.spellCast(item,release),1,.01F);if(client.getSoundManager().play(sound)==net.minecraft.client.sounds.SoundEngine.PlayResult.NOT_STARTED)throw new AssertionError("Individual spell sound unavailable: "+item);client.getSoundManager().stop(sound);individual++;
+     }
+     for(var family:stepsword.mahoutsukai.fabric.SpellPresentation.Family.values())for(boolean release:new boolean[]{false,true}){
+      var sound=net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(stepsword.mahoutsukai.sounds.ModSounds.cast(family.name().toLowerCase(java.util.Locale.ROOT),release),1,.01F);
+      if(client.getSoundManager().play(sound)==net.minecraft.client.sounds.SoundEngine.PlayResult.NOT_STARTED)throw new AssertionError("Custom spell audio unavailable: "+family+release);client.getSoundManager().stop(sound);
+     }
+     for(var event:java.util.List.of(stepsword.mahoutsukai.sounds.ModSounds.DOOM_ARRIVAL_HORN.get(),stepsword.mahoutsukai.sounds.ModSounds.DOOM_IMPACT_HORN.get())){
+      var sound=net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(event,1,.01F);if(client.getSoundManager().play(sound)==net.minecraft.client.sounds.SoundEngine.PlayResult.NOT_STARTED)throw new AssertionError("DOOM horn unavailable");client.getSoundManager().stop(sound);
+     }
+     Files.writeString(Path.of(name+".passed"),"PASS: "+individual+" individual spell sounds plus 18 family fallback and two DOOM film events accepted by native sound engine\n");return;
+    }
+    if(name.startsWith("catalog-search-")){if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.GuideCatalogScreen book))throw new AssertionError("Server did not open catalog");book.filter(name.substring("catalog-search-".length()));return;}
+    if(name.equals("hints-toggle-check")){
+     try{var screen=new stepsword.mahoutsukai.render.gui.PlayerSettingsGUI(client.level,client.player.getUUID());client.setScreen(screen);
+      var listField=screen.getClass().getDeclaredField("buttons");listField.setAccessible(true);var list=(net.minecraft.client.gui.components.ObjectSelectionList<?>)listField.get(screen);
+      var entry=list.children().getFirst();var buttonField=entry.getClass().getDeclaredField("button");buttonField.setAccessible(true);var button=(net.minecraft.client.gui.components.Button)buttonField.get(entry);
+      var callbackField=net.minecraft.client.gui.components.Button.class.getDeclaredField("onPress");callbackField.setAccessible(true);var callback=(net.minecraft.client.gui.components.Button.OnPress)callbackField.get(button);
+      if(!stepsword.mahoutsukai.config.MTConfig.SHOW_CAST_HINTS)throw new AssertionError("Expected shipped hints on");callback.onPress(button);
+      if(stepsword.mahoutsukai.config.MTConfig.SHOW_CAST_HINTS||stepsword.mahoutsukai.render.gui.MahouGui.castHints(null,client.player,0,0,client.font)!=0)throw new AssertionError("Toggle did not hide hints");
+      stepsword.mahoutsukai.config.MTConfig.loadClient(net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("mahoutsukai-fabric-client.json"));if(stepsword.mahoutsukai.config.MTConfig.SHOW_CAST_HINTS)throw new AssertionError("Disabled choice not persisted");
+      callback.onPress(button);if(!stepsword.mahoutsukai.config.MTConfig.SHOW_CAST_HINTS)throw new AssertionError("Re-enable failed");
+      Files.writeString(Path.of("hints-toggle-check.passed"),"PASS: actual settings button callback disables HUD, saves false across config reload, and re-enables default-on hints\n");
+     }catch(Exception e){throw new RuntimeException(e);}return;
+    }
+    if(name.equals("progression-hints-settings")){client.setScreen(new stepsword.mahoutsukai.render.gui.PlayerSettingsGUI(client.level,client.player.getUUID()));return;}
+    if(name.equals("progression-first-person")){client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);client.options.keyUse.setDown(false);client.gameMode.releaseUsingItem(client.player);client.setScreen(null);return;}
+    if(name.equals("progression-stop-key")){net.minecraft.client.KeyMapping.click(com.mojang.blaze3d.platform.InputConstants.getKey("key.keyboard.x"));return;}
+    if(name.equals("progression-hold")){client.options.pauseOnLostFocus=false;client.setScreen(null);client.options.keyUse.setDown(true);client.gameMode.useItem(client.player,net.minecraft.world.InteractionHand.MAIN_HAND);return;}
+    if(name.equals("progression-release")){client.options.keyUse.setDown(false);client.gameMode.releaseUsingItem(client.player);return;}
     if(name.equals("nobu-input-check")){NobuInputChecks.start(client);return;}
     if(name.equals("strip-geometry-check")){try{StripGeometryChecks.run();}catch(Exception e){throw new RuntimeException(e);}return;}
     if(name.equals("doom-visual-check")){try{DoomVisualChecks.run(client);}catch(Exception e){throw new RuntimeException(e);}return;}
@@ -232,7 +282,8 @@ public final class VisualCapture implements ClientModInitializer {
       if(!submerged) {
        double blend=2*(radius-distance)/radius,scale=Math.pow(1-(50-50/radius*distance)/60,4);
        double expectedRed=(baseline.color.x+180/255.0*blend)/(1+blend);
-       double expectedEnd=net.minecraft.util.Mth.clamp((float)(baseline.environmentalEnd*scale),4,baseline.environmentalEnd);
+       double boundedEnd=Math.min(baseline.environmentalEnd,6+distance*2);
+       double expectedEnd=net.minecraft.util.Mth.clamp((float)(boundedEnd*scale),4,(float)boundedEnd);
        if(Math.abs(fog.color.x-expectedRed)>0.0001 || Math.abs(fog.environmentalEnd-expectedEnd)>0.001)throw new AssertionError("Native original mist formula mismatch: "+fog.environmentalEnd+"/"+expectedEnd+", "+fog.color+"/"+expectedRed);
       }
       Files.writeString(Path.of(name+".passed"),"PASS: native FogRenderer hook, live synchronized lake chunks, submerged="+submerged+", distance="+distance+", fog="+fog.environmentalStart+","+fog.environmentalEnd+", color="+fog.color+"\n");
@@ -305,7 +356,7 @@ public final class VisualCapture implements ClientModInitializer {
     }
     net.minecraft.client.Screenshot.grab(client.gameDirectory, name + ".png", client.getMainRenderTarget(), 1,
      message -> org.slf4j.LoggerFactory.getLogger("mahoutsukai-visualcheck").info("CAPTURE: {}",message.getString()));
-   } catch (java.io.IOException exception) { throw new RuntimeException(exception); }
+   } catch (java.io.IOException | ReflectiveOperationException exception) { throw new RuntimeException(exception); }
   });
  }
 }

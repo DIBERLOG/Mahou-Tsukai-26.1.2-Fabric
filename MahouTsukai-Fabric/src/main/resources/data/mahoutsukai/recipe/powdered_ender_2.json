@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:ender_pearl",
+    "mahoutsukai:mortar_and_pestle"
+  ],
+  "result": {
+    "id": "mahoutsukai:powdered_ender",
+    "count": 2
+  }
+}

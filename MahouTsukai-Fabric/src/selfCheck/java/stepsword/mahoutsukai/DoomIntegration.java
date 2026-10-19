@@ -27,8 +27,10 @@ public final class DoomIntegration {
  }
  public static void run(ServerPlayer fixture) {
   ServerLevel world = fixture.level();
+  Progression027Checks.runGravity(world);
   BlockPos center = new BlockPos(512, 250, 512);
   BlockPos protectedPos = center.offset(2, 0, 0);
+  for(var dense:BlockPos.betweenClosed(center.offset(-15,-15,-15),center.offset(15,15,15)))world.setBlock(dense,Blocks.AIR.defaultBlockState(),18);
   net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, entity) -> !pos.equals(protectedPos));
   for (var pos : java.util.List.of(center, protectedPos, center.offset(39,0,0), center.offset(41,0,0)))
    world.setBlockAndUpdate(pos, Blocks.STONE.defaultBlockState());
@@ -54,15 +56,15 @@ public final class DoomIntegration {
   var castScroll = new ItemStack(stepsword.mahoutsukai.item.ModItems.REGISTERED.get("scroll_doom"));
   var spell = (stepsword.mahoutsukai.doom.DoomScroll)castScroll.getItem();
   ((stepsword.mahoutsukai.doom.DoomHolder)fixture).mahoutsukai$setDoomReadyAt(0);
-  spell.releaseUsing(castScroll,world,fixture,71999);
+  spell.releaseUsing(castScroll,world,fixture,71900);
   var castEntities = world.getEntitiesOfClass(DoomEntity.class, new net.minecraft.world.phys.AABB(center).inflate(30));
-  require(castScroll.isEmpty() && mahou.getStoredMana() == 50 && castEntities.size() == 1, "Real DOOM scroll targets block, spends 95 percent and creates effect");
+  require(castScroll.isEmpty() && mahou.getStoredMana() == 525 && castEntities.size() == 1, "Real DOOM scroll targets block, spends 47.5 percent and creates effect");
   require(castEntities.getFirst().position().distanceToSqr(expectedPoint) < 1e-8, "Actual cast preserves the selected point without a vertical offset");
   long deadline = ((stepsword.mahoutsukai.doom.DoomHolder)fixture).mahoutsukai$getDoomReadyAt();
   require(deadline == world.getServer().overworld().getGameTime() + 6000, "DOOM cooldown five minutes");
   var secondScroll = new ItemStack(stepsword.mahoutsukai.item.ModItems.REGISTERED.get("scroll_doom"));
-  spell.releaseUsing(secondScroll,world,fixture,71999);
-  require(!secondScroll.isEmpty() && world.getEntitiesOfClass(DoomEntity.class, new net.minecraft.world.phys.AABB(center).inflate(30)).size() == 1 && mahou.getStoredMana() == 50, "Cooldown prevents repeat spending and casting");
+  spell.releaseUsing(secondScroll,world,fixture,71900);
+  require(!secondScroll.isEmpty() && world.getEntitiesOfClass(DoomEntity.class, new net.minecraft.world.phys.AABB(center).inflate(30)).size() == 1 && mahou.getStoredMana() == 525, "Cooldown prevents repeat spending and casting");
   for(int tick=0;tick<5999;tick++)fixture.getCooldowns().tick();
   require(fixture.getCooldowns().isOnCooldown(secondScroll),"Native item cooldown remains active until the last tick of five minutes");
   fixture.getCooldowns().tick();
@@ -99,34 +101,40 @@ public final class DoomIntegration {
   totem.setPos(563, 250, 512);
   totem.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, new ItemStack(Items.TOTEM_OF_UNDYING));
   world.addFreshEntity(inside); world.addFreshEntity(outside); world.addFreshEntity(totem);
+  for(var dense:BlockPos.betweenClosed(center.offset(-15,-15,-15),center.offset(15,15,15)))if(!dense.equals(protectedPos)&&!dense.equals(center.offset(1,0,0)))world.setBlock(dense,Blocks.STONE.defaultBlockState(),18);
+  System.out.println("DOOM_DENSE_BLOCKS=29791");
   var doom = new DoomEntity(ModEntities.DOOM.get(), world);
   doom.setOwner(fixture.getUUID());
   doom.setPos(512,250,512);
   for (int i=0;i<159;i++) doom.tick();
   require(inside.isAlive() && !world.getBlockState(center).isAir(), "DOOM waits full eight seconds");
   System.out.println("DOOM fixture victims visible=" + world.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class, new net.minecraft.world.phys.AABB(450,190,450,580,310,580)).size());
-  doom.tick();
+  long blastStarted=System.nanoTime();doom.tick();System.out.println("DOOM_ONE_TICK_MS="+(System.nanoTime()-blastStarted)/1000000.0);
+  require(sounds.stream().filter(s->s.getSound().value()==stepsword.mahoutsukai.sounds.ModSounds.DOOM_ARRIVAL_HORN.get()).count()==1,"Arrival horn plays exactly once when DOOM appears");
+  require(sounds.stream().filter(s->s.getSound().value()==stepsword.mahoutsukai.sounds.ModSounds.DOOM_IMPACT_HORN.get()).count()==1,"Impact horn plays exactly once when DOOM detonates");
+  require(sounds.stream().filter(s->s.getSound().value()==stepsword.mahoutsukai.sounds.ModSounds.DOOM_ARRIVAL_HORN.get()||s.getSound().value()==stepsword.mahoutsukai.sounds.ModSounds.DOOM_IMPACT_HORN.get()).allMatch(s->s.getPitch()==1F),"Film signal retains original playback pitch");
   require(sounds.stream().filter(s->s.getSound().value()==net.minecraft.sounds.SoundEvents.WARDEN_HEARTBEAT).count()==15,"Accelerating heartbeat reaches observer 96 blocks away");
-  for(var sound:java.util.List.of(net.minecraft.sounds.SoundEvents.BEACON_AMBIENT,net.minecraft.sounds.SoundEvents.WARDEN_SONIC_CHARGE,net.minecraft.sounds.SoundEvents.WARDEN_SONIC_BOOM,net.minecraft.sounds.SoundEvents.END_PORTAL_SPAWN,net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE.value()))
+  for(var sound:java.util.List.of(net.minecraft.sounds.SoundEvents.BEACON_AMBIENT,net.minecraft.sounds.SoundEvents.WARDEN_SONIC_CHARGE,net.minecraft.sounds.SoundEvents.WARDEN_SONIC_BOOM,stepsword.mahoutsukai.sounds.ModSounds.DOOM_ARRIVAL_HORN.get(),stepsword.mahoutsukai.sounds.ModSounds.DOOM_IMPACT_HORN.get(),net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE.value()))
    require(sounds.stream().anyMatch(s->s.getSound().value()==sound&&s.getVolume()>=8&&s.getX()==512&&s.getY()==250&&s.getZ()==512),"Native DOOM sound packet originates at target and reaches 96-block observer: "+sound);
   require(particles.stream().anyMatch(p->p.getParticle().getType()==net.minecraft.core.particles.ParticleTypes.FLASH&&p.getY()==250),"Native flash packet stays at target height and reaches distant observer");
   require(particles.stream().filter(p->p.getParticle().getType()==net.minecraft.core.particles.ParticleTypes.REVERSE_PORTAL).count()==468,"Bounded inward trails reach distant observer");
-  System.out.println("PASS: DOOM_AUDIO_PARTICLES: native packets at target, 96-block observer receives 15 accelerating heartbeats, beacon/sonic charge and layered impact, 468 inward trails and exact-height flash");
+  System.out.println("PASS: DOOM_AUDIO_PARTICLES: native packets at target, 96-block observer receives 15 accelerating heartbeats, beacon/sonic charge, one arrival horn and one impact horn, 468 inward trails and exact-height flash");
   System.out.println("DOOM fixture health=" + inside.getHealth() + ", outside=" + outside.getHealth() + ", totem=" + totem.getHealth());
   require(!inside.isAlive() && outside.isAlive(), "DOOM kills mobs within 60, excludes outside radius");
   require(!victim.isAlive() && !fixture.isAlive(), "DOOM kills survival players including caster and ignores vanilla armor/resistance immunity");
   require(survivor.isAlive() && survivor.getOffhandItem().isEmpty(), "DOOM respects player totem");
   require(creative.getHealth() == creative.getMaxHealth() && spectator.getHealth() == spectator.getMaxHealth(),"Creative and spectator excluded");
   require(totem.isAlive() && totem.getOffhandItem().isEmpty(), "DOOM respects native totem survival");
-  require(doom.workCursor() <= DoomEntity.CHECKS_PER_TICK, "Block scan has a bounded per-tick budget");
-  // Save mid-destruction and reload through native entity ValueInput/ValueOutput.
+  require(doom.workCursor()==81*81*81 && world.getBlockState(center).isAir() && world.getBlockState(center.offset(39,0,0)).isAir(), "Entire blast commits in its first detonation tick");
+  for(int x:new int[]{-15,15})for(int y:new int[]{-15,15})for(int z:new int[]{-15,15})require(world.getBlockState(center.offset(x,y,z)).isAir(),"All dense-fixture octants removed in first detonation tick");
+  // Save after the atomic destruction and reload through native entity persistence.
   var output = net.minecraft.world.level.storage.TagValueOutput.createWithoutContext(net.minecraft.util.ProblemReporter.DISCARDING);
   doom.saveWithoutId(output);
   var reloaded = new DoomEntity(ModEntities.DOOM.get(), world);
   reloaded.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING, world.registryAccess(), output.buildResult()));
   require(reloaded.age() == 160 && reloaded.workCursor() == doom.workCursor() && fixture.getUUID().equals(reloaded.getOwner()), "DOOM persists preparation, owner and work cursor");
   for (int i=0;i<250 && !reloaded.isRemoved();i++) reloaded.tick();
-  require(reloaded.isRemoved(), "DOOM finishes bounded destruction queue");
+  require(reloaded.isRemoved(), "DOOM finishes shockwave after one-tick destruction");
   require(world.getBlockState(center).isAir() && world.getBlockState(center.offset(39,0,0)).isAir(), "Inside block radius destroyed");
   require(world.getBlockState(center.offset(41,0,0)).is(Blocks.STONE), "Outside block radius preserved");
   require(world.getBlockState(center.offset(1,0,0)).is(Blocks.BEDROCK), "Bedrock preserved");

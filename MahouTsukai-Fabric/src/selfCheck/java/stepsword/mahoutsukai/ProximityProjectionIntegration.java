@@ -29,12 +29,12 @@ public final class ProximityProjectionIntegration {
         world.getEntities(player,player.getBoundingBox().inflate(6)).forEach(e->e.discard());
         var mana=((MahouHolder)player).mahoutsukai$getMahou();mana.setMaxMana(2000);mana.setStoredMana(1000);
         var scroll=new ItemStack(ModItems.REGISTERED.get("scroll_proximity_projection"));
-        ((SpellScroll)scroll.getItem()).releaseUsing(scroll,world,player,71999);
+        ((SpellScroll)scroll.getItem()).releaseUsing(scroll,world,player,71900);
         ItemStack keys=ItemStack.EMPTY;
         for(var stack:player.getInventory()) if(stack.is(ModItems.REGISTERED.get("proximity_projection_keys"))) keys=stack;
         var knockback=world.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.KNOCKBACK);
         var protection=world.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.PROTECTION);
-        require(scroll.isEmpty() && mana.getStoredMana()==840 && !keys.isEmpty() && keys.getMaxDamage()==30 && keys.getMaxStackSize()==1,"Original keys scroll consumes 160 mana and creates thirty-durability weapon");
+        require(scroll.isEmpty() && mana.getStoredMana()==920 && !keys.isEmpty() && keys.getMaxDamage()==130 && keys.getMaxStackSize()==1,"Original keys scroll consumes 160 mana and creates thirty-durability weapon");
         require(EnchantmentHelper.getItemEnchantmentLevel(knockback,keys)==2 && knockback.value().isPrimaryItem(keys) && protection.value().isSupportedItem(keys) && !protection.value().isPrimaryItem(keys),"Keys start with knockback II, support all enchantments and use iron sword primary selection");
         player.setItemInHand(InteractionHand.MAIN_HAND,keys);
         // Apply normal equipment attributes through the native living tick, then charge the ordinary attack timer.
