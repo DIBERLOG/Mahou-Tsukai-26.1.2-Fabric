@@ -535,7 +535,7 @@ public final class MTConfig {
     public static double NOBU_AOE_FACTOR=0.5;
     public static double NOBU_AOE_HIT=-1.0;
     public static int NOBU_AUTONOMOUS_LIFE_TICKS=600;
-    public static double NOBU_BULLET_DAMAGE=8.0;
+    public static double NOBU_BULLET_DAMAGE=12.0;
     public static double NOBU_CIRCLE_RADIUS=15.0;
     public static double NOBU_DISTANCE_REQUIREMENT=100.0;
     public static int NOBU_DURABILITY=10000;
@@ -1047,7 +1047,20 @@ public final class MTConfig {
         Files.createDirectories(path.getParent());Files.writeString(marker,"Clarent default limit migrated.\n");
     }
 
+    /** Upgrade the old shipped Nobu damage once, preserving custom values and a byte-for-byte backup. */
+    private static void migrateNobuDamage(Path path) throws IOException {
+        Path marker=path.resolveSibling(path.getFileName()+".nobu-0.31");if(Files.exists(marker))return;
+        if(Files.exists(path)){
+            JsonObject values=JsonParser.parseString(Files.readString(path)).getAsJsonObject();
+            if(values.has("NOBU_BULLET_DAMAGE")&&values.get("NOBU_BULLET_DAMAGE").isJsonPrimitive()&&values.get("NOBU_BULLET_DAMAGE").getAsJsonPrimitive().isNumber()&&values.get("NOBU_BULLET_DAMAGE").getAsDouble()==8){
+                Path backup=path.resolveSibling(path.getFileName()+".before-nobu-0.31");if(!Files.exists(backup))Files.copy(path,backup);values.addProperty("NOBU_BULLET_DAMAGE",12);Files.writeString(path,JSON.toJson(values)+"\n");
+            }
+        }
+        Files.createDirectories(path.getParent());Files.writeString(marker,"Nobu default damage migrated; subsequent custom overrides are preserved.\n");
+    }
+
     public static void load(Path path) throws IOException {
+        migrateNobuDamage(path);
         migrateClarentLimit(path);
         migrateProgressionDefaults(path);
         JsonObject values = DEFAULTS.deepCopy();

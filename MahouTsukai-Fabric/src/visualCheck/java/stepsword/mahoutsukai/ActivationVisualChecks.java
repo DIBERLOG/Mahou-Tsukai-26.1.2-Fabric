@@ -38,6 +38,10 @@ public final class ActivationVisualChecks {
    int before=vertices.get();SpellActivationRenderer.draw(new PoseStack(),collector,Vec3.ZERO,new Vec3(0,1,0),style,20,1,.8F,false,true);require(vertices.get()-before<600,"Minimal particle preference uses a small activation mesh");
   }
   require(motifs.size()==SpellPresentation.Motif.values().length,"All twelve activation motifs exercised");
-  java.nio.file.Files.writeString(java.nio.file.Path.of("activation-geometry-check.passed"),"PASS: "+count+" actual scroll renderers, "+motifs.size()+" motifs, "+submissions.get()+" native geometry submissions; finite vertices, bounded meshes and reduced detail\n");
+  var client=net.minecraft.client.Minecraft.getInstance();var projectile=new stepsword.mahoutsukai.fireball.FireballEntity(stepsword.mahoutsukai.entity.ModEntities.FIREBALL.get(),client.level);projectile.setDeltaMovement(new Vec3(0,.3,1.2));
+  var renderer=(stepsword.mahoutsukai.render.entity.FireballRenderer)client.getEntityRenderDispatcher().getRenderer(projectile);var state=renderer.createRenderState();renderer.extractRenderState(projectile,state,.5F);
+  var pose=new PoseStack();pose.translate(1,2,3);var beforePose=new org.joml.Matrix4f(pose.last().pose());int beforeVertices=vertices.get();renderer.submit(state,pose,collector,new net.minecraft.client.renderer.state.level.CameraRenderState());
+  require(pose.last().pose().equals(beforePose)&&vertices.get()-beforeVertices>100,"Native Fireball projectile renderer produces finite geometry and restores its pose");
+  java.nio.file.Files.writeString(java.nio.file.Path.of("activation-geometry-check.passed"),"PASS: "+count+" actual scroll renderers, "+motifs.size()+" motifs, "+submissions.get()+" native geometry submissions; finite vertices, bounded meshes, reduced detail and Fireball projectile geometry\n");
  }
 }

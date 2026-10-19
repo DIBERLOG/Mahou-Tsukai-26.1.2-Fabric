@@ -19,6 +19,11 @@ public final class ModEntities {
   EntityType.Builder.<stepsword.mahoutsukai.doom.DoomEntity>of(stepsword.mahoutsukai.doom.DoomEntity::new, MobCategory.MISC)
    .sized(1, 1).clientTrackingRange(256).updateInterval(1).fireImmune().build(ResourceKey.create(Registries.ENTITY_TYPE, DOOM_ID)));
  public static final Supplier<EntityType<stepsword.mahoutsukai.doom.DoomEntity>> DOOM = () -> DOOM_TYPE;
+ private static final Identifier FIREBALL_ID=Identifier.fromNamespaceAndPath("mahoutsukai","fireball");
+ private static final EntityType<stepsword.mahoutsukai.fireball.FireballEntity> FIREBALL_TYPE=Registry.register(BuiltInRegistries.ENTITY_TYPE,FIREBALL_ID,
+  EntityType.Builder.<stepsword.mahoutsukai.fireball.FireballEntity>of(stepsword.mahoutsukai.fireball.FireballEntity::new,MobCategory.MISC)
+   .sized(.45F,.45F).clientTrackingRange(96).updateInterval(1).fireImmune().build(ResourceKey.create(Registries.ENTITY_TYPE,FIREBALL_ID)));
+ public static final Supplier<EntityType<stepsword.mahoutsukai.fireball.FireballEntity>> FIREBALL=()->FIREBALL_TYPE;
  private static final Identifier KODOKU_ID=Identifier.fromNamespaceAndPath("mahoutsukai","kodoku_entity");
  private static final EntityType<stepsword.mahoutsukai.entity.kodoku.KodokuEntity> KODOKU_TYPE=Registry.register(BuiltInRegistries.ENTITY_TYPE,KODOKU_ID,
   net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder.<stepsword.mahoutsukai.entity.kodoku.KodokuEntity>create(MobCategory.MISC,stepsword.mahoutsukai.entity.kodoku.KodokuEntity::new)

@@ -1,6 +1,6 @@
 # Sound provenance
 
-The eighteen family charge/release sounds in `sounds/cast/` and ninety individual scroll sounds in `sounds/spells/` are synthesized by `scripts/generate_spell_audio.py`. Local build 0.30 adds a distinct charge and release phrase for each of the 45 scrolls; the family sounds remain fallbacks for the staff and mana-capacity scrolls. The individual clips use eight synthesized timbres, distinct note phrases and spell-specific envelopes. They do not sample the film recording.
+The eighteen family charge/release sounds in `sounds/cast/` and ninety-two individual scroll sounds in `sounds/spells/` are synthesized by `scripts/generate_spell_audio.py`. Build 0.30 added a distinct charge and release phrase for each of its 45 scrolls; 0.31 adds Fireball's two sounds for 46 scrolls in total. Fireball uses a warm harmonic ignition, a filtered noise roar and ember accents. The family sounds remain fallbacks for the staff and mana-capacity scrolls. The individual clips use synthesized timbres, distinct note phrases and spell-specific envelopes. They do not sample the film recording. The generator's `--only fireball` mode preserves all existing audio resources.
 
 Starting with local build 0.29, the DOOM arrival and impact events use the same **War of the Worlds (2005)** excerpt, identified by its hosting page as “The noise the Alien Tripods make”:
 

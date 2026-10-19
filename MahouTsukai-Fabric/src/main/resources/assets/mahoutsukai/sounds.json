@@ -1072,5 +1072,23 @@
         "attenuation_distance": 24
       }
     ]
+  },
+  "spell.fireball.charge": {
+    "subtitle": "mahoutsukai.subtitle.cast.charge",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/fireball_charge",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "spell.fireball.release": {
+    "subtitle": "mahoutsukai.subtitle.cast.release",
+    "sounds": [
+      {
+        "name": "mahoutsukai:spells/fireball_release",
+        "attenuation_distance": 24
+      }
+    ]
   }
 }

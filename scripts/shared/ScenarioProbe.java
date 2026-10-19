@@ -55,7 +55,7 @@ public final class ScenarioProbe {
    result.addProperty("recipe_count",MahoujinRecipeRegistrar.recipes.size());
    var items=new JsonObject();
    for(var item:BuiltInRegistries.ITEM.stream().filter(i->BuiltInRegistries.ITEM.getKey(i).getNamespace().equals("mahoutsukai")).sorted(Comparator.comparing(i->BuiltInRegistries.ITEM.getKey(i).toString())).toList()){
-    String id=BuiltInRegistries.ITEM.getKey(item).toString();if(id.startsWith("mahoutsukai:scroll_mana_")||id.equals("mahoutsukai:powdered_sculk")||id.equals("mahoutsukai:scroll_doom")||id.equals("mahoutsukai:rhongomyniad"))continue;
+    String id=BuiltInRegistries.ITEM.getKey(item).toString();if(id.startsWith("mahoutsukai:scroll_mana_")||id.equals("mahoutsukai:powdered_sculk")||id.equals("mahoutsukai:scroll_doom")||id.equals("mahoutsukai:scroll_fireball")||id.equals("mahoutsukai:rhongomyniad"))continue;
     var stack=new ItemStack(item);var entry=new JsonObject();entry.addProperty("max_damage",stack.getMaxDamage());entry.addProperty("max_stack",stack.getMaxStackSize());
     entry.addProperty("duration",item.getUseDuration(stack,player));entry.addProperty("animation",item.getUseAnimation(stack).toString());
     if(item instanceof SpellScroll scroll)entry.addProperty("initial_mana_cost",scroll.getInitialManaCost());
@@ -69,7 +69,7 @@ public final class ScenarioProbe {
    }
    result.add("effects",effects);
    var entities=new JsonObject();
-   for(var type:BuiltInRegistries.ENTITY_TYPE){var id=BuiltInRegistries.ENTITY_TYPE.getKey(type);if(!id.getNamespace().equals("mahoutsukai")||id.getPath().equals("doom"))continue;
+   for(var type:BuiltInRegistries.ENTITY_TYPE){var id=BuiltInRegistries.ENTITY_TYPE.getKey(type);if(!id.getNamespace().equals("mahoutsukai")||id.getPath().equals("doom")||id.getPath().equals("fireball"))continue;
     var entity=type.create(world,EntitySpawnReason.LOAD);if(entity==null)throw new AssertionError("Cannot create "+id);
     var entry=new JsonObject();entry.addProperty("width",entity.getBbWidth());entry.addProperty("height",entity.getBbHeight());entry.addProperty("no_gravity",entity.isNoGravity());entry.addProperty("pickable",entity.isPickable());entry.addProperty("fire_immune",entity.fireImmune());
     if(entity instanceof LivingEntity living)entry.addProperty("max_health",living.getMaxHealth());entities.add(id.toString(),entry);entity.discard();

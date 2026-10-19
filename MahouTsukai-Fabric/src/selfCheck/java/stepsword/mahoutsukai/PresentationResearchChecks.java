@@ -51,7 +51,8 @@ public final class PresentationResearchChecks {
    for(String key:List.of("mahoutsukai.research.sculk.title","mahoutsukai.research.sculk.body"))require(!text.get(key).getAsString().toLowerCase(Locale.ROOT).contains("doom"),"Sculk help does not reveal its relation to DOOM");
   }
   for(var node:nodes){require(node.parents().stream().allMatch(keys::contains),"Research parent exists");for(String goal:node.goals())require(BuiltInRegistries.ITEM.containsKey(net.minecraft.resources.Identifier.parse(goal)),"Research item exists: "+goal);}
-  require(nodes.stream().filter(n->!n.recipe().isEmpty()).count()==entries.stream().filter(e->e.kind().equals("ritual")).count(),"All ritual families represented");
+  require(nodes.stream().filter(n->n.key().startsWith("learn_")).count()==entries.stream().filter(e->e.kind().equals("ritual")).count(),"All ritual families represented");
+  require(nodes.stream().filter(n->n.key().equals("fireball")&&n.recipe().equals("craft/scroll_fireball")&&n.parents().equals(List.of("family_mystic"))).count()==1,"Fireball has a visible recipe research node in the mystic branch");
   var visited=new HashSet<String>();boolean changed;do{changed=false;for(var n:nodes)if(!visited.contains(n.key())&&visited.containsAll(n.parents())){visited.add(n.key());changed=true;}}while(changed);require(visited.size()==nodes.size(),"Research graph has no cycles or unreachable parents");
   var player=DoomIntegration.player(world,"Research029",net.minecraft.world.level.GameType.SURVIVAL,552);
   try{

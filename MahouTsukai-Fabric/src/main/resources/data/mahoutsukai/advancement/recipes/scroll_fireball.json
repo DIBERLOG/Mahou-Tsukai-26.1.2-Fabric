@@ -1,0 +1,11 @@
+{
+  "parent":"minecraft:recipes/root",
+  "criteria":{
+    "materials":{
+      "trigger":"minecraft:inventory_changed",
+      "conditions":{"items":[{"items":"mahoutsukai:spell_cloth"},{"items":"minecraft:blaze_powder"},{"items":"minecraft:gunpowder"}]}
+    }
+  },
+  "requirements":[["materials"]],
+  "rewards":{"recipes":["mahoutsukai:scroll_fireball"]}
+}

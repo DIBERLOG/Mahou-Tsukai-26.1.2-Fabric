@@ -1,0 +1,6 @@
+{
+  "type":"minecraft:crafting_shapeless",
+  "category":"misc",
+  "ingredients":["mahoutsukai:spell_cloth","minecraft:blaze_powder","minecraft:gunpowder"],
+  "result":{"id":"mahoutsukai:scroll_fireball","count":1}
+}

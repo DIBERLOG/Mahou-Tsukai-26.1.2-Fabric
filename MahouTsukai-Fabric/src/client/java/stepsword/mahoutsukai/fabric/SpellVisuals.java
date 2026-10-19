@@ -42,7 +42,8 @@ public final class SpellVisuals {
     seal(context.poseStack(),context.submitNodeCollector(),position.add(0,.06,0).subtract(camera),null,radius,age*1.7F,style,.8F);
     var look=player.getViewVector(partial);var hand=player.getEyePosition(partial).add(look.scale(1.35)).add(0,-.18,0);
     seal(context.poseStack(),context.submitNodeCollector(),hand.subtract(camera),look,.22F+progress*.23F,-age*2.3F,style,.5F);
-    SpellActivationRenderer.draw(context.poseStack(),context.submitNodeCollector(),position.add(0,.08,0).subtract(camera),null,style,age,.6F+progress*.55F,.25F+progress*.65F,false,minimal);
+    // A body-height motif can intersect the first-person camera; its hand seal stays visible.
+    if(player!=client.player||!client.options.getCameraType().isFirstPerson())SpellActivationRenderer.draw(context.poseStack(),context.submitNodeCollector(),position.add(0,.08,0).subtract(camera),null,style,age,.6F+progress*.55F,.25F+progress*.65F,false,minimal);
     if(!minimal)SpellActivationRenderer.draw(context.poseStack(),context.submitNodeCollector(),hand.subtract(camera),look,style,age,.2F+progress*.17F,.5F,false,false);
     if(++casters>=8)break;
    }
@@ -50,7 +51,7 @@ public final class SpellVisuals {
     float time=(burst.age+partial)/BURST_TICKS;if(time>=1)continue;
     var style=new SpellPresentation(SpellPresentation.Family.values()[p.family()],p.color(),p.accent(),p.seed());
     seal(context.poseStack(),context.submitNodeCollector(),origin.add(0,.09+time*.15,0).subtract(camera),null,.7F+time*1.7F,time*45,style,(1-time)*.8F);
-    SpellActivationRenderer.draw(context.poseStack(),context.submitNodeCollector(),origin.add(0,.1,0).subtract(camera),null,style,burst.age+partial,.65F+Math.min(1,time*2)*.8F,(float)Math.pow(1-time,1.2),true,minimal);
+    if(!client.options.getCameraType().isFirstPerson()||camera.distanceToSqr(origin)>4)SpellActivationRenderer.draw(context.poseStack(),context.submitNodeCollector(),origin.add(0,.1,0).subtract(camera),null,style,burst.age+partial,.65F+Math.min(1,time*2)*.8F,(float)Math.pow(1-time,1.2),true,minimal);
     if(++shown>=8)break;
    }
   });

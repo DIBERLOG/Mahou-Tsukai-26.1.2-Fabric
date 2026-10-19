@@ -80,7 +80,8 @@ public final class ParityMigrationIntegration {
         report.add("current_config_differences",configDiff);
         Files.writeString(Path.of("../../../analysis/phase018-parity-report.json"),new GsonBuilder().setPrettyPrinting().create().toJson(report)+"\n");
         require(missing.isEmpty(),"Missing original registered IDs: "+missing);
-        var intended=java.util.Map.of("PROXIMITY_PROJECTION_DURABILITY",130.0,"POWER_CONSOLIDATION_FOG_RADIUS",24.0,"NOBU_DISTANCE_REQUIREMENT",100.0,"CLARENT_ATTACK_CAP",1600.0);
+        require(configDiff.getAsJsonObject("NOBU_BULLET_DAMAGE").get("original").getAsDouble()==8,"Original Nobu damage baseline is8");
+        var intended=java.util.Map.of("PROXIMITY_PROJECTION_DURABILITY",130.0,"POWER_CONSOLIDATION_FOG_RADIUS",24.0,"NOBU_DISTANCE_REQUIREMENT",100.0,"CLARENT_ATTACK_CAP",1600.0,"NOBU_BULLET_DAMAGE",12.0);
         var unexplained=configDiff.deepCopy();
         intended.forEach((name,value)->{require(configDiff.has(name)&&configDiff.getAsJsonObject(name).get("fabric").getAsDouble()==value,"Missing requested progression default: "+name);unexplained.remove(name);});
         require(unexplained.isEmpty(),"Unrequested configured-default differences: "+unexplained);

@@ -59,6 +59,8 @@ public final class EconomyConfigCheck {
             Files.deleteIfExists(path.resolveSibling(path.getFileName()+".before-0.27"));
             Files.deleteIfExists(path.resolveSibling(path.getFileName()+".progression-0.26"));
             Files.deleteIfExists(path.resolveSibling(path.getFileName()+".before-0.26"));
+            Files.deleteIfExists(path.resolveSibling(path.getFileName()+".nobu-0.31"));
+            Files.deleteIfExists(path.resolveSibling(path.getFileName()+".before-nobu-0.31"));
             Files.deleteIfExists(directory);
         }
         var clientDir=Files.createTempDirectory("mahou-hints-config-");var clientPath=clientDir.resolve("client.json");boolean oldHints=MTConfig.SHOW_CAST_HINTS;

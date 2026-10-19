@@ -90,7 +90,7 @@ public final class CombatProbe {
    String key=mask+"/"+channel+"/"+amount;defenses.add(key,trial(world,true,"minecraft:diamond_sword",mask,channel,amount,null,null,180,false,false));count++;
   }
   all.add("defense_power_set",defenses);System.out.println("COMBAT_PROGRESS defenses="+defenses.size());
-  var weapons=BuiltInRegistries.ITEM.keySet().stream().filter(id->id.getNamespace().equals("mahoutsukai")&&!id.getPath().startsWith("scroll_mana_")&&!Set.of("powdered_sculk","scroll_doom","rhongomyniad").contains(id.getPath())).sorted().map(Object::toString).toList();
+  var weapons=BuiltInRegistries.ITEM.keySet().stream().filter(id->id.getNamespace().equals("mahoutsukai")&&!id.getPath().startsWith("scroll_mana_")&&!Set.of("powdered_sculk","scroll_doom","scroll_fireball","rhongomyniad").contains(id.getPath())).sorted().map(Object::toString).toList();
   var attacks=new JsonObject();
   for(String weapon:weapons)for(boolean pvp:new boolean[]{false,true})for(int flags:new int[]{0,1,2,12,32,64,48,255})for(int facing:new int[]{0,180})for(boolean boost:new boolean[]{false,true}){
    String key=weapon+"/"+pvp+"/"+flags+"/"+facing+"/"+boost;attacks.add(key,trial(world,pvp,weapon,flags,"player",4,null,null,facing,boost,true));count++;

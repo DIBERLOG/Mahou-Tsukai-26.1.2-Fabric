@@ -29,6 +29,8 @@ public final class VisualCapture implements ClientModInitializer {
     if(name.equals("research-open")){if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.GuideCatalogScreen book))throw new AssertionError("Open server catalogue before research");client.setScreen(new stepsword.mahoutsukai.render.gui.guide.ResearchScreen(book));return;}
     if(name.equals("research-familiar")){if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.ResearchScreen research))throw new AssertionError("Research screen missing");research.focusNode("family_familiar");return;}
     if(name.equals("research-doom")){if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.ResearchScreen research))throw new AssertionError("Research screen missing");research.focusNode("doom");return;}
+    if(name.equals("research-fireball")){if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.ResearchScreen research))throw new AssertionError("Research screen missing");research.focusNode("fireball");return;}
+    if(name.equals("handbook-fireball")){client.setScreen(new stepsword.mahoutsukai.render.gui.guide.HandbookScreen(client.screen,"fireball"));return;}
     if(name.startsWith("research-focus-")){if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.ResearchScreen research))throw new AssertionError("Research screen missing");research.focusNode("family_"+name.substring("research-focus-".length()));return;}
     if(name.equals("research-controls-check")){
      if(!(client.screen instanceof stepsword.mahoutsukai.render.gui.guide.ResearchScreen research))throw new AssertionError("Research screen missing");

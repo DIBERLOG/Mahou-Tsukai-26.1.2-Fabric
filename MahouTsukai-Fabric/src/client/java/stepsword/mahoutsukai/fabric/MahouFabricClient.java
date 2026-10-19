@@ -88,6 +88,8 @@ public final class MahouFabricClient implements ClientModInitializer {
         stepsword.mahoutsukai.render.RenderBaseItem.init();
         net.minecraft.client.renderer.entity.EntityRenderers.register(stepsword.mahoutsukai.entity.ModEntities.DOOM.get(),
             stepsword.mahoutsukai.render.entity.DoomRenderer::new);
+        net.minecraft.client.renderer.entity.EntityRenderers.register(stepsword.mahoutsukai.entity.ModEntities.FIREBALL.get(),
+            stepsword.mahoutsukai.render.entity.FireballRenderer::new);
         net.minecraft.client.renderer.entity.EntityRenderers.register(stepsword.mahoutsukai.entity.ModEntities.FAE.get(),
             stepsword.mahoutsukai.render.entity.RenderFaeEntity::new);
         ClientPlayNetworking.registerGlobalReceiver(stepsword.mahoutsukai.networking.FaeNoisePacket.TYPE, (packet, context) -> {

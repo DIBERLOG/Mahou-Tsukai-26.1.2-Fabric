@@ -35,6 +35,7 @@ public final class ResearchProgress {
   for(int i=0;i<weapons.length;i++)nodes.add(node("weapon_"+weapons[i][0],weapons[i][1],List.of("first_scroll"),List.of(weapons[i][1]),0,9,i*2-6));
   nodes.add(node("sculk","powdered_sculk",List.of("powders"),List.of("powdered_sculk"),0,3,20));
   nodes.add(node("doom","scroll_doom",List.of("mana1000"),List.of("scroll_doom"),0,6,20));
+  nodes.add(new Node("fireball","mahoutsukai:scroll_fireball",List.of("family_mystic"),List.of(),0,"craft/scroll_fireball",8,14));
   source=recipes;cached=List.copyOf(nodes);return cached;
  }
  private static Node node(String key,String item,List<String> parents,List<String> goals,int mana,int x,int y){return new Node(key,"mahoutsukai:"+item,parents,goals.stream().map(s->"mahoutsukai:"+s).toList(),mana,"",x,y);}

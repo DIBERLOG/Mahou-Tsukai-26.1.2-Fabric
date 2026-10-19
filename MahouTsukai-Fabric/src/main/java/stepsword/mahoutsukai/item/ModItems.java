@@ -84,6 +84,7 @@ public final class ModItems {
         register("scroll_probability_alter", stepsword.mahoutsukai.item.spells.secret.ProbabilityAlterSpellScroll::new);
         for(int amount:new int[]{50,100,250,500,1000})register("scroll_mana_"+amount,()->new ManaCapacityScroll(amount));
         register("scroll_doom", stepsword.mahoutsukai.doom.DoomScroll::new);
+        register("scroll_fireball", stepsword.mahoutsukai.fireball.FireballScroll::new);
         register("scroll_fay_sight", stepsword.mahoutsukai.item.spells.eyes.FaySightEyesSpellScroll::new);
         register("scroll_ascension", stepsword.mahoutsukai.item.spells.displacement.AscensionSpellScroll::new);
         register("attuned_diamond", stepsword.mahoutsukai.item.attunedgems.AttunedDiamond::new);

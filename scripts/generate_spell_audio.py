@@ -1,6 +1,7 @@
 """Generate original individual mono cues; preserve fallback and film recordings."""
 from array import array
 from pathlib import Path
+import argparse
 import hashlib
 import json
 import math
@@ -62,6 +63,7 @@ PROFILES = {
     'doom': (30, (0, 1, 7, 13), 'void', .24),
     'fay_sight': (88, (0, 4, 7, 16), 'leaf', .015),
     'ascension': (63, (0, 7, 12, 19, 24), 'choir', .07),
+    'fireball': (49, (0, 7, 10, 19), 'flame', .22),
 }
 
 
@@ -83,6 +85,9 @@ def voice(phase, age, instrument):
         return .65 * math.sin(phase * .5) + math.sin(phase + .8 * math.sin(phase * 1.03)) + .13 * math.sin(phase * 2.03)
     if instrument == 'veil':
         return .65 * math.sin(phase + .5 * math.sin(age * 19)) + .21 * math.sin(phase * 1.501)
+    if instrument == 'flame':
+        return (math.sin(phase + .08 * math.sin(age * 39)) + .24 * math.sin(phase * 2)
+                + .12 * math.sin(phase * 3) + .07 * math.sin(phase * 5))
     return math.sin(phase) + .20 * math.sin(phase * 2) + .06 * math.sin(phase * 3)
 
 
@@ -113,6 +118,11 @@ def render(name, release):
             value += .20 * voice(phase, age, instrument) * envelope
         swell = math.sin(math.pi * min(t / duration, 1)) ** 1.5
         value += air * breath * swell * (1.0 if release else .7)
+        if instrument == 'flame':
+            # A rising ignition gives way to a short fire-breath roar and embers.
+            flame = ((1 - math.exp(-t * 95)) * math.exp(-t * 3.6) if release
+                     else swell * (.25 + .75 * min(t / .8, 1)))
+            value += (.45 * breath + .035 * rng.uniform(-1, 1)) * flame
         if release:
             value += .16 * math.sin(2 * math.pi * (fundamental * .5 * t + .9 * (1 - math.exp(-t * 24)))) * math.exp(-t * 14)
         else:
@@ -133,6 +143,10 @@ def render(name, release):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--only', choices=sorted(PROFILES), nargs='+',
+                        help='Generate only these scrolls without replacing other audio files')
+    selected = set(parser.parse_args().only or PROFILES)
     ffmpeg = shutil.which('ffmpeg')
     if not ffmpeg:
         raise SystemExit('ffmpeg is required to encode the generated sounds')
@@ -141,12 +155,13 @@ def main():
     assert registered == set(PROFILES), f'Scroll coverage mismatch: {registered ^ set(PROFILES)}'
     definitions_path = ASSETS / 'sounds.json'
     definitions = json.loads(definitions_path.read_text(encoding='utf-8'))
-    protected = {key: value for key, value in definitions.items() if not key.startswith('spell.')}
+    changed_keys = {'spell.' + spell + '.' + stage for spell in selected for stage in ('charge', 'release')}
+    protected = {key: value for key, value in definitions.items() if key not in changed_keys}
     destination = ASSETS / 'sounds/spells'
     destination.mkdir(parents=True, exist_ok=True)
     hashes, maximum_peak = set(), 0.0
     with tempfile.TemporaryDirectory(prefix='mahou-audio-') as temp:
-        for spell in sorted(PROFILES):
+        for spell in sorted(selected):
             for release in (False, True):
                 stage = 'release' if release else 'charge'
                 name = spell + '_' + stage
@@ -167,15 +182,15 @@ def main():
                 samples = array('f')
                 samples.frombytes(decoded)
                 peak = max(map(abs, samples))
-                assert 0 < peak < .80, f'Encoded audio must retain headroom: {name}: {peak}'
+                assert 0 < peak < 10 ** (-3 / 20), f'Encoded audio must retain headroom: {name}: {peak}'
                 maximum_peak = max(maximum_peak, peak)
                 definitions['spell.' + spell + '.' + stage] = {
                     'subtitle': 'mahoutsukai.subtitle.cast.' + stage,
                     'sounds': [{'name': 'mahoutsukai:spells/' + name, 'attenuation_distance': 24}],
                 }
-    assert protected == {key: value for key, value in definitions.items() if not key.startswith('spell.')}
+    assert protected == {key: value for key, value in definitions.items() if key not in changed_keys}
     definitions_path.write_text(json.dumps(definitions, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    print(f'Generated and decoded {len(hashes)} distinct original cues for {len(PROFILES)} spells; '
+    print(f'Generated and decoded {len(hashes)} distinct original cues for {len(selected)} spells; '
           f'maximum decoded peak {20 * math.log10(maximum_peak):.2f} dBFS. '
           'Existing family cues, DOOM recording and other resources preserved.')
 

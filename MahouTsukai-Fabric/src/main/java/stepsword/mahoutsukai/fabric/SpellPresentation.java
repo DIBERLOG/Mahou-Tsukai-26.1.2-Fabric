@@ -17,7 +17,7 @@ public record SpellPresentation(Family family,int color,int accent,int seed) {
   motifs(Motif.RIFT,"reality_marble mental_displacement projectile_displacement selective_displacement spatial_disorientation ascension recall_familiar");
   motifs(Motif.CHAIN,"geas retribution death_collection");
   motifs(Motif.CROWN,"fallen_down borrowed_authority cup_of_heaven");
-  motifs(Motif.EMBER,"black_flame");motifs(Motif.SPEAR,"gandr");motifs(Motif.TWIN,"swap_familiar damage_replication damage_exchange");motifs(Motif.ECLIPSE,"doom");motifs(Motif.ORBIT,"mystic_staff");
+  motifs(Motif.EMBER,"black_flame fireball");motifs(Motif.SPEAR,"gandr");motifs(Motif.TWIN,"swap_familiar damage_replication damage_exchange");motifs(Motif.ECLIPSE,"doom");motifs(Motif.ORBIT,"mystic_staff");
  }
  private static void motifs(Motif motif,String names){for(String name:names.split(" "))MOTIFS.put(("scroll_"+name).hashCode(),motif);}
  public enum Family {
@@ -34,6 +34,7 @@ public record SpellPresentation(Family family,int color,int accent,int seed) {
   for(var value:Family.values())if(type.contains(".spells."+value.name().toLowerCase(java.util.Locale.ROOT)))family=value;
   if(item instanceof ManaCapacityScroll)family=Family.EXCHANGE;
   int seed=path.hashCode();
+  if(path.equals("scroll_fireball"))return new SpellPresentation(Family.MYSTIC,0xFF731F,0xFFF0A6,seed);
   // Stable subtle tint and rune count distinguish individual spells in one family.
   int color=blend(family.color,family.accent,Math.floorMod(seed,5)*0.055);
   if(path.equals("scroll_black_flame")){color=0x7434A6;return new SpellPresentation(family,color,0xFF9A6A,seed);}

@@ -150,6 +150,8 @@ public final class EconomyIntegration implements ModInitializer {
                         if(ticks<40) return;
                         try {
                             if(ticks==40) {
+                            Nobu031Checks.run(player);
+                            Fireball031Checks.run(player);
                             MagicIntegration.run(player);
                             RitualIntegration.run(player);
                             DefenseIntegration.run(player);

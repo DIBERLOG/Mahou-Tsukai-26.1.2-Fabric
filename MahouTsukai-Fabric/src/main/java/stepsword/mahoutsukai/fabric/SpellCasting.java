@@ -12,7 +12,7 @@ public final class SpellCasting {
  public static boolean summonsWeapon(ItemStack stack){return WEAPON_SCROLLS.contains(id(stack));}
  public static boolean accepts(ItemStack stack){return stack.getItem() instanceof SpellScroll && !summonsWeapon(stack);}
  public static ItemStack active(ItemStack held){if(held.getItem() instanceof stepsword.mahoutsukai.item.mysticcode.MysticCode){var inv=Utils.getMCInventory(held);return inv==null?ItemStack.EMPTY:inv.getItem(stepsword.mahoutsukai.item.mysticcode.MysticCode.getSlot(held));}return held;}
- public static int requiredTicks(ItemStack spell){if(spell.getItem() instanceof stepsword.mahoutsukai.item.spells.mystic.MysticStaff.MysticStaff)return stepsword.mahoutsukai.item.spells.mystic.MysticStaff.MysticStaff.chargeTicks(spell);return switch(id(spell)){case "scroll_doom"->60;case "scroll_gandr"->52;case "scroll_fallen_down"->52;default->summonsWeapon(spell)?40:20;};}
+ public static int requiredTicks(ItemStack spell){if(spell.getItem() instanceof stepsword.mahoutsukai.item.spells.mystic.MysticStaff.MysticStaff)return stepsword.mahoutsukai.item.spells.mystic.MysticStaff.MysticStaff.chargeTicks(spell);return switch(id(spell)){case "scroll_fireball"->stepsword.mahoutsukai.fireball.FireballScroll.HOLD_TICKS;case "scroll_doom"->60;case "scroll_gandr"->52;case "scroll_fallen_down"->52;default->summonsWeapon(spell)?40:20;};}
  public static void cancel(Player player){var circle=DOOM_CIRCLES.remove(player.getUUID());if(circle!=null)circle.discard();}
  public static void clear(){DOOM_CIRCLES.values().forEach(net.minecraft.world.entity.Entity::discard);DOOM_CIRCLES.clear();}
  public static void tick(net.minecraft.world.level.Level level,LivingEntity user,ItemStack spell,int remaining){

@@ -26,6 +26,8 @@ public final class Progression026Checks {
      if(age-changedAt<20)return;
      if(stage==1){require(!world.isRainingAt(rain.blockPosition()),"Native rain does not reach covered player");rain.setItemInHand(InteractionHand.OFF_HAND,stick.copy());stepsword.mahoutsukai.item.emrys.StaffEmrys.emrysInRain(rain);require(rain.getOffhandItem().is(Items.STICK),"Roof prevents Emrys transformation");world.removeBlock(roof,false);stage=2;changedAt=age;return;}
      require(world.isRainingAt(rain.blockPosition()),"Native rain reaches player after sky lighting updates");stepsword.mahoutsukai.item.emrys.StaffEmrys.emrysInRain(rain);require(rain.getOffhandItem().is(ModItems.emrysStaff.get()),"Rain creates Emrys without lightning");
+     // Projectile queries require native entity-ticking chunks, after the force-load tickets settle.
+     Nobu031Checks.run(rain);Fireball031Checks.run(rain);
      Progression027Checks.runGravity(world);
      server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"weather clear");world.setRainLevel(0);world.removePlayerImmediately(rain,net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"forceload remove 560 512 592 576");
      java.nio.file.Files.writeString(java.nio.file.Path.of("../../../analysis/phase026-progression-server.passed"),"PASS: progression regression suite, native crafting and automatic recipe discovery, 3000 seeded dungeon loot rolls, actual eating and cancellation, rain/roof lifecycle and Emrys without lightning; real world ticks and sky lighting\n");System.out.println("PASS: PROGRESSION_SERVER_026");done=true;server.halt(false);

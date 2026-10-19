@@ -1,0 +1,49 @@
+{
+  "version": "1.36.36-fabric.0.31-incomplete",
+  "minecraft": "26.1.2",
+  "fabric_loader": "0.19.5",
+  "java": 25,
+  "assets": [
+    {
+      "name": "MahouTsukai-Fabric-1.36.36-fabric.0.31-incomplete.jar",
+      "bytes": 7419862,
+      "sha256": "ea47459f35f6e8bc6835c7bf19fc52d91a9e497fa450e1e5e0e90560e33339ff"
+    },
+    {
+      "name": "Jousting-Fabric-1.0.12-fabric.0.1-incomplete.jar",
+      "bytes": 58647,
+      "sha256": "80be62b5befe4aa3dd09b20493d515a0e1a0d5338a5026f84d0fa15bd45890ef"
+    }
+  ],
+  "checks": {
+    "build": "passed",
+    "native_progression": "passed",
+    "native_economy": "passed",
+    "combat_cases": 15440,
+    "ritual_cases": 1372,
+    "ritual_families": 53,
+    "explicit_clarent_combat_adaptations": 12,
+    "explicit_effect_color_fixes": 37,
+    "individual_scroll_audio": 92,
+    "native_sound_events": 112,
+    "native_scroll_geometry": 46,
+    "native_geometry_submissions": 188,
+    "activation_motifs": 12,
+    "research_nodes": 83,
+    "secret_recipe_crafting_and_non_disclosure": "passed",
+    "packaged_old_world_copy_two_boots": "passed",
+    "original_world_modified": false,
+    "client_research_search_zoom_and_return": "passed",
+    "fireball_craft_unlock_payment_collision_water_cover_lifecycle": "passed",
+    "nobu_damage_12_and_existing_config_migration": "passed",
+    "refreshed_original_neoforge_oracles": "passed"
+  },
+  "limits": [
+    "Experimental build",
+    "Optional Jousting/Apotheosis integration suite last fully run in 0.25",
+    "No simultaneous multi-DOOM load test on a small server",
+    "No claim of universal shader or third-party mod compatibility"
+  ],
+  "sound_provenance": "../../MahouTsukai-Fabric/docs/SOUND-SOURCES.md",
+  "qa": "../../MahouTsukai-Fabric/docs/QA-0.31.md"
+}

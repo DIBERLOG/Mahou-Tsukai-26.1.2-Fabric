@@ -89,6 +89,7 @@ public final class GuideCatalogScreen extends Screen {
   if(selected==null||!selected.get("unlocked").getAsBoolean())return;
 
   if(id(selected).equals("mahoutsukai:scroll_doom")){Minecraft.getInstance().setScreen(new HandbookScreen(this,"doom"));return;}
+  if(id(selected).equals("mahoutsukai:scroll_fireball")){Minecraft.getInstance().setScreen(new HandbookScreen(this,"fireball"));return;}
 
   var book=new stepsword.mahoutsukai.item.guide.GuidebookInstance();
 

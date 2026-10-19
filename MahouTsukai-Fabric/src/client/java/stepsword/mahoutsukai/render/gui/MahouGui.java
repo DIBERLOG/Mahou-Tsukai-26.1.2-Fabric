@@ -202,6 +202,13 @@ public class MahouGui  {
 
       if(stepsword.mahoutsukai.fabric.SpellCasting.summonsWeapon(spell)&&code){graphics.text(font,fit(font,Component.translatable("mahoutsukai.cast.weapon_code").getString(),width-4),x,y+13,0xFFFFB394);return height;}
 
+      if(spell.getItem() instanceof stepsword.mahoutsukai.fireball.FireballScroll&&player.getCooldowns().isOnCooldown(spell)){
+         float cooldown=player.getCooldowns().getCooldownPercent(spell,0);
+         graphics.text(font,fit(font,Component.translatable("mahoutsukai.cast.cooldown",String.format(java.util.Locale.ROOT,"%.1f",cooldown*stepsword.mahoutsukai.fireball.FireballScroll.COOLDOWN_TICKS/20.0)).getString(),width-4),x,y+13,0xFFFFB16B);
+         graphics.text(font,fit(font,Component.translatable("mahoutsukai.hints.hold","1.2").getString(),width-4),x,y+26,0xFFABA5B2);
+         graphics.fill(x,y+40,x+width-4,y+42,0xFF342D3D);graphics.fill(x,y+40,x+(int)((width-4)*(1-cooldown)),y+42,0xFFEBA85F);return height;
+      }
+
       int needed=stepsword.mahoutsukai.fabric.SpellCasting.requiredTicks(spell),elapsed=player.isUsingItem()?player.getTicksUsingItem():0;
 
       boolean channel=spell.getItem() instanceof stepsword.mahoutsukai.item.spells.secret.FallenDownSpellScroll||staff&&Utils.getMode(spell)!=0;
