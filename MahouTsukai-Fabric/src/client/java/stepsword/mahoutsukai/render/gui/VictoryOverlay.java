@@ -9,17 +9,20 @@ public final class VictoryOverlay {
  private static Component boss;
  private static int theme;
  private static long started;
+ private static long lootReturnUntil;
  public static void show(int style,Component name){theme=Math.clamp(style,0,4);boss=name.copy();started=0;}
- public static void clear(){boss=null;}
+ public static void lootReturn(int ticks){lootReturnUntil=ticks<=0?0:System.nanoTime()+Math.clamp(ticks,0,2400)*50_000_000L;}
+ public static void clear(){boss=null;lootReturnUntil=0;}
  private static int color(int rgb,float alpha){return (Math.clamp((int)(alpha*255),0,255)<<24)|(rgb&0xFFFFFF);}
  private static void diamond(GuiGraphicsExtractor g,int x,int y,int radius,int color){for(int dy=-radius;dy<=radius;dy++){int dx=radius-Math.abs(dy);g.fill(x-dx,y+dy,x+dx+1,y+dy+1,color);}}
  public static void render(GuiGraphicsExtractor g){
-  if(boss==null)return;
   var mc=Minecraft.getInstance();
   if(mc.player==null||mc.screen!=null)return;
+  renderLootReturn(g,mc);
+  if(boss==null)return;
   if(started==0)started=System.nanoTime();
   double age=(System.nanoTime()-started)/1_000_000_000.0;
-  if(age>=7){clear();return;}
+  if(age>=7){boss=null;return;}
   float fade=(float)(Math.clamp(age/.55,0,1)*Math.clamp((7-age)/1.1,0,1));
   if(fade<.02F)return;
   int screenW=mc.getWindow().getGuiScaledWidth(),screenH=mc.getWindow().getGuiScaledHeight();
@@ -72,5 +75,15 @@ public final class VictoryOverlay {
   g.pose().pushMatrix();g.pose().translate(cx,top+49);g.pose().scale(nameScale,nameScale);g.text(mc.font,name,-mc.font.width(name)/2,0,violet);g.pose().popMatrix();
   int length=(int)((width-80)*Math.clamp((7-age)/7,0,1));
   g.fill(left+40,bottom-11,right-40,bottom-10,color(0x594568,fade*.5F));g.fill(cx-length/2,bottom-11,cx+(length+1)/2,bottom-10,gold);
+ }
+ private static void renderLootReturn(GuiGraphicsExtractor g,Minecraft mc){
+  long remaining=lootReturnUntil-System.nanoTime();
+  if(lootReturnUntil==0||remaining<=0)return;
+  int seconds=(int)((remaining+999_999_999L)/1_000_000_000L);
+  var text=Component.translatable("mahoutsukai.victory.return_in",String.format(java.util.Locale.ROOT,"%d:%02d",seconds/60,seconds%60));
+  int width=mc.font.width(text),left=(mc.getWindow().getGuiScaledWidth()-width)/2,top=17;
+  g.fill(left-9,top-5,left+width+9,top+13,0xD0110E19);
+  g.fill(left-9,top-5,left-7,top+13,0xFFE9BE69);
+  g.text(mc.font,text,left,top,0xFFFFE6AD);
  }
 }

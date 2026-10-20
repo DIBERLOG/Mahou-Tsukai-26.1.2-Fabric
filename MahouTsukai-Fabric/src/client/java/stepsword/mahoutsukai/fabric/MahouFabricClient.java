@@ -14,6 +14,7 @@ public final class MahouFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ClientPlayNetworking.registerGlobalReceiver(stepsword.mahoutsukai.networking.BossVictoryPacket.TYPE,(packet,context)->stepsword.mahoutsukai.render.gui.VictoryOverlay.show(packet.theme(),packet.bossName()));
+        ClientPlayNetworking.registerGlobalReceiver(stepsword.mahoutsukai.networking.LootReturnPacket.TYPE,(packet,context)->stepsword.mahoutsukai.render.gui.VictoryOverlay.lootReturn(packet.remainingTicks()));
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler,client)->stepsword.mahoutsukai.render.gui.VictoryOverlay.clear());
         try {stepsword.mahoutsukai.config.MTConfig.loadClient(net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("mahoutsukai-fabric-client.json"));}
         catch(java.io.IOException | RuntimeException e){throw new IllegalStateException("Cannot load Mahou client settings",e);}

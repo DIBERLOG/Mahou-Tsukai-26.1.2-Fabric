@@ -1,0 +1,31 @@
+{
+  "version": "1.36.36-fabric.0.38-incomplete",
+  "build": "BUILD SUCCESSFUL in 45s",
+  "jar_sha256": "25dc73a5a31ee1c3869184a71506641e6e18412d426246ea0b94971d0caad5d4",
+  "checks": [
+    "[03:35:46] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: REALITY_MARBLE_BOSS: registration, one boss per arena, boss bar, arena bounds, client-acknowledged fifty-tick entrance without melee or specials, real attacks, one-time Morgan reward, persistence and empty-arena cleanup",
+    "[03:35:46] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: BOSS_VICTORY_037: four named vanilla boss deaths and matching registered achievements, client-ready private titles and sound, no duplicate banners or achievement awards, no ordinary mob titles, contributor achievement credit; 102 native Clarent damage cases, bypass/infinite protection, inactive stance rejection, 1600 cap; 800HP migration and aggressive low-health AI",
+    "[03:35:47] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: REALITY_MARBLE_SHRINE_038: native torii, layered shrine, dry floor, open sightline, dimension guard, preserved chests/walls, persistent idempotence and no regeneration",
+    "[03:36:04] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: REALITY_MARBLE_INTEGRATION: original datapack dimension generation, ritual/cost, allocated native dimension teleport, fall immunity and saved-position return",
+    "[03:36:05] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: MULTIPLAYER_MARBLE_036: actual queued two-player entry, targeted Archmage/ally recasts rejected without movement/mana/scroll/health changes, one shared boss, dry grounded arrivals, independent origins/returns, explicit duel without an unrelated boss, leave/death preserves fight, personal allocations unchanged",
+    "[03:36:05] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: VICTORY_RETURN_037: actual boss death automatically returns two participants to Overworld/End with independent coordinates and one banner each",
+    "[03:36:06] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: ECONOMY_INTEGRATION"
+  ],
+  "packaged_test_classes": false,
+  "native_damage_cases": 102,
+  "basic_combat_cases": 15440,
+  "live_client_verification": {
+    "entry": "PASS: natural grounded Reality Marble entry, live arena boss and exact enemy UUID; player=10170aa4-882d-3b2e-9798-50b9f8d93a4b boss=846dd85f-4548-4a15-8721-2d1ea17485af position=(0.5, 71.0, 3000.5) bossPosition=(9.227963807576478, 71.0, 3006.377194672977) arrivalTicks=0\n",
+    "recast": "PASS: actual client in Reality Marble; aimed paid recast refused, exactly one Archmage, same enemy UUID and positions, unchanged mana and return origin; boss=846dd85f-4548-4a15-8721-2d1ea17485af\n",
+    "saved_duplicate_world_reloaded": true,
+    "live_archmage_health": 800,
+    "screenshot": "../screenshots/0.38/archmage-shrine.png"
+  },
+  "boss_achievements": [
+    "archmage",
+    "ender_dragon",
+    "wither",
+    "warden",
+    "elder_guardian"
+  ]
+}

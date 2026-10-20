@@ -17,6 +17,7 @@ public class WorldMahouStorage {
 
    public static CompoundTag writeNBT(MahouSavedData instance) {
       CompoundTag compound = new CompoundTag();
+      if (instance.freshMarbleArenaSequence > 0) compound.putLong("MAHOUTSUKAI_FRESH_MARBLE_ARENA", instance.freshMarbleArenaSequence);
       CompoundTag reality = new CompoundTag();
       int z = 0;
 
@@ -60,6 +61,7 @@ public class WorldMahouStorage {
    }
 
    public static void readNBT(MahouSavedData instance, CompoundTag nbt) {
+      instance.freshMarbleArenaSequence = Math.clamp(nbt.getLongOr("MAHOUTSUKAI_FRESH_MARBLE_ARENA", 0), 0, 8192L * 8192);
       if (nbt.contains("MAHOUTSUKAI_REALITY_MARBLE_PLAYER_LIST")) {
          CompoundTag reality = nbt.getCompound("MAHOUTSUKAI_REALITY_MARBLE_PLAYER_LIST").orElse(new CompoundTag());
 

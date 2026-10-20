@@ -1,0 +1,18 @@
+{
+  "parent": "mahoutsukai:root",
+  "display": {
+    "icon": {"id": "minecraft:prismarine_crystals", "count": 1},
+    "title": {"translate": "advancements.mahoutsukai.elder_guardian_victory.title"},
+    "description": {"translate": "advancements.mahoutsukai.elder_guardian_victory.description"},
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "defeat_elder_guardian": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {"entity": {"type": "minecraft:elder_guardian"}}
+    }
+  }
+}

@@ -66,6 +66,8 @@ public final class MahouFabric implements ModInitializer {
             return net.minecraft.world.InteractionResult.PASS;
         });
         net.fabricmc.fabric.api.event.player.AttackEntityCallback.EVENT.register((player,world,hand,target,hit)->stepsword.mahoutsukai.effects.familiar.FamiliarsGardenEffect.familiarsGardenAttackEntity(target,player) ? net.minecraft.world.InteractionResult.FAIL : net.minecraft.world.InteractionResult.PASS);
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents.ALLOW_LOAD.register((entity,world,reason,fromDisk)->
+            !(entity instanceof stepsword.mahoutsukai.entity.RealityMarbleBossEntity boss)||boss.reconcileEncounter());
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents.ENTITY_LOAD.register((entity,world)-> {
             if(entity instanceof stepsword.mahoutsukai.entity.FamiliarEntity familiar && familiar.getOwnerReference()!=null) {
                 var owner=familiar.getOwnerReference().getUUID();

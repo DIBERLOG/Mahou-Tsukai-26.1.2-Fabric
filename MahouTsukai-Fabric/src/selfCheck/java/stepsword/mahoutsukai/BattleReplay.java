@@ -13,8 +13,23 @@ public final class BattleReplay {
     var player=server.getPlayerList().getPlayerByName("Player733");
     if(player==null||!player.isAlive())return;
     if(Files.isRegularFile(request)){
-     if(!Files.readString(request).strip().equals("enter"))throw new IllegalArgumentException("Unknown local battle replay request");
+     String action=Files.readString(request).strip();
      Files.delete(request);
+     if(action.equals("recast")){
+      if(!RealityMarbleSpellEffect.inMarble(player.level()))throw new AssertionError("Recast probe needs the actual arena");
+      var mahou=Utils.getPlayerMahou(player);var boss=RealityMarbleBossEntity.liveFor(player.level(),mahou.getEnemy());
+      if(boss==null)throw new AssertionError("Recast probe needs the live linked opponent");
+      var position=player.position();var bossPosition=boss.position();var origin=mahou.getPlayerSavedSpawn();String dimension=mahou.getPlayerOldDimension();int mana=mahou.getStoredMana();
+      var look=boss.getBoundingBox().getCenter().subtract(player.getEyePosition());
+      player.setYRot((float)Math.toDegrees(Math.atan2(-look.x,look.z)));player.setXRot((float)-Math.toDegrees(Math.atan2(look.y,Math.sqrt(look.x*look.x+look.z*look.z))));
+      boolean cast=stepsword.mahoutsukai.mana.PlayerManaManager.castPaid(player,stepsword.mahoutsukai.config.MTConfig.MARBLE_MANA_COST,()->RealityMarbleSpellEffect.goToMarble(player));
+      if(cast||mahou.getStoredMana()!=mana||!boss.getUUID().equals(mahou.getEnemy())||!player.position().equals(position)||!boss.position().equals(bossPosition)||!java.util.Objects.equals(origin,mahou.getPlayerSavedSpawn())||!java.util.Objects.equals(dimension,mahou.getPlayerOldDimension()))throw new AssertionError("A live aimed recast must leave mana, positions and encounter origins intact");
+      long count=player.level().getEntitiesOfClass(RealityMarbleBossEntity.class,boss.getBoundingBox().inflate(64),e->e.isAlive()&&!e.isRemoved()).size();
+      if(count!=1)throw new AssertionError("Recast must retain exactly one living Archmage in this arena: "+count);
+      Files.writeString(Path.of("battle-recast.passed"),"PASS: actual client in Reality Marble; aimed paid recast refused, exactly one Archmage, same enemy UUID and positions, unchanged mana and return origin; boss="+boss.getUUID()+"\n");
+      System.out.println("PASS: BATTLE_RECAST_038");return;
+     }
+     if(!action.equals("enter"))throw new IllegalArgumentException("Unknown local battle replay request");
      if(RealityMarbleSpellEffect.inMarble(player.level()))throw new IllegalStateException("Already in Reality Marble; leave normally before a fresh entry");
      var mahou=Utils.getPlayerMahou(player);
      var marble=server.getLevel(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,RealityMarbleSpellEffect.marble));
@@ -40,7 +55,11 @@ public final class BattleReplay {
      Files.writeString(Path.of("battle-replay.passed"),"PASS: natural grounded Reality Marble entry, live arena boss and exact enemy UUID; player="+player.getUUID()+" boss="+boss.getUUID()+" position="+player.position()+" bossPosition="+boss.position()+" arrivalTicks="+boss.arrivalTicks()+"\n");
      System.out.println("PASS: BATTLE_REPLAY_REALITY_MARBLE");
     }
-   }catch(Exception|AssertionError failure){throw new IllegalStateException("Local battle replay failed",failure);}
+   }catch(Exception|AssertionError failure){
+    pending[0]=0;
+    System.err.println("Local battle replay check failed: "+failure.getMessage());
+    try{Files.writeString(Path.of("battle-replay.failed"),failure.toString()+"\n");}catch(java.io.IOException io){io.printStackTrace();}
+   }
   });
  }
 }

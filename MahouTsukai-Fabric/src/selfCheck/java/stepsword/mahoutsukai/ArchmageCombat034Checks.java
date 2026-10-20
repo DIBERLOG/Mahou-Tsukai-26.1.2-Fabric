@@ -41,6 +41,7 @@ public final class ArchmageCombat034Checks {
  }
  private static RealityMarbleBossEntity boss(ServerLevel level){
   var boss=new RealityMarbleBossEntity(ModEntities.REALITY_MARBLE_BOSS.get(),level);
+  boss.awaken();
   boss.setArena(CENTER);boss.setNoAi(true);boss.setPos(CENTER.getX()+.5,CENTER.getY(),CENTER.getZ()+.5);
   require(level.addFreshEntity(boss),"Combat boss inserted into the native level");return boss;
  }
@@ -117,13 +118,13 @@ public final class ArchmageCombat034Checks {
    var boss=boss(level);bosses.add(boss);
 
    boss.setTarget(target);
-   require(boss.arrivalTicks()==50,"A newly created archmage has a synced fifty-tick entrance");
+   require(boss.arrivalTicks()==50,"An awakened archmage has a synced fifty-tick entrance");
    begin.invoke(boss,level);
    require(boss.attackTicks()==0&&boss.sonicBursts==0,"A valid target cannot interrupt the entrance with a special");
    for(int remaining=50;remaining>0;remaining--){
     require(boss.arrivalTicks()==remaining,"Entrance countdown advances only once per ready server tick");
     boss.tick();
-    require(boss.attackTicks()==0&&boss.sonicBursts==0&&effects(boss).isEmpty(),"Every entrance tick prevents attack entities and special casts");
+    require(boss.attackTicks()==0&&boss.sonicBursts==0&&effects(boss).stream().allMatch(e->e instanceof net.minecraft.world.entity.LightningBolt),"Every entrance tick permits only the verified visual lightning, without attack entities or special casts");
    }
    require(boss.arrivalTicks()==0,"Archmage finishes the entrance exactly after fifty ready ticks");
 

@@ -164,6 +164,7 @@ public final class EconomyIntegration implements ModInitializer {
                             Nobu031Checks.run(player);
                             Fireball031Checks.run(player);
                             ArchmageCombat034Checks.run(player);
+                            ArchmageStuck040Checks.run(player);
                             MagicIntegration.run(player);
                             RitualIntegration.run(player);
                             DefenseIntegration.run(player);
@@ -199,7 +200,7 @@ public final class EconomyIntegration implements ModInitializer {
                             if(ticks==46){MultiplayerMarble036Checks.verifyFirstReturned();return;}
                             if(ticks==47){MultiplayerMarble036Checks.finish();return;}
                             if(ticks==48){BossVictory037Checks.startReturn(player);return;}
-                            if(ticks==49)return;
+                            if(ticks==49){BossVictory037Checks.expireLootReturn();return;}
                             if(ticks==50)BossVictory037Checks.finishReturn();
                             if(!flameReady||!woundReady) return;
                             DoomIntegration.run(player);

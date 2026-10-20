@@ -1,0 +1,40 @@
+{
+  "version": "1.36.36-fabric.0.39-incomplete",
+  "build": "BUILD SUCCESSFUL in 1m 10s",
+  "jar_sha256": "334ef7c1ac24688df5d4116fccbe9bb3355effe4910b1bea1559f7909116b827",
+  "checks": [
+    "[10:42:46] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: REALITY_MARBLE_BOSS: registration, one boss per arena, boss bar, arena bounds, client-acknowledged fifty-tick entrance without melee or specials, real attacks, one-time Morgan reward, persistence and empty-arena cleanup",
+    "[10:42:46] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: BOSS_VICTORY_037: four named vanilla boss deaths and matching registered achievements, client-ready private titles and sound, no duplicate banners or achievement awards, no ordinary mob titles, contributor achievement credit; 102 native Clarent damage cases, bypass/infinite protection, inactive stance rejection, 1600 cap; 800HP migration and aggressive low-health AI",
+    "[10:42:47] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: REALITY_MARBLE_SHRINE_038: native torii, layered shrine, dry full foundation, original marker migration, grounded waiting/entrance, preserved chests/walls, persistent idempotence, three-ingot victory chest and no restock",
+    "[10:43:06] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: REALITY_MARBLE_INTEGRATION: original datapack dimension generation, ritual/cost, allocated native dimension teleport, fall immunity and saved-position return",
+    "[10:43:07] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: MULTIPLAYER_MARBLE_036: actual queued two-player entry, targeted Archmage/ally recasts rejected without movement/mana/scroll/health changes, one shared boss, dry grounded arrivals, independent origins/returns, explicit duel without an unrelated boss, leave/death preserves fight, personal allocations unchanged",
+    "[10:43:07] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: VICTORY_RETURN_039: immediate in-arena victory, persistent native player save/load deadline, two-minute loot window and exact deadline boundary, no recast or timer reset, then two participants return to Overworld/End with independent coordinates and one banner each",
+    "[10:43:08] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: ECONOMY_INTEGRATION"
+  ],
+  "packaged_test_classes": false,
+  "live": {
+    "first_entry": "PASS: natural grounded Reality Marble entry, live arena boss and exact enemy UUID; player=10170aa4-882d-3b2e-9798-50b9f8d93a4b boss=70226307-f173-4d7c-922a-0c5c51a03062 position=(3000.5, 71.0, 3000.5) bossPosition=(3012.5, 74.0, 3049.5) arrivalTicks=0\n",
+    "second_entry": "PASS: natural grounded Reality Marble entry, live arena boss and exact enemy UUID; player=10170aa4-882d-3b2e-9798-50b9f8d93a4b boss=5d153247-cdcc-40af-99a7-a5e63839a19d position=(6000.5, 71.0, 3000.5) bossPosition=(6012.5, 73.0, 3049.5) arrivalTicks=0\n",
+    "fresh_sector_after_new_cast": true,
+    "live_intro_awakened": true,
+    "intro_finished_ticks": 0,
+    "boss_moved_from": [
+      3012.5,
+      74,
+      3049.5
+    ],
+    "boss_moved_to": [
+      3012.9991437026742,
+      73.92159999847412,
+      3044.2452110975987
+    ]
+  },
+  "real_client_intro_capture": "../screenshots/0.39/archmage-awakening.png",
+  "loot_return_test": "native server deadline advanced to boundary; not a two-minute real-time client wait",
+  "known_limits": [
+    "Multiple real clients and third-party shaders not retested.",
+    "Old destroyed arenas are preserved; each new Archmage encounter receives a fresh sector."
+  ],
+  "ready_battle_entry": "PASS: natural grounded Reality Marble entry, live arena boss and exact enemy UUID; player=10170aa4-882d-3b2e-9798-50b9f8d93a4b boss=30039876-2475-42fa-b078-c136ae7a5f43 position=(9000.5, 71.0, 3000.5) bossPosition=(9012.5, 74.0, 3049.5) arrivalTicks=0\n",
+  "ready_mode": "survival, no temporary resistance, waiting inside the shrine"
+}

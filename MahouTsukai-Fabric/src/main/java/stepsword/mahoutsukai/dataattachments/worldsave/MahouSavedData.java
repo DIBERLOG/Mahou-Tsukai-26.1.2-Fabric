@@ -35,6 +35,20 @@ public class MahouSavedData extends SavedData {
    public ConcurrentHashMap<UUID, BlockPos> realityMarbleSpawns = new ConcurrentHashMap<>();
    public Multimap<UUID, UUID> playerContracts = TreeMultimap.create();
    public ConcurrentHashMap<FictionData, UUID> playerCreations = new ConcurrentHashMap<>();
+   long freshMarbleArenaSequence;
+
+   /** A new sector for each new boss fight; existing arenas and personal duel allocations remain. */
+   public BlockPos allocateFreshMarbleArena() {
+      for (int attempt = 0; attempt < 64 && freshMarbleArenaSequence < 8192L * 8192; attempt++) {
+         long index = freshMarbleArenaSequence++;
+         this.setDirty();
+         BlockPos candidate = new BlockPos((int)(index % 8192 + 1) * 3000, 120, (int)(index / 8192 + 1) * 3000);
+         boolean legacy = realityMarbleSpawns.values().stream().anyMatch(pos ->
+            Math.abs((long)pos.getX() - candidate.getX()) < 1000 && Math.abs((long)pos.getZ() - candidate.getZ()) < 1000);
+         if (!legacy) return candidate;
+      }
+      return null;
+   }
 
    public MahouSavedData() {
    }

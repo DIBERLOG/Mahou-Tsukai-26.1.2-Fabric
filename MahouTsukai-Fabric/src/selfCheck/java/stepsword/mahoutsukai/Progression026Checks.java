@@ -43,8 +43,16 @@ public final class Progression026Checks {
   PresentationResearchChecks.run(fixture.level(),catalog);
   RealityMarbleBossChecks.run(fixture);
   GroundSpawn036Checks.run(fixture);
+  var arenas=new stepsword.mahoutsukai.dataattachments.worldsave.MahouSavedData();
+  var legacyArena=java.util.UUID.randomUUID();arenas.changePlayerSpawn(legacyArena,new net.minecraft.core.BlockPos(3000,120,3000));
+  var freshArena=arenas.allocateFreshMarbleArena();
+  require(freshArena!=null&&!freshArena.equals(arenas.getPlayerSpawn(legacyArena)),"Fresh arenas skip existing personal sectors");
+  var arenaTag=stepsword.mahoutsukai.dataattachments.worldsave.MahouSavedData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE,arenas).getOrThrow();
+  var restoredArenas=stepsword.mahoutsukai.dataattachments.worldsave.MahouSavedData.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE,arenaTag).getOrThrow();
+  require(!freshArena.equals(restoredArenas.allocateFreshMarbleArena())&&restoredArenas.getPlayerSpawn(legacyArena).equals(arenas.getPlayerSpawn(legacyArena)),"The saved arena sequence never reuses a destroyed fight sector or changes personal allocations");
   ArchmageDefeat036Checks.run(fixture);
   BossVictory037Checks.run(fixture);
+  RealityMarbleShrineChecks.run(fixture);
   WilliamFlightChecks.run(fixture);
   stepsword.mahoutsukai.entity.mahoujin.GauntletFlightChecks.run(fixture);
   require(catalog.stream().filter(e->e.kind().equals("craft")&&e.id().endsWith("_2")&&e.output()==2).count()==7,"All seven original mortar recipes are displayed with two outputs");

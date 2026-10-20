@@ -2113,5 +2113,15 @@
   "mahoutsukai.victory.over": "над «%s»",
   "mahoutsukai.victory.heading": "ПОБЕДА",
   "advancements.mahoutsukai.archmage_victory.title": "Закат Архимага",
-  "advancements.mahoutsukai.archmage_victory.description": "Победите Архимага иллейджеров в Мраморе реальности."
+  "advancements.mahoutsukai.archmage_victory.description": "Победите Архимага иллейджеров в Мраморе реальности.",
+  "advancements.mahoutsukai.ender_dragon_victory.title": "Последний взмах Края",
+  "advancements.mahoutsukai.ender_dragon_victory.description": "Победите дракона Края или помогите союзникам одолеть его.",
+  "advancements.mahoutsukai.wither_victory.title": "Три головы, один исход",
+  "advancements.mahoutsukai.wither_victory.description": "Остановите иссушителя и заставьте три головы умолкнуть.",
+  "advancements.mahoutsukai.warden_victory.title": "Тишина после рёва",
+  "advancements.mahoutsukai.warden_victory.description": "Победите хранителя глубин: пусть тьма вновь станет тихой.",
+  "advancements.mahoutsukai.elder_guardian_victory.title": "Око бездны закрыто",
+  "advancements.mahoutsukai.elder_guardian_victory.description": "Одолейте древнего стража и освободите морской храм от его взгляда.",
+  "mahoutsukai.victory.return_in": "Возврат через %s",
+  "mahoutsukai.victory.loot_hint": "Награда ждёт в сундуке внутри святилища. У вас две минуты до возвращения домой."
 }

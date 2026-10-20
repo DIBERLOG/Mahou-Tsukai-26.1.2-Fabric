@@ -2115,5 +2115,15 @@
   "mahoutsukai.victory.over": "over %s",
   "mahoutsukai.victory.heading": "VICTORY",
   "advancements.mahoutsukai.archmage_victory.title": "Twilight of the Archmage",
-  "advancements.mahoutsukai.archmage_victory.description": "Defeat the Illager Archmage in Reality Marble."
+  "advancements.mahoutsukai.archmage_victory.description": "Defeat the Illager Archmage in Reality Marble.",
+  "advancements.mahoutsukai.ender_dragon_victory.title": "The End's Last Wingbeat",
+  "advancements.mahoutsukai.ender_dragon_victory.description": "Defeat the Ender Dragon or help your allies bring it down.",
+  "advancements.mahoutsukai.wither_victory.title": "Three Heads, One Fate",
+  "advancements.mahoutsukai.wither_victory.description": "Stop the Wither and silence all three heads.",
+  "advancements.mahoutsukai.warden_victory.title": "Silence After the Roar",
+  "advancements.mahoutsukai.warden_victory.description": "Defeat the Warden and let the deep dark fall silent again.",
+  "advancements.mahoutsukai.elder_guardian_victory.title": "The Abyss Closes Its Eye",
+  "advancements.mahoutsukai.elder_guardian_victory.description": "Defeat an Elder Guardian and free the ocean monument from its gaze.",
+  "mahoutsukai.victory.return_in": "Return in %s",
+  "mahoutsukai.victory.loot_hint": "Your reward awaits in the chest inside the shrine. You have two minutes before returning home."
 }

@@ -44,12 +44,19 @@ public final class BossVictory037Checks {
    stepsword.mahoutsukai.networking.BossVictoryPacket.STREAM_CODEC.encode(wire,new stepsword.mahoutsukai.networking.BossVictoryPacket(1,original));
    var decoded=stepsword.mahoutsukai.networking.BossVictoryPacket.STREAM_CODEC.decode(wire);
    require(decoded.theme()==1&&decoded.bossName().equals(original),"Victory payload preserves the unique theme and localized boss component across its native wire codec");
+   stepsword.mahoutsukai.networking.LootReturnPacket.STREAM_CODEC.encode(wire,new stepsword.mahoutsukai.networking.LootReturnPacket(2400));
+   require(stepsword.mahoutsukai.networking.LootReturnPacket.STREAM_CODEC.decode(wire).remainingTicks()==2400,"The separate loot countdown packet round-trips its exact two-minute duration");
   }finally{wire.release();}
   var p=player(world,"Victory037",packets,ready);var others=new ArrayList<Packet<?>>();var ally=player(world,"VictoryAlly037",others,new AtomicBoolean(true));
   try{
    for(var type:List.of(EntityType.ENDER_DRAGON,EntityType.WITHER,EntityType.WARDEN,EntityType.ELDER_GUARDIAN)){
     var boss=(LivingEntity)type.create(world,EntitySpawnReason.COMMAND);require(boss!=null&&BossVictories.supported(boss),"Every supported vanilla boss has victory handling");boss.setPos(p.position());boss.setCustomName(net.minecraft.network.chat.Component.literal("Named boss "+type.toShortString()));
+    var achievement=world.getServer().getAdvancements().get(net.minecraft.resources.Identifier.fromNamespaceAndPath("mahoutsukai",type.toShortString()+"_victory"));
+    require(achievement!=null&&achievement.value().criteria().containsKey("defeat_"+type.toShortString()),"Every boss has a registered native victory advancement and its matching criterion: "+type.toShortString());
+    require(!p.getAdvancements().getOrStartProgress(achievement).isDone()&&!ally.getAdvancements().getOrStartProgress(achievement).isDone(),"Victory advancements start locked");
     int start=packets.size();boss.die(world.damageSources().playerAttack(p));
+    require(p.getAdvancements().getOrStartProgress(achievement).isDone()&&!ally.getAdvancements().getOrStartProgress(achievement).isDone(),"Actual boss death grants its achievement only to the credited winner: "+type.toShortString());
+    require(!BossVictories.lootWindowActive(p),"Vanilla boss victories never start the Reality Marble loot return timer");
     BossVictories.tick(p);require(packets.subList(start,packets.size()).stream().noneMatch(x->x instanceof ClientboundSetTitleTextPacket),"Victory waits until the client is ready");
     ready.set(true);BossVictories.tick(p);
     var title=packets.subList(start,packets.size()).stream().filter(x->x instanceof ClientboundSetSubtitleTextPacket).map(x->(ClientboundSetSubtitleTextPacket)x).findFirst().orElseThrow();
@@ -62,6 +69,10 @@ public final class BossVictory037Checks {
    require(cooperative.hurtServer(world,world.damageSources().playerAttack(ally),1),"A real nonlethal contributor hit is accepted");
    cooperative.die(world.damageSources().playerAttack(p));ready.set(true);BossVictories.tick(p);BossVictories.tick(ally);
    require(titles(packets)==5&&titles(others)==1,"A credited helper and the final hitter both receive victory");cooperative.discard();
+   var shared=world.getServer().getAdvancements().get(net.minecraft.resources.Identifier.fromNamespaceAndPath("mahoutsukai","elder_guardian_victory"));
+   require(ally.getAdvancements().getOrStartProgress(shared).isDone(),"The nonlethal contributor also earns the boss's native achievement");
+   ally.getAdvancements().revoke(shared,"defeat_elder_guardian");BossVictories.onDeath(cooperative,world.damageSources().playerAttack(p));
+   require(!ally.getAdvancements().getOrStartProgress(shared).isDone(),"A duplicate death event cannot re-award a previously revoked boss achievement");
    var cow=EntityType.COW.create(world,EntitySpawnReason.COMMAND);cow.die(world.damageSources().playerAttack(p));BossVictories.tick(p);require(titles(packets)==5,"Ordinary mobs never show the boss victory title");cow.discard();
 
    var sword=new ItemStack(ModItems.REGISTERED.get("clarent"));sword.set(net.minecraft.core.component.DataComponents.UNBREAKABLE,net.minecraft.util.Unit.INSTANCE);p.setItemInHand(InteractionHand.MAIN_HAND,sword);p.startUsingItem(InteractionHand.MAIN_HAND);
@@ -88,14 +99,14 @@ public final class BossVictory037Checks {
    require(p.hurtServer(world,world.damageSources().generic(),1)&&p.getHealth()<health,"Holding Clarent without actively blocking does not grant immunity");
 
    var old=new RealityMarbleBossEntity(ModEntities.REALITY_MARBLE_BOSS.get(),world);old.getAttribute(Attributes.MAX_HEALTH).setBaseValue(400);old.setHealth(100);old.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(.26);old.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(14);
-   var save=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,world.registryAccess());old.saveWithoutId(save);var tag=save.buildResult();tag.remove("mahoutsukai_archmage_balance");tag.putInt("mahoutsukai_arrival_ticks",0);
+   var save=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,world.registryAccess());old.saveWithoutId(save);var tag=save.buildResult();tag.remove("mahoutsukai_archmage_balance");tag.remove("mahoutsukai_archmage_awakened");tag.putInt("mahoutsukai_arrival_ticks",0);
    var migrated=new RealityMarbleBossEntity(ModEntities.REALITY_MARBLE_BOSS.get(),world);migrated.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,world.registryAccess(),tag));
-   require(migrated.getMaxHealth()==800&&migrated.getHealth()==200&&migrated.getAttributeValue(Attributes.MOVEMENT_SPEED)==.32&&migrated.getAttributeValue(Attributes.ATTACK_DAMAGE)==16,"Old bosses upgrade to stronger attributes without healing their missing health");
+   require(migrated.awakened()&&migrated.getMaxHealth()==800&&migrated.getHealth()==200&&migrated.getAttributeValue(Attributes.MOVEMENT_SPEED)==.32&&migrated.getAttributeValue(Attributes.ATTACK_DAMAGE)==16,"Old damaged bosses keep their active fight and upgrade attributes without healing missing health");
    migrated.setPos(p.getX()+4,p.getY(),p.getZ());migrated.setTarget(p);
    var cooldown=RealityMarbleBossEntity.class.getDeclaredField("specialCooldown");cooldown.setAccessible(true);cooldown.setInt(migrated,1);
    var ai=RealityMarbleBossEntity.class.getDeclaredMethod("customServerAiStep",ServerLevel.class);ai.setAccessible(true);ai.invoke(migrated,world);
    require(migrated.attackTicks()==32&&cooldown.getInt(migrated)==50,"Below half health the real AI starts a special and switches to the faster cooldown");old.discard();migrated.discard();
-   System.out.println("PASS: BOSS_VICTORY_037: four named vanilla boss deaths, client-ready private titles and sound, no duplicates or ordinary mob titles, contributor credit; "+guarded+" native Clarent damage cases, bypass/infinite protection, inactive stance rejection, 1600 cap; 800HP migration and aggressive low-health AI");
+   System.out.println("PASS: BOSS_VICTORY_037: four named vanilla boss deaths and matching registered achievements, client-ready private titles and sound, no duplicate banners or achievement awards, no ordinary mob titles, contributor achievement credit; "+guarded+" native Clarent damage cases, bypass/infinite protection, inactive stance rejection, 1600 cap; 800HP migration and aggressive low-health AI");
   }finally{remove(p);remove(ally);}
  }
  private static ServerPlayer first,second;private static ServerLevel original,end;private static RealityMarbleBossEntity arenaBoss;
@@ -107,17 +118,41 @@ public final class BossVictory037Checks {
   arenaBoss=new RealityMarbleBossEntity(ModEntities.REALITY_MARBLE_BOSS.get(),marble);arenaBoss.setNoAi(true);arenaBoss.setPos(first.getX()+4,first.getY(),first.getZ());require(marble.addFreshEntity(arenaBoss),"Victory return boss inserted");
   for(var p:List.of(first,second)){var mahou=Utils.getPlayerMahou(p);mahou.setEnemy(arenaBoss.getUUID());mahou.setPlayerOldDimension((p==first?original:end).dimension().identifier().toString());mahou.setPlayerSavedSpawn(new BlockPos(p==first?420:11,p==first?260:70,p==first?420:11));}
   arenaBoss.hurtServer(marble,marble.damageSources().playerAttack(first),100000);
-  require(!arenaBoss.isAlive(),"Actual boss victory triggers participant return notices");
+  require(!arenaBoss.isAlive(),"Actual boss victory starts the participant loot window");
+  require(BossVictories.LOOT_RETURN_AT.isPersistent()&&BossVictories.LOOT_RETURN_AT.copyOnDeath(),"The return deadline survives native player saving and death copies");
+  long deadline=first.getAttachedOrElse(BossVictories.LOOT_RETURN_AT,0L);
+  require(deadline==original.getServer().overworld().getGameTime()+2400&&second.getAttachedOrElse(BossVictories.LOOT_RETURN_AT,0L)==deadline,"Every winning participant gets the same exact two-minute server deadline");
+  for(var p:List.of(first,second)){BossVictories.tick(p);stepsword.mahoutsukai.effects.projection.RealityMarbleSpellEffect.realityMarbleLivingHurt(p);}
+  require(first.level()==marble&&second.level()==marble&&titles(FIRST)==1&&titles(SECOND)==1,"Victory appears immediately inside Reality Marble while both winners remain to loot");
+  require(!stepsword.mahoutsukai.effects.projection.RealityMarbleSpellEffect.goToMarble(first),"Recasting during the loot window cannot create another boss");
+  var save=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,marble.registryAccess());first.saveWithoutId(save);
+  var relogged=new ServerPlayer(marble.getServer(),marble,new com.mojang.authlib.GameProfile(UUID.randomUUID(),"LootReturnRelog"),net.minecraft.server.level.ClientInformation.createDefault());
+  relogged.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,marble.registryAccess(),save.buildResult()));
+  require(relogged.getAttachedOrElse(BossVictories.LOOT_RETURN_AT,0L)==deadline&&Utils.getPlayerMahou(relogged).getPlayerSavedSpawn().equals(Utils.getPlayerMahou(first).getPlayerSavedSpawn()),"The actual native player save/load boundary retains the original deadline and return position");
+  BossVictories.onDeath(arenaBoss,marble.damageSources().playerAttack(first));
+  require(first.getAttachedOrElse(BossVictories.LOOT_RETURN_AT,0L)==deadline,"A duplicate death event cannot restart the two-minute timer");
+ }
+ public static void expireLootReturn(){
+  var clock=original.getServer().overworld();var data=(net.minecraft.world.level.storage.ServerLevelData)clock.getLevelData();long previous=clock.getGameTime();
+  long deadline=first.getAttachedOrElse(BossVictories.LOOT_RETURN_AT,0L);
+  try{
+   data.setGameTime(deadline-1);
+   for(var p:List.of(first,second)){BossVictories.tick(p);stepsword.mahoutsukai.effects.projection.RealityMarbleSpellEffect.realityMarbleLivingHurt(p);}
+   require(BossVictories.awaitingLoot(first)&&BossVictories.awaitingLoot(second)&&stepsword.mahoutsukai.effects.projection.RealityMarbleSpellEffect.inMarble(first.level())&&stepsword.mahoutsukai.effects.projection.RealityMarbleSpellEffect.inMarble(second.level()),"Both winners stay in the arena until the last tick before the deadline");
+   data.setGameTime(deadline);
+   for(var p:List.of(first,second))BossVictories.tick(p);
+   require(!BossVictories.lootWindowActive(first)&&!BossVictories.lootWindowActive(second),"At the exact deadline both return timers are consumed once before native queued teleport");
+  }finally{data.setGameTime(previous);}
  }
  public static void finishReturn(){
   try{
    require(first.level()==original&&second.level()==end,"Victory automatically returns both participants to their separate original dimensions");
    require(first.blockPosition().equals(new BlockPos(420,260,420))&&second.blockPosition().equals(new BlockPos(11,70,11)),"Victory retains each player's own original coordinates");
-   require(titles(FIRST)==1&&titles(SECOND)==1,"Both returned participants receive exactly one victory banner after returning");
+   require(titles(FIRST)==1&&titles(SECOND)==1,"Returning after the loot window never repeats the in-arena victory banner");
    var achievement=original.getServer().getAdvancements().get(net.minecraft.resources.Identifier.fromNamespaceAndPath("mahoutsukai","archmage_victory"));
    require(achievement!=null&&first.getAdvancements().getOrStartProgress(achievement).isDone()&&second.getAdvancements().getOrStartProgress(achievement).isDone(),"The new archmage achievement is granted to both winning arena participants");
    require(Utils.getPlayerMahou(first).getEnemy()==null&&Utils.getPlayerMahou(second).getEnemy()==null,"Victory clears the completed encounter links");
-   System.out.println("PASS: VICTORY_RETURN_037: actual boss death automatically returns two participants to Overworld/End with independent coordinates and one banner each");
+   System.out.println("PASS: VICTORY_RETURN_039: immediate in-arena victory, persistent native player save/load deadline, two-minute loot window and exact deadline boundary, no recast or timer reset, then two participants return to Overworld/End with independent coordinates and one banner each");
   }finally{if(arenaBoss!=null)arenaBoss.discard();if(first!=null)remove(first);if(second!=null)remove(second);FIRST.clear();SECOND.clear();}
  }
 }

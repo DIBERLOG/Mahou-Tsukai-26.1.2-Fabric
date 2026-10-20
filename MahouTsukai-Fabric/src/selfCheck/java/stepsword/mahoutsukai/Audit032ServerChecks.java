@@ -31,6 +31,7 @@ public final class Audit032ServerChecks {
     results.addProperty("unauthorized_mental_packet_distance",player.position().distanceTo(origin));
 
     var boss=new RealityMarbleBossEntity(ModEntities.REALITY_MARBLE_BOSS.get(),world);
+    boss.awaken();
     boss.snapTo(player.getX()+2,301,800.5,0,0);
     boss.setNoAi(true);
     boss.setTarget(player);

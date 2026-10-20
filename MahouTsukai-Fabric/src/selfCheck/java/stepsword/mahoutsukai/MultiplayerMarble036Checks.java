@@ -51,6 +51,27 @@ public final class MultiplayerMarble036Checks {
   require(firstReturn.equals(Utils.getPlayerMahou(first).getPlayerSavedSpawn())&&secondReturn.equals(Utils.getPlayerMahou(second).getPlayerSavedSpawn()),"Each party member retains their independent saved return position");
   require(Utils.getPlayerMahou(first).getPlayerOldDimension().equals(origin.dimension().identifier().toString())&&Utils.getPlayerMahou(second).getPlayerOldDimension().equals(origin.dimension().identifier().toString()),"Each party member retains the original dimension");
  }
+ private static void aimAt(ServerPlayer player,net.minecraft.world.entity.LivingEntity target){
+  double dx=target.getX()-player.getX(),dz=target.getZ()-player.getZ();
+  player.setYRot((float)Math.toDegrees(Math.atan2(-dx,dz)));
+  player.setXRot((float)-Math.toDegrees(Math.atan2(target.getBoundingBox().getCenter().y-player.getEyeY(),Math.hypot(dx,dz))));
+ }
+ private static void rejectRecast(net.minecraft.world.entity.LivingEntity target){
+  first.teleportTo(target.getX(),target.getY(),target.getZ()-6);aimAt(first,target);
+  require(RealityMarbleSpellEffect.getEnemy(first)==target,"The regression really aims at "+target.getType()+" before the recast");
+  var position=first.position();var bossPosition=boss.position();var enemy=Utils.getPlayerMahou(first).getEnemy();
+  int mana=Utils.getPlayerMahou(first).getStoredMana(),maximum=Utils.getPlayerMahou(first).getMaxMana();
+  float health=first.getHealth(),bossHealth=boss.getHealth();
+  require(!RealityMarbleSpellEffect.goToMarble(first),"An in-arena recast is rejected before selecting a new opponent");
+  var stack=new net.minecraft.world.item.ItemStack(stepsword.mahoutsukai.item.ModItems.realityMarbleScroll.get());
+  // Mystic Code calls this shared action directly instead of the standalone scroll's release guard.
+  ((stepsword.mahoutsukai.item.spells.SpellScroll)stack.getItem()).useAction(stack,marble,first,true);
+  require(stack.getCount()==1&&Utils.getPlayerMahou(first).getStoredMana()==mana&&Utils.getPlayerMahou(first).getMaxMana()==maximum&&first.getHealth()==health,"Rejected direct/Mystic Code recasts preserve the scroll, mana, growth and health");
+  require(first.position().equals(position)&&boss.position().equals(bossPosition)&&boss.getHealth()==bossHealth,"Recasting never moves the caster or the selected Archmage, or resets his health");
+  require(enemy.equals(Utils.getPlayerMahou(first).getEnemy())&&boss.getUUID().equals(Utils.getPlayerMahou(second).getEnemy()),"Recasting at an Archmage or party member keeps both original encounter links");
+  require(marble.getEntitiesOfClass(RealityMarbleBossEntity.class,new AABB(boss.arena()).inflate(64),Entity::isAlive).size()==1,"Targeted in-arena recasts cannot create a second Archmage");
+  savedOrigins();allocations();
+ }
  public static void start(ServerPlayer fixture){
   origin=fixture.level();marble=origin.getServer().getLevel(ResourceKey.create(Registries.DIMENSION,RealityMarbleSpellEffect.marble));
   require(marble!=null,"The shared encounter uses the registered Reality Marble dimension");
@@ -79,7 +100,10 @@ public final class MultiplayerMarble036Checks {
   require(enemy.equals(Utils.getPlayerMahou(second).getEnemy()),"Queued party casts resolve the same exact boss UUID");
   require(Utils.getPlayerMahou(first).getPlayerMarbleSpawn().distSqr(Utils.getPlayerMahou(second).getPlayerMarbleSpawn())<256,"Queued party destinations stay inside the same arena");
   first.setPos(first.getX()+1,first.getY(),first.getZ());
-  require(RealityMarbleSpellEffect.goToMarble(first),"A repeated queued cast reuses its encounter");
+  aimAt(first,second);
+  require(RealityMarbleSpellEffect.getEnemy(first)==second,"The queued recast now selects the other participant in the original dimension");
+  require(RealityMarbleSpellEffect.goToMarble(first),"A repeated queued cast reuses its encounter even when aimed at an ally");
+  require(enemy.equals(Utils.getPlayerMahou(first).getEnemy())&&enemy.equals(Utils.getPlayerMahou(second).getEnemy()),"Queued recasts cannot replace the shared Archmage with their newly selected ally");
   savedOrigins();allocations();
  }
  public static void verifyArrived(){
@@ -91,10 +115,8 @@ public final class MultiplayerMarble036Checks {
    var floor=BlockPos.containing(p.getX(),p.getY()-.01,p.getZ());
    require(!marble.getBlockState(floor).getCollisionShape(marble,floor).isEmpty()&&marble.getFluidState(floor).isEmpty(),"Every party member lands on dry solid terrain");
   }
-  first.teleportTo(first.getX()+5,first.getY(),first.getZ());first.setXRot(90);
-  require(RealityMarbleSpellEffect.getEnemy(first)==null,"The in-arena recast does not select the other player");
-  require(RealityMarbleSpellEffect.goToMarble(first),"An in-arena recast keeps the current shared encounter");savedOrigins();allocations();
-  require(boss.getUUID().equals(Utils.getPlayerMahou(first).getEnemy()),"An in-arena recast keeps the exact boss UUID");
+  rejectRecast(boss);
+  rejectRecast(second);
   var cow=origin.getEntity(duelTarget);require(cow!=null,"The explicit opponent remains in the original dimension before the duel");
   duelist.setYRot(0);duelist.setXRot((float)-Math.toDegrees(Math.atan2(cow.getBoundingBox().getCenter().y-duelist.getEyeY(),5)));
   require(RealityMarbleSpellEffect.getEnemy(duelist)==cow,"The original cursor selection picks a real explicit opponent");
@@ -107,6 +129,7 @@ public final class MultiplayerMarble036Checks {
   require(second.level()==marble&&boss.isAlive()&&!boss.isRemoved(),"A participant leaving cannot discard the shared boss or remove the remaining player");
   require(duelist.level()==marble&&marble.getEntity(duelTarget)!=null,"The selected duel opponent follows its caster into Reality Marble");
   var duelSpawn=Utils.getPlayerMahou(duelist).getPlayerMarbleSpawn();
+  require(marble.getEntitiesOfClass(RealityMarbleBossEntity.class,new AABB(duelSpawn).inflate(64),Entity::isAlive).isEmpty(),"An explicit selected-opponent duel never creates an unrelated Archmage");
   require(!boss.inArena(duelist)&&duelSpawn!=null&&Math.abs(duelSpawn.getX()-DUEL_ALLOCATION.getX())<=8&&Math.abs(duelSpawn.getZ()-DUEL_ALLOCATION.getZ())<=8,"Explicit target duels retain their own allocated arena horizontally; obsolete stored sky height is only a hint");
   var duelFloor=BlockPos.containing(duelist.getX(),duelist.getY()-.01,duelist.getZ());
   var duelSupport=marble.getBlockState(duelFloor).getCollisionShape(marble,duelFloor);
@@ -129,7 +152,7 @@ public final class MultiplayerMarble036Checks {
    require(duelist.level()==origin&&duelist.position().distanceToSqr(Vec3.atLowerCornerOf(duelReturn))<1,"The explicit duel also preserves its own return origin");
    require(boss.isAlive()&&!boss.isRemoved(),"The boss remains through ordinary participant exits in the loaded fixture: health="+boss.getHealth()+", removed="+boss.getRemovalReason());
    savedOrigins();allocations();
-   System.out.println("PASS: MULTIPLAYER_MARBLE_036: actual queued two-player entry and recast, one shared boss, dry grounded arrivals, independent saved origins and returns, explicit duel preserved, leave/death preserves the remaining fight, personal allocations unchanged");
+   System.out.println("PASS: MULTIPLAYER_MARBLE_036: actual queued two-player entry, targeted Archmage/ally recasts rejected without movement/mana/scroll/health changes, one shared boss, dry grounded arrivals, independent origins/returns, explicit duel without an unrelated boss, leave/death preserves fight, personal allocations unchanged");
   }finally{cleanup();}
  }
  public static void cleanup(){

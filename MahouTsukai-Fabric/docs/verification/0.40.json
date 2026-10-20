@@ -1,0 +1,17 @@
+{
+  "version": "1.36.36-fabric.0.40-incomplete",
+  "jar_sha256": "811f3af6cc4829a1bba13509eb31dadc265a10e1277ec1bdb9a59bbbb2c1c15c",
+  "build": "BUILD SUCCESSFUL in 38s",
+  "checks": [
+    "[11:00:41] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: REALITY_MARBLE_BOSS: registration, one boss per arena, boss bar, arena bounds, client-acknowledged fifty-tick entrance without melee or specials, real attacks, one-time Morgan reward, persistence and empty-arena cleanup",
+    "[11:00:50] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: ARCHMAGE_COMBAT_034: fifty-tick entrance, native 32-tick warnings, exact twelve-tick recovery and restart guards, five-special cycle, owned fangs and real damage, six terrain-safe pillars, three native bolts and collisions, delayed one-hit shockwave and damage veto, capped vexes, strict lifetimes, owner cleanup and saved-orphan recovery",
+    "[11:00:50] [Server thread/INFO] (Minecraft) [STDOUT]: ARCHMAGE_ESCAPE_040_OK: runtime hook, movement, poses, cooldown, radius, support, headroom, fluids, occupants, arena boundary, sealed-trap retry",
+    "[11:00:58] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: VICTORY_RETURN_039: immediate in-arena victory, persistent native player save/load deadline, two-minute loot window and exact deadline boundary, no recast or timer reset, then two participants return to Overworld/End with independent coordinates and one banner each",
+    "[11:00:59] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: ECONOMY_INTEGRATION"
+  ],
+  "packaged_test_classes": false,
+  "live_visual_teleport_assessed": false,
+  "live_client_started": true,
+  "live_client_version": "1.36.36-fabric.0.40-incomplete",
+  "live_client_connection": "127.0.0.1:25585; Player733 online; mana HUD initialized"
+}

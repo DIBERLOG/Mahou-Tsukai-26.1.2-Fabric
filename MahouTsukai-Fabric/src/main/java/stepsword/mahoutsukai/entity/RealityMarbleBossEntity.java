@@ -35,6 +35,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import stepsword.mahoutsukai.effects.projection.RealityMarbleSpellEffect;
+import stepsword.mahoutsukai.effects.projection.RealityMarbleShrine;
+import stepsword.mahoutsukai.dataattachments.worldsave.RealityMarbleEncounters;
 import stepsword.mahoutsukai.fabric.GuideCatalog;
 import stepsword.mahoutsukai.item.ModItems;
 
@@ -53,6 +55,12 @@ public class RealityMarbleBossEntity extends Monster {
  public static final int PULL_INTERVAL = 220;
  public static final int IDLE_DESPAWN_TICKS = 600;
  public static final int RESET_FIGHT_TICKS = 200;
+ public static final int WAKE_DISTANCE = 10;
+ public static final int STUCK_TICKS = 40;
+ public static final int ESCAPE_COOLDOWN = 100;
+ private Vec3 pursuitAnchor;
+ private UUID pursuitTarget;
+ private int stuckTicks,escapeCooldown;
  /** Session registry of the live boss per arena, so re-entering can never stack a copy. */
  private static final java.util.Map<net.minecraft.resources.ResourceKey<Level>, java.util.Map<BlockPos, RealityMarbleBossEntity>> ACTIVE = new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -80,7 +88,10 @@ public class RealityMarbleBossEntity extends Monster {
  private boolean recoverEffects;
  private int orphanRecoveryTicks;
  private boolean arrivalSoundPlayed;
+ private boolean awakened;
+ private BlockPos shrineEntrance;
  public int fangsSpawned,pillarsSpawned,boltsSpawned,vexesSpawned,shockwaveHits;
+ public int arrivalFlashes,arrivalSounds,arrivalLaughs;
 
  private final Set<UUID> attackers = new HashSet<>();
  private final java.util.Map<UUID, ServerPlayer> attackerRefs = new java.util.HashMap<>();
@@ -114,7 +125,7 @@ public class RealityMarbleBossEntity extends Monster {
   super.defineSynchedData(builder);
   builder.define(ATTACK_TICKS, 0);
   builder.define(ATTACK_KIND, 0);
-  builder.define(ARRIVAL, ARRIVAL_TICKS);
+  builder.define(ARRIVAL, 0);
   builder.define(RECOVERY, 0);
  }
 
@@ -125,8 +136,39 @@ public class RealityMarbleBossEntity extends Monster {
  public int attackKind(){return entityData.get(ATTACK_KIND);}
  public int arrivalTicks(){return entityData.get(ARRIVAL);}
  public int recoveryTicks(){return entityData.get(RECOVERY);}
- private boolean preparing(){return arrivalTicks()>0||recoveryTicks()>0||attackTicks()>0;}
+ private boolean preparing(){return !awakened||arrivalTicks()>0||recoveryTicks()>0||attackTicks()>0;}
  public boolean levitating(){return isNoGravity();}
+ public boolean awakened(){return awakened;}
+ /** Enter combat once; subsequent approaches or hits never restart the entrance. */
+ public void awaken(){
+  if(awakened)return;
+  awakened=true;entityData.set(ARRIVAL,ARRIVAL_TICKS);arrivalSoundPlayed=false;
+ }
+ @Override public void setTarget(@org.jetbrains.annotations.Nullable LivingEntity target){super.setTarget(awakened?target:null);}
+
+ /** Only fresh spawns call this automatically; existing saved fights keep their positions. */
+ public boolean prepareAtShrine(){
+  if(awakened||arena==null||!(level() instanceof ServerLevel level))return false;
+  RealityMarbleShrine.ensure(level,arena);
+  var waiting=RealityMarbleShrine.bossWaitingPosition(level,arena);
+  if(waiting==null)return false;
+  Vec3 feet=Vec3.atBottomCenterOf(waiting);double half=getBbWidth()/2.0;
+  var body=new AABB(feet.x-half,feet.y+.001,feet.z-half,feet.x+half,feet.y+getBbHeight(),feet.z+half);
+  var below=waiting.below();
+  if(level.getBlockState(below).getCollisionShape(level,below).isEmpty()||!level.getFluidState(below).isEmpty()
+   ||!level.noCollision(this,body)||level.containsAnyLiquid(body))return false;
+  shrineEntrance=RealityMarbleShrine.entrance(level,arena);
+  snapTo(feet.x,feet.y,feet.z,180,0);setDeltaMovement(Vec3.ZERO);fallDistance=0;setNoGravity(false);
+  getNavigation().stop();setTarget(null);entityData.set(ARRIVAL,0);
+  return true;
+ }
+ private void awakenOnApproach(ServerLevel level){
+  if(awakened||isNoAi())return;
+  if(shrineEntrance==null&&arena!=null)shrineEntrance=RealityMarbleShrine.entrance(level,arena);
+  Vec3 entrance=shrineEntrance==null?position():Vec3.atBottomCenterOf(shrineEntrance);
+  for(var player:List.copyOf(level.players()))if(player.isAlive()&&!player.isCreative()&&!player.isSpectator()&&inArena(player)
+    &&player.position().distanceToSqr(entrance)<=WAKE_DISTANCE*WAKE_DISTANCE){awaken();setTarget(player);return;}
+ }
 
  public static AttributeSupplier.Builder createAttributes() {
   return Monster.createMonsterAttributes()
@@ -183,6 +225,10 @@ public class RealityMarbleBossEntity extends Monster {
    idleCombatTicks = 0;
   }
   boolean accepted=super.hurtServer(level, source, amount);
+  if(accepted&&isAlive()){
+   awaken();
+   if(source.getEntity() instanceof LivingEntity attacker&&attacker.level()==level&&inArena(attacker))setTarget(attacker);
+  }
   if(!accepted && fresh && source.getEntity() instanceof ServerPlayer p){attackers.remove(p.getUUID());attackerRefs.remove(p.getUUID());}
   return accepted;
  }
@@ -196,21 +242,27 @@ public class RealityMarbleBossEntity extends Monster {
    this.getNavigation().stop();
   }
 
-  boolean anyNearby = false;
+  boolean anyNearby = false,linkedParticipant=false;
+  ServerPlayer linkedTarget=null;
   for (ServerPlayer player : List.copyOf(level.players())) {
-   if (player.level() == level && player.distanceToSqr(this) <= (double)ARENA_RADIUS * ARENA_RADIUS) {
-    anyNearby = true;
-    break;
+   if(player.level()!=level||!player.isAlive()||player.isSpectator())continue;
+   var mahou=stepsword.mahoutsukai.util.Utils.getPlayerMahou(player);
+   if(inArena(player)&&mahou!=null&&getUUID().equals(mahou.getEnemy())){
+    linkedParticipant=true;
+    if(!player.isCreative()&&(linkedTarget==null||player.distanceToSqr(this)<linkedTarget.distanceToSqr(this)))linkedTarget=player;
    }
+   if(player.distanceToSqr(this)<=(double)ARENA_RADIUS*ARENA_RADIUS)anyNearby=true;
   }
-  if (anyNearby) {
+  if (anyNearby||linkedParticipant) {
    idleTicks = 0;
   } else if (++idleTicks > IDLE_DESPAWN_TICKS) {
    this.discard();
    return;
   }
 
-  if (this.getTarget() == null) {
+  if(!awakened){setTarget(null);getNavigation().stop();setDeltaMovement(0,getDeltaMovement().y,0);return;}
+  if(getTarget()==null&&linkedTarget!=null)setTarget(linkedTarget);
+  if (this.getTarget() == null&&!linkedParticipant) {
    if (++idleCombatTicks > RESET_FIGHT_TICKS) {
     idleCombatTicks = 0;
     if (this.getHealth() < this.getMaxHealth()) this.setHealth(this.getMaxHealth());
@@ -225,8 +277,51 @@ public class RealityMarbleBossEntity extends Monster {
  }
 
  private boolean validTarget(LivingEntity target){
-  return target!=null&&target.isAlive()&&target.level()==level()&&inArena(target)&&distanceToSqr(target)<=64*64
+  return awakened&&target!=null&&target.isAlive()&&target.level()==level()&&inArena(target)&&distanceToSqr(target)<=64*64
    &&!target.isSpectator()&&!(target instanceof Player p&&p.isCreative())&&!isAlliedTo(target);
+ }
+
+ /** A failed path can already be done, so observe actual movement instead of navigation state. */
+ private void tickStuckRecovery(ServerLevel level){
+  if(escapeCooldown>0)escapeCooldown--;
+  var target=getTarget();
+  if(!isAlive()||isNoAi()||preparing()||isNoGravity()||isPassenger()||target==null||!target.isAlive()||target.level()!=level
+    ||!inArena(target)||target.isSpectator()||target instanceof Player p&&p.isCreative()||isAlliedTo(target)||isWithinMeleeAttackRange(target)){
+   pursuitAnchor=null;pursuitTarget=null;stuckTicks=0;return;
+  }
+  if(pursuitAnchor==null||!target.getUUID().equals(pursuitTarget)||position().subtract(pursuitAnchor).horizontalDistanceSqr()>=.75*.75){
+   pursuitAnchor=position();pursuitTarget=target.getUUID();stuckTicks=0;return;
+  }
+  if(++stuckTicks<STUCK_TICKS||escapeCooldown>0)return;
+  stuckTicks=0;escapeCooldown=40;
+  Vec3 origin=position();double start=random.nextDouble()*Math.PI*2;
+  for(int radius=5;radius>=2;radius--)for(int step=0;step<16;step++)for(int dy:new int[]{0,1,-1,2,-2}){
+   double angle=start+step*Math.PI/8;
+   var feet=new Vec3(origin.x+Math.cos(angle)*radius,Math.floor(origin.y)+dy,origin.z+Math.sin(angle)*radius);
+   if(!safeEscape(level,feet))continue;
+   getNavigation().stop();teleportTo(feet.x,feet.y,feet.z);setDeltaMovement(Vec3.ZERO);fallDistance=0;
+   pursuitAnchor=position();escapeCooldown=ESCAPE_COOLDOWN;
+   for(var point:List.of(origin,feet)){
+    level.playSound(null,point.x,point.y,point.z,SoundEvents.ENDERMAN_TELEPORT,SoundSource.HOSTILE,.8F,.75F);
+    level.sendParticles(ParticleTypes.PORTAL,point.x,point.y+1.5,point.z,35,.45,1,.45,.1);
+    level.sendParticles(new net.minecraft.core.particles.DustParticleOptions(0xFFD166,1F),point.x,point.y+1.5,point.z,18,.4,.9,.4,.02);
+   }
+   return;
+  }
+ }
+
+ private boolean safeEscape(ServerLevel level,Vec3 feet){
+  if(feet.distanceToSqr(position())>25.000001||feet.y<level.getMinY()+1||feet.y+getBbHeight()>level.getMaxY())return false;
+  if(arena!=null&&BlockPos.containing(feet).distSqr(arena)>(long)ARENA_RADIUS*ARENA_RADIUS)return false;
+  double half=getBbWidth()/2.0;
+  var body=new AABB(feet.x-half,feet.y+.001,feet.z-half,feet.x+half,feet.y+getBbHeight(),feet.z+half);
+  if(!level.getWorldBorder().isWithinBounds(body)||!level.hasChunksAt(BlockPos.containing(body.minX,feet.y-1,body.minZ),BlockPos.containing(body.maxX,body.maxY,body.maxZ))
+    ||!level.noCollision(this,body)||level.containsAnyLiquid(body)||!level.getEntities(this,body,e->e instanceof LivingEntity&&e.isAlive()).isEmpty())return false;
+  for(double x:new double[]{feet.x-half,feet.x,feet.x+half})for(double z:new double[]{feet.z-half,feet.z,feet.z+half}){
+   var floor=BlockPos.containing(x,feet.y-.01,z);
+   if(!level.getFluidState(floor).isEmpty()||!level.getBlockState(floor).isFaceSturdy(level,floor,net.minecraft.core.Direction.UP))return false;
+  }
+  return true;
  }
  @Override protected boolean considersEntityAsAlly(net.minecraft.world.entity.Entity other){
   return super.considersEntityAsAlly(other)||other instanceof net.minecraft.world.entity.monster.Vex v&&v.getOwner()==this;
@@ -348,10 +443,24 @@ public class RealityMarbleBossEntity extends Monster {
   if(arrivalTicks()<=0||!isAlive())return;
   getNavigation().stop();setDeltaMovement(0,getDeltaMovement().y,0);
   // Start only once an observer has finished loading this dimension, so entry cannot hide the intro.
-  boolean ready=world.players().stream().anyMatch(p->p.isAlive()&&p.distanceToSqr(this)<32*32&&p.connection!=null&&p.connection.hasClientLoaded());
+  boolean ready=world.players().stream().anyMatch(p->{
+   if(!p.isAlive()||p.connection==null||!p.connection.hasClientLoaded()||!inArena(p))return false;
+   var mahou=stepsword.mahoutsukai.util.Utils.getPlayerMahou(p);
+   return p.distanceToSqr(this)<=64*64||attackers.contains(p.getUUID())||mahou!=null&&getUUID().equals(mahou.getEnemy());
+  });
   if(!ready)return;
-  if(!arrivalSoundPlayed){arrivalSoundPlayed=true;world.playSound(null,getX(),getY(),getZ(),stepsword.mahoutsukai.sounds.ModSounds.ARCHMAGE_ARRIVAL.get(),SoundSource.HOSTILE,2F,1F);}
+  if(!arrivalSoundPlayed){
+   arrivalSoundPlayed=true;arrivalSounds++;
+   world.playSound(null,getX(),getY(),getZ(),stepsword.mahoutsukai.sounds.ModSounds.ARCHMAGE_ARRIVAL.get(),SoundSource.HOSTILE,2F,.85F);
+   world.playSound(null,getX(),getY(),getZ(),SoundEvents.EVOKER_PREPARE_ATTACK,SoundSource.HOSTILE,1.4F,.6F);
+  }
   int left=arrivalTicks();double progress=(ARRIVAL_TICKS-left)/(double)ARRIVAL_TICKS;
+  if(left==50||left==36||left==20){
+   var flash=new net.minecraft.world.entity.LightningBolt(EntityType.LIGHTNING_BOLT,world);
+   flash.setPos(getX()+(left==36?-6:left==20?6:0),getY(),getZ()+(left==50?0:-4));
+   flash.setVisualOnly(true);if(addEffect(world,flash,8))arrivalFlashes++;
+  }
+  if(left==32){arrivalLaughs++;world.playSound(null,getX(),getY(),getZ(),stepsword.mahoutsukai.sounds.ModSounds.ARCHMAGE_DEFEAT_LAUGH.get(),SoundSource.HOSTILE,1.8F,.85F);}
   if(left%2==0){
    for(int i=0;i<18;i++){
     double angle=i*Math.PI/9+progress*Math.PI*2,radius=1.6+.4*Math.sin(progress*Math.PI);
@@ -365,8 +474,12 @@ public class RealityMarbleBossEntity extends Monster {
 
  @Override
  public void tick() {
+  if(!reconcileEncounter())return;
+  if(isAlive()&&level() instanceof ServerLevel level)awakenOnApproach(level);
   super.tick();
   if (!this.level().isClientSide()) {
+   tickStuckRecovery((ServerLevel)level());
+   if(isAlive())rememberEncounter();
    if(isAlive())tickEffects((ServerLevel)level());else clearEffects();
    tickArrival((ServerLevel)level());
    if(recoveryTicks()>0)entityData.set(RECOVERY,recoveryTicks()-1);
@@ -381,6 +494,21 @@ public class RealityMarbleBossEntity extends Monster {
    if(levitationTicks>0){levitationTicks--;setDeltaMovement(getDeltaMovement().x,.025,getDeltaMovement().z);}
    else if(isNoGravity())setNoGravity(false);
   }
+ }
+
+ /** No chunk loading here: used by Fabric ALLOW_LOAD before registration, even in non-ticking chunks. */
+ public boolean reconcileEncounter(){
+  if(isAlive()&&level() instanceof ServerLevel level&&!rememberEncounter()){
+   var canonical=RealityMarbleEncounters.get(level).near(arena);
+   if(canonical!=null)for(var player:List.copyOf(level.players())){
+    var mahou=stepsword.mahoutsukai.util.Utils.getPlayerMahou(player);
+    if(mahou!=null&&getUUID().equals(mahou.getEnemy())){
+     mahou.setEnemy(canonical.boss());stepsword.mahoutsukai.mana.PlayerManaManager.updateClientMahou(player,mahou);
+    }
+   }
+   discard();return false;
+  }
+  return true;
  }
 
  @Override
@@ -398,6 +526,8 @@ public class RealityMarbleBossEntity extends Monster {
  @Override
  public void remove(RemovalReason reason) {
   clearEffects();
+  if(reason==RemovalReason.UNLOADED_TO_CHUNK||reason==RemovalReason.UNLOADED_WITH_PLAYER)rememberEncounter();
+  else forgetEncounter();
   super.remove(reason);
   bossEvent.removeAllPlayers();
   if (arena != null) {
@@ -413,6 +543,7 @@ public class RealityMarbleBossEntity extends Monster {
  @Override
  public void die(DamageSource source) {
   clearEffects();
+  forgetEncounter();
   if (!this.level().isClientSide() && this.level() instanceof ServerLevel level) {
    for (UUID id : attackers) {
     ServerPlayer player = level.getServer().getPlayerList().getPlayer(id);
@@ -457,6 +588,10 @@ public class RealityMarbleBossEntity extends Monster {
   input.read("mahoutsukai_attackers", UUIDUtil.CODEC.listOf()).ifPresent(list -> attackers.addAll(list));
   this.specialCooldown = Math.clamp(input.getIntOr("mahoutsukai_special", SPECIAL_INTERVAL),1,SPECIAL_INTERVAL);
   this.pullCooldown = Math.max(1, input.getIntOr("mahoutsukai_pull", PULL_INTERVAL));
+  awakened=input.getBooleanOr("mahoutsukai_archmage_awakened",getHealth()<getMaxHealth()||!attackers.isEmpty());
+  shrineEntrance=input.read("mahoutsukai_archmage_entrance",BlockPos.CODEC).orElse(null);
+  if(!awakened)entityData.set(ARRIVAL,0);
+  if(isAlive())rememberEncounter();
  }
 
  @Override
@@ -468,6 +603,33 @@ public class RealityMarbleBossEntity extends Monster {
   output.putInt("mahoutsukai_pull", pullCooldown);
   output.putInt("mahoutsukai_arrival_ticks",arrivalTicks());
   output.putInt("mahoutsukai_archmage_balance",37);
+  output.putBoolean("mahoutsukai_archmage_awakened",awakened);
+  if(shrineEntrance!=null)output.store("mahoutsukai_archmage_entrance",BlockPos.CODEC,shrineEntrance);
+  if(isAlive())rememberEncounter();
+ }
+
+ private boolean rememberEncounter(){
+  if(arena!=null&&isAlive()&&level() instanceof ServerLevel level&&RealityMarbleSpellEffect.inMarble(level))
+   return RealityMarbleEncounters.get(level).remember(arena,getUUID(),chunkPosition());
+  return true;
+ }
+ private void forgetEncounter(){
+  if(arena!=null&&level() instanceof ServerLevel level&&RealityMarbleSpellEffect.inMarble(level))
+   RealityMarbleEncounters.get(level).forget(arena,getUUID());
+ }
+ private static RealityMarbleBossEntity loadEncounter(ServerLevel level,RealityMarbleEncounters.Encounter encounter){
+  if(encounter==null)return null;
+  level.getChunk(encounter.chunk().x(),encounter.chunk().z());
+  level.waitForEntities(encounter.chunk(),0);
+  var entity=level.getEntity(encounter.boss());
+  if(entity instanceof RealityMarbleBossEntity boss&&boss.isAlive()&&!boss.isRemoved()){
+   ACTIVE.computeIfAbsent(level.dimension(),key->new java.util.concurrent.ConcurrentHashMap<>()).put(cell(boss.arena()==null?encounter.arena():boss.arena()),boss);
+   boss.rememberEncounter();
+   return boss;
+  }
+  // Only a fully loaded remembered chunk can establish that this saved opponent is gone.
+  RealityMarbleEncounters.get(level).forget(encounter.arena(),encounter.boss());
+  return null;
  }
 
  /**
@@ -479,15 +641,23 @@ public class RealityMarbleBossEntity extends Monster {
   var perLevel = ACTIVE.computeIfAbsent(level.dimension(), key -> new java.util.concurrent.ConcurrentHashMap<>());
   BlockPos cell = cell(center);
   RealityMarbleBossEntity active = perLevel.get(cell);
-  if (active != null && active.level()==level && !active.isRemoved() && active.isAlive()) return active;
+  if (active != null && active.level()==level && !active.isRemoved() && active.isAlive()) {
+   if(active.rememberEncounter())return active;
+   active.discard();
+  }
   perLevel.remove(cell);
+  var recovered=loadEncounter(level,RealityMarbleEncounters.get(level).near(center));
+  if(recovered!=null){perLevel.put(cell,recovered);return recovered;}
   Vec3 spawn = RealityMarbleSpellEffect.safeMarbleSpawn(level, center, 1.5, 3);
   if (spawn == null) return null;
   // Blocks and saved entities load separately. Resolve the saved boss before making a new copy.
   level.waitForEntities(net.minecraft.world.level.ChunkPos.containing(BlockPos.containing(spawn)),0);
+  recovered=loadEncounter(level,RealityMarbleEncounters.get(level).near(center));
+  if(recovered!=null){perLevel.put(cell,recovered);return recovered;}
   var existing = level.getEntitiesOfClass(RealityMarbleBossEntity.class, new AABB(center).inflate(ARENA_RADIUS),b->b.isAlive()&&!b.isRemoved());
   for (var found : existing) {
    if (found.arena() != null && found.arena().distSqr(center) <= 64L * 64L) {
+    if(!found.rememberEncounter()){found.discard();continue;}
     perLevel.put(cell, found);
     return found;
    }
@@ -495,9 +665,14 @@ public class RealityMarbleBossEntity extends Monster {
   var boss = new RealityMarbleBossEntity(ModEntities.REALITY_MARBLE_BOSS.get(), level);
   boss.setArena(center);
   boss.snapTo(spawn.x, spawn.y, spawn.z, level.getRandom().nextFloat() * 360.0F, 0.0F);
+  boss.prepareAtShrine();
+  // Shrine generation can load an older saved opponent from another chunk; keep that boss.
+  recovered=loadEncounter(level,RealityMarbleEncounters.get(level).near(center));
+  if(recovered!=null){perLevel.put(cell,recovered);return recovered;}
   boss.setPersistenceRequired();
-  if (!level.addFreshEntity(boss)) return null;
+  if (!level.addFreshEntity(boss)){boss.forgetEncounter();return null;}
   perLevel.put(cell, boss);
+  boss.rememberEncounter();
   return boss;
  }
 
@@ -507,7 +682,8 @@ public class RealityMarbleBossEntity extends Monster {
   var bosses=ACTIVE.get(level.dimension());
   if(bosses!=null)for(var boss:bosses.values())if(boss.level()==level&&boss.getUUID().equals(id)&&boss.isAlive()&&!boss.isRemoved())return boss;
   var entity=level.getEntity(id);
-  return entity instanceof RealityMarbleBossEntity boss&&boss.isAlive()&&!boss.isRemoved()?boss:null;
+  if(entity instanceof RealityMarbleBossEntity boss&&boss.isAlive()&&!boss.isRemoved())return boss.rememberEncounter()?boss:null;
+  return loadEncounter(level,RealityMarbleEncounters.get(level).byBoss(id));
  }
 
  /** Removes every live arena boss of this level; used by native checks and server cleanup. */

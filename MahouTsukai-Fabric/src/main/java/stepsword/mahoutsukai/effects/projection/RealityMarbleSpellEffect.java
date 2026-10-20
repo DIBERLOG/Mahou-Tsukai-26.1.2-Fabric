@@ -97,23 +97,31 @@ public class RealityMarbleSpellEffect {
 
    public static boolean goToMarble(Player user) {
       if (!(user instanceof ServerPlayer serverUser)) return false;
+      // The scroll cannot reopen its own dimension. Keep the same rule for Mystic Code and
+      // other callers, before cursor selection can turn the Archmage or an ally into a duel.
+      // A failed cast is refunded by castPaid and never consumes the scroll.
+      if (inMarble(user.level())) return false;
       IMahou casterMahou = Utils.getPlayerMahou(user);
       if (casterMahou != null) {
          var marbleKey = net.minecraft.resources.ResourceKey.create(Registries.DIMENSION, marble);
          var marbleLevel = serverUser.level().getServer().getLevel(marbleKey);
          if (marbleLevel == null) return false;
          LivingEntity e = getEnemy(user);
+         var ownBoss = RealityMarbleBossEntity.liveFor(marbleLevel, casterMahou.getEnemy());
+         boolean existingReturn = casterMahou.getPlayerSavedSpawn() != null && ownBoss != null;
+         // Repeated queued casts and returning fighters retain their existing encounter,
+         // even if their cursor now happens to point at an opponent in the original world.
+         if (existingReturn) e = null;
          // A selected opponent keeps the original duel. A solo cast joins this server's live
          // Archmage encounter, including the first caster's not-yet-executed dimension transfer.
          SharedEncounter shared = e == null ? activeEncounter(serverUser, marbleLevel) : null;
-         boolean existingReturn = casterMahou.getPlayerSavedSpawn() != null
-            && RealityMarbleBossEntity.liveFor(marbleLevel, casterMahou.getEnemy()) != null;
          BlockPos hint = shared == null ? casterMahou.getPlayerMarbleSpawn() : shared.spawn();
          if (shared == null && !inMarble(user.level())) {
             BlockPos allocated = Utils.getWorldMahou(user.level()).getPlayerSpawn(user.getUUID());
             if (allocated != null) hint = allocated;
          }
          if (hint == null) hint = getRealityMarbleSpawn(user.level(), user.getUUID());
+         if (e == null && shared == null) hint = Utils.getWorldMahou(user.level()).allocateFreshMarbleArena();
          if (hint == null) return false;
          Vec3 arrival = safeMarbleSpawn(marbleLevel, hint, user.getBbWidth(), Math.max(3, user.getBbHeight()));
          if (arrival == null) return false;
@@ -122,8 +130,13 @@ public class RealityMarbleSpellEffect {
          BlockPos pos = BlockPos.containing(arrival);
          BlockPos bossCenter = shared == null ? pos.offset(12, 0, 12)
             : shared.boss().arena() == null ? shared.boss().blockPosition() : shared.boss().arena();
-         LivingEntity boss = RealityMarbleBossEntity.spawnFor(marbleLevel, bossCenter);
+         LivingEntity boss = e != null ? null : shared != null ? shared.boss()
+            : RealityMarbleBossEntity.spawnFor(marbleLevel, bossCenter);
          if (e == null && boss == null) return false;
+         if (boss instanceof RealityMarbleBossEntity archmage) {
+            RealityMarbleShrine.ensure(marbleLevel, archmage.arena() == null ? bossCenter : archmage.arena());
+            archmage.prepareAtShrine();
+         }
          Identifier userdimension = EffectUtil.getDimension(user.level());
          boolean inmarble = inMarble(user.level());
          if (!inmarble && !existingReturn) {
@@ -304,6 +317,7 @@ public class RealityMarbleSpellEffect {
    }
    public static void realityMarbleLivingHurt(Entity e) {
       if (e instanceof ServerPlayer && inMarble(e.level())) {
+         if (stepsword.mahoutsukai.fabric.BossVictories.awaitingLoot((ServerPlayer)e)) return;
          final IMahou mahou = Utils.getPlayerMahou((Player)e);
          if (mahou.getEnemy() != null && e.level().getPlayerByUUID(mahou.getEnemy()) == null) {
             boolean flag = true;
