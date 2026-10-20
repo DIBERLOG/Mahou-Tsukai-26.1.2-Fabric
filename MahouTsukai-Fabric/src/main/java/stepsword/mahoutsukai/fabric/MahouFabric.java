@@ -113,6 +113,7 @@ public final class MahouFabric implements ModInitializer {
         stepsword.mahoutsukai.potion.ModEffects.init();
         stepsword.mahoutsukai.sounds.ModSounds.init();
         ArchmageDefeat.init();
+        BossVictories.init();
         stepsword.mahoutsukai.entity.ModEntities.init();
         stepsword.mahoutsukai.MahouRecipes.init();
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_LEVEL_TICK.register(world -> {

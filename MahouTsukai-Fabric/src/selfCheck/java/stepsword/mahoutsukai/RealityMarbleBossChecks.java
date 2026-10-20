@@ -32,6 +32,8 @@ public final class RealityMarbleBossChecks {
   int chunkX=CENTER.getX()>>4,chunkZ=CENTER.getZ()>>4;
   level.setChunkForced(chunkX,chunkZ,true);
   level.getChunk(chunkX,chunkZ);
+  for(int x=chunkX-1;x<=chunkX+1;x++)for(int z=chunkZ-1;z<=chunkZ+1;z++)level.getChunk(x,z);
+  level.waitForEntities(net.minecraft.world.level.ChunkPos.containing(CENTER),1);
   RealityMarbleBossEntity.discardAll(level);
   for(var stale:level.getEntitiesOfClass(RealityMarbleBossEntity.class,new AABB(CENTER).inflate(512)))stale.discard();
   ServerPlayer player=DoomIntegration.player(level,"MarbleBossFighter",GameType.SURVIVAL,CENTER.getX());
@@ -53,7 +55,10 @@ public final class RealityMarbleBossChecks {
 
    var boss=RealityMarbleBossEntity.spawnFor(level,CENTER);
    require(boss!=null,"Boss spawns in the Reality Marble");
-   require(boss.getMaxHealth()==400.0F&&boss.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)==14.0,"Boss health and attack attributes");
+   // Match real scroll entry: damage in Marble returns players with no encounter opponent.
+   stepsword.mahoutsukai.util.Utils.getPlayerMahou(player).setEnemy(boss.getUUID());
+   stepsword.mahoutsukai.util.Utils.getPlayerMahou(victim).setEnemy(boss.getUUID());
+   require(boss.getMaxHealth()==800.0F&&boss.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)==16.0,"Boss health and attack attributes");
    require(boss.inArena(player),"Player at the arena centre is inside the boss arena");
    var far=new BlockPos(CENTER.getX()+500,CENTER.getY(),CENTER.getZ()+500);
    var farProbe=createProbe(level,far);
@@ -70,7 +75,7 @@ public final class RealityMarbleBossChecks {
    boss.saveWithoutId(saved);
    var reloaded=new RealityMarbleBossEntity(ModEntities.REALITY_MARBLE_BOSS.get(),level);
    reloaded.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess(),saved.buildResult()));
-   require(reloaded.arena()!=null&&reloaded.arena().equals(boss.arena())&&reloaded.getMaxHealth()==400.0F,"Boss arena and health survive native save/load");
+   require(reloaded.arena()!=null&&reloaded.arena().equals(boss.arena())&&reloaded.getMaxHealth()==800.0F,"Boss arena and health survive native save/load");
 
    // The first special is now the evoker fang attack; the warning must precede entity creation.
    victim.teleportTo(boss.getX()+2.5,boss.getY(),boss.getZ()+2.5);

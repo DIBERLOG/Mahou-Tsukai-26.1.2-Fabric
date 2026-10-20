@@ -82,6 +82,7 @@ public class MahouGui  {
          section("mana", () -> manaText(guiGraphics));
 
          section("mahoujin", () -> mahoujinOverlay(guiGraphics));
+         section("victory", () -> VictoryOverlay.render(guiGraphics));
 
       }
 

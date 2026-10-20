@@ -1955,7 +1955,7 @@
   "mahoutsukai.black_flame.stopped": "Black Flame disabled. Existing fire remains.",
   "mahoutsukai.black_flame.stop_hint": "Black Flame: %s to disable",
   "mahoutsukai.clarent.permanent": "Stored power: %s",
-  "mahoutsukai.clarent.hint": "Temporary power decays; one third of each loss becomes permanent memory.",
+  "mahoutsukai.clarent.hint": "Hold right-click: block all damage from every direction. One third of decaying power remains in memory.",
   "item.mahoutsukai.scroll_mana_50": "Mana Capacity Scroll +50",
   "item.mahoutsukai.scroll_mana_100": "Mana Capacity Scroll +100",
   "item.mahoutsukai.scroll_mana_250": "Mana Capacity Scroll +250",
@@ -2110,5 +2110,10 @@
   "mahoutsukai.subtitle.archmage.release": "Archmage releases magic",
   "mahoutsukai.subtitle.archmage.shockwave": "Archmage shockwave",
   "mahoutsukai.subtitle.archmage.arrival": "The Archmage arrives",
-  "mahoutsukai.subtitle.archmage.defeat_laugh": "The Archmage laughs at your defeat"
+  "mahoutsukai.subtitle.archmage.defeat_laugh": "The Archmage laughs at your defeat",
+  "mahoutsukai.victory.title": "◆ VICTORY ◆",
+  "mahoutsukai.victory.over": "over %s",
+  "mahoutsukai.victory.heading": "VICTORY",
+  "advancements.mahoutsukai.archmage_victory.title": "Twilight of the Archmage",
+  "advancements.mahoutsukai.archmage_victory.description": "Defeat the Illager Archmage in Reality Marble."
 }

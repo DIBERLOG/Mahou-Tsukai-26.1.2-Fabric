@@ -44,6 +44,7 @@ public final class Progression026Checks {
   RealityMarbleBossChecks.run(fixture);
   GroundSpawn036Checks.run(fixture);
   ArchmageDefeat036Checks.run(fixture);
+  BossVictory037Checks.run(fixture);
   WilliamFlightChecks.run(fixture);
   stepsword.mahoutsukai.entity.mahoujin.GauntletFlightChecks.run(fixture);
   require(catalog.stream().filter(e->e.kind().equals("craft")&&e.id().endsWith("_2")&&e.output()==2).count()==7,"All seven original mortar recipes are displayed with two outputs");

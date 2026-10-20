@@ -1,6 +1,7 @@
 package stepsword.mahoutsukai.effects.projection;
 
 import java.util.List;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -108,11 +109,12 @@ public class ClarentEffect {
    public static void clarentLivingAttack(LivingEntity victim,net.minecraft.world.damagesource.DamageSource source,float amount) {
       LivingEntity target = victim;
       if (!target.level().isClientSide() && target.isUsingItem() && target.getUseItem().getItem() instanceof Clarent) {
-         target.getUseItem().hurtAndBreak(1, target, EquipmentSlot.MAINHAND);
-         Clarent.decay(target.getUseItem(),target.level().getGameTime());
-         SwordMahou mahou = Utils.getSwordMahou(target.getUseItem());
+         ItemStack sword=target.getUseItem();
+         Clarent.decay(sword,target.level().getGameTime());
+         SwordMahou mahou = Utils.getSwordMahou(sword);
          mahou.setAttackDamage(Math.min(Clarent.cap(), mahou.getAttackDamage() + amount * (float)MTConfig.CLARENT_STORED_FACTOR));
-         Utils.setSwordMahou(target.getUseItem(), mahou);
+         Utils.setSwordMahou(sword, mahou);
+         sword.hurtAndBreak(1, target, target.getUsedItemHand()==InteractionHand.MAIN_HAND?EquipmentSlot.MAINHAND:EquipmentSlot.OFFHAND);
       }
 
    }

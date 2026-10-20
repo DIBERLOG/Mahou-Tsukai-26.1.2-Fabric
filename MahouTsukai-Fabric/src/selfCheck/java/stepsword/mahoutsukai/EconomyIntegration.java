@@ -148,10 +148,17 @@ public final class EconomyIntegration implements ModInitializer {
                 server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "forceload add 600 512 720 576");
                 net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(new net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.EndTick() {
                     int ticks;
+                    boolean flameReady,woundReady;
                     public void onEndTick(net.minecraft.server.MinecraftServer running) {
                         ++ticks;
                         if(ticks<40) return;
                         try {
+                            // Observe periodic fixtures on every world tick while other queued
+                            // scenarios progress; extra stages must not skip their first damage pulse.
+                            if(ticks>41){
+                                if(!flameReady)flameReady=BlackFlameIntegration.verifyNativeTicks();
+                                if(!woundReady)woundReady=StrengtheningClarentIntegration.verifyWoundTick();
+                            }
                             if(ticks==40) {
                             MentalDisplacementChecks.run(player);
                             Nobu031Checks.run(player);
@@ -190,9 +197,11 @@ public final class EconomyIntegration implements ModInitializer {
                             if(ticks==44){SwordMarbleIntegration.finish();running.execute(()->MultiplayerMarble036Checks.start(player));return;}
                             if(ticks==45){MultiplayerMarble036Checks.verifyArrived();return;}
                             if(ticks==46){MultiplayerMarble036Checks.verifyFirstReturned();return;}
-                            if(ticks==47)MultiplayerMarble036Checks.finish();
-                            if(!BlackFlameIntegration.verifyNativeTicks()) return;
-                            if(!StrengtheningClarentIntegration.verifyWoundTick()) return;
+                            if(ticks==47){MultiplayerMarble036Checks.finish();return;}
+                            if(ticks==48){BossVictory037Checks.startReturn(player);return;}
+                            if(ticks==49)return;
+                            if(ticks==50)BossVictory037Checks.finishReturn();
+                            if(!flameReady||!woundReady) return;
                             DoomIntegration.run(player);
                             running.getCommands().performPrefixedCommand(running.createCommandSourceStack(), "forceload remove 448 448 592 592");
                             running.getCommands().performPrefixedCommand(running.createCommandSourceStack(), "forceload remove 600 512 720 576");

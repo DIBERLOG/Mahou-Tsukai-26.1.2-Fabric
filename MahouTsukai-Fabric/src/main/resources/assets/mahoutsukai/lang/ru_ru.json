@@ -1953,7 +1953,7 @@
   "mahoutsukai.black_flame.stopped": "Чёрное пламя выключено. Уже созданный огонь остаётся.",
   "mahoutsukai.black_flame.stop_hint": "Чёрное пламя: %s — выключить",
   "mahoutsukai.clarent.permanent": "Накопленная сила: %s",
-  "mahoutsukai.clarent.hint": "Временная сила угасает; треть потерь остаётся в памяти.",
+  "mahoutsukai.clarent.hint": "Удерживай ПКМ: полная защита от любого урона со всех сторон. Треть угасающей силы остаётся в памяти.",
   "item.mahoutsukai.scroll_mana_50": "Свиток маны +50",
   "item.mahoutsukai.scroll_mana_100": "Свиток маны +100",
   "item.mahoutsukai.scroll_mana_250": "Свиток маны +250",
@@ -2053,7 +2053,7 @@
   "mahoutsukai.research.family_mystic.title": "Мистическая магия",
   "mahoutsukai.research.family_secret.title": "Тайная магия",
   "mahoutsukai.research.weapon_clarent.title": "Кларент",
-  "mahoutsukai.research.weapon_clarent.body": "Получение: возьми оружие с усилением и нажми ПКМ рядом с облаком дыхания Эндер-дракона — предмет станет Кларент. Применение: урон берётся с оружия цели, блок ПКМ запоминает чужой удар, следующая атака высвобождает накопленное и накладывает раны. Нужна мана; накопленная сила постепенно рассеивается.",
+  "mahoutsukai.research.weapon_clarent.body": "Получение: возьми усиленное оружие и нажми ПКМ рядом с облаком дыхания Эндер-дракона. Удерживай ПКМ с Кларентом для полной защиты от любого урона со всех сторон, включая взрывы, магию, падение и Вардена. Поглощённые удары усиливают меч; урон ограничен 1600. Временная сила постепенно угасает, треть потерь остаётся навсегда. Просто держать меч в руке недостаточно — нужен активный блок.",
   "mahoutsukai.research.weapon_caliburn.title": "Экскалибур",
   "mahoutsukai.research.weapon_caliburn.body": "Получение: брось зачарованный меч в достаточно большое озеро мутной воды и заверши консолидацию силы — меч станет Экскалибуром. Применение: удерживай ПКМ, глядя на монстра, чтобы притянуться к нему. Нежить и порочные существа боятся меча и убегают.",
   "mahoutsukai.research.weapon_morgan.title": "Морган",
@@ -2108,5 +2108,10 @@
   "mahoutsukai.subtitle.archmage.release": "Архимаг выпускает магию",
   "mahoutsukai.subtitle.archmage.shockwave": "Ударная волна Архимага",
   "mahoutsukai.subtitle.archmage.arrival": "Архимаг прибывает",
-  "mahoutsukai.subtitle.archmage.defeat_laugh": "Зловещий смех Архимага"
+  "mahoutsukai.subtitle.archmage.defeat_laugh": "Зловещий смех Архимага",
+  "mahoutsukai.victory.title": "◆ ПОБЕДА ◆",
+  "mahoutsukai.victory.over": "над «%s»",
+  "mahoutsukai.victory.heading": "ПОБЕДА",
+  "advancements.mahoutsukai.archmage_victory.title": "Закат Архимага",
+  "advancements.mahoutsukai.archmage_victory.description": "Победите Архимага иллейджеров в Мраморе реальности."
 }

@@ -7,7 +7,7 @@
 ![Minecraft](https://img.shields.io/badge/Minecraft-26.1.2-629447?style=for-the-badge)
 ![Loader](https://img.shields.io/badge/Loader-Fabric-DBBEA2?style=for-the-badge)
 ![Java](https://img.shields.io/badge/Java-25-E78938?style=for-the-badge)
-![Version](https://img.shields.io/badge/Версия-0.36-8257E5?style=for-the-badge)
+![Version](https://img.shields.io/badge/Версия-0.37-8257E5?style=for-the-badge)
 
 [![Скачать](https://img.shields.io/badge/⬇_СКАЧАТЬ_ПОСЛЕДНЮЮ_ВЕРСИЮ-8257E5?style=for-the-badge)](https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/latest)
 
@@ -19,9 +19,13 @@
 
 <p align="center"><sub>Реальный игровой кадр DOOM с Complementary. Шейдерпак устанавливается отдельно.</sub></p>
 
-Неофициальный порт **Mahou Tsukai 1.36.36** автора **stepsword** на Fabric с дополнительными заклинаниями DOOM и Fireball. Текущая сборка — **0.36-incomplete**, рабочая экспериментальная версия.
+Неофициальный порт **Mahou Tsukai 1.36.36** автора **stepsword** на Fabric с дополнительными заклинаниями DOOM и Fireball. Текущая сборка — **0.37-incomplete**, рабочая экспериментальная версия.
 
 ### Возможности текущей версии
+
+- **Победы над боссами:** пять отдельных оформлений, плавное исчезновение, достижение Архимага и автоматический возврат участников из арены.
+- **Усиленный Архимаг:** 800 HP, более быстрый подход и частые специальные атаки, особенно ниже половины здоровья.
+- **Кларент:** полная защита от любого урона со всех сторон при удержании ПКМ; поглощение и память силы сохранены. Проверены стрелы скелета и атаки паука без сброса блока.
 
 - **Архимаг иллейджеров:** босс ростом три блока в Reality Marble, пять видов атак и 14 анимаций. Посох вертикален в стойке и движется при атаках; появление сопровождают золотые эффекты и собственный звук.
 - **Совместная арена:** несколько игроков без выбранной дуэльной цели входят к одному живому Архимагу. Каждый сохраняет свою точку возврата; выход или смерть участника не завершает бой остальных.
@@ -35,7 +39,9 @@
 - **Прогресс мага:** свитки увеличения маны из сокровищниц, уровни и регенерация, восстановление от еды и сна. Расход заклинаний уменьшен вдвое.
 - **Удобство применения:** название выбранного заклинания, время подготовки и готовность рядом с маной; подсказки включены по умолчанию и отключаются в настройках. Ранняя отмена подготовки не расходует ману.
 
-[Что проверено в 0.36 →](MahouTsukai-Fabric/docs/QA-0.36.md)
+[Что проверено в 0.37 →](MahouTsukai-Fabric/docs/QA-0.37.md)
+
+![Победа над Архимагом](MahouTsukai-Fabric/docs/screenshots/0.37/victory-archmage.png)
 
 ## 📥 Скачать мод
 
@@ -43,9 +49,9 @@
 
 | Файл | Для чего | Скачать |
 |---|---|---|
-| **Mahou Tsukai Fabric 0.36** | Основной мод, обязателен | **[Скачать JAR](https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/download/v1.36.36-fabric.0.36/MahouTsukai-Fabric-1.36.36-fabric.0.36-incomplete.jar)** |
-| **Jousting Fabric 0.1** | Необязательное дополнение: копья и Rhongomyniad | [Скачать JAR](https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/download/v1.36.36-fabric.0.36/Jousting-Fabric-1.0.12-fabric.0.1-incomplete.jar) |
-| **SHA256SUMS.txt** | Контрольные суммы файлов | [Скачать](https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/download/v1.36.36-fabric.0.36/SHA256SUMS.txt) |
+| **Mahou Tsukai Fabric 0.37** | Основной мод, обязателен | **[Скачать JAR](https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/download/v1.36.36-fabric.0.37/MahouTsukai-Fabric-1.36.36-fabric.0.37-incomplete.jar)** |
+| **Jousting Fabric 0.1** | Необязательное дополнение: копья и Rhongomyniad | [Скачать JAR](https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/download/v1.36.36-fabric.0.37/Jousting-Fabric-1.0.12-fabric.0.1-incomplete.jar) |
+| **SHA256SUMS.txt** | Контрольные суммы файлов | [Скачать](https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/download/v1.36.36-fabric.0.37/SHA256SUMS.txt) |
 
 `Source code (zip)` и `Source code (tar.gz)` содержат исходники для разработчиков. В папку `mods` устанавливаются готовые JAR из таблицы.
 
@@ -104,7 +110,7 @@ Apotheosis проверен с конкретным неофициальным F
 
 ## ✅ Проверки и статус
 
-Проверки новых изменений и их границы: **[отчёт 0.36](MahouTsukai-Fabric/docs/QA-0.36.md)**. Предыдущая базовая матрица приведена ниже с исходной версией проверки.
+Проверки новых изменений и их границы: **[отчёт 0.37](MahouTsukai-Fabric/docs/QA-0.37.md)**. Предыдущая базовая матрица приведена ниже с исходной версией проверки.
 
 | Проверка версии 0.31 | Результат |
 |---|---|

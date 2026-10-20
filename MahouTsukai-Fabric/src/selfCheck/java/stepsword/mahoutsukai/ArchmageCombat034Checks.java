@@ -98,7 +98,7 @@ public final class ArchmageCombat034Checks {
  public static void run(ServerPlayer fixture)throws Exception{
   ServerLevel level=fixture.level();
   require(level.getDifficulty()!=net.minecraft.world.Difficulty.PEACEFUL,"Combat fixture requires a non-peaceful native difficulty");
-  require(RealityMarbleBossEntity.CAST_TICKS==32&&RealityMarbleBossEntity.SPECIAL_INTERVAL==120,"Boss keeps the documented 1.6-second warning and six-second cadence");
+  require(RealityMarbleBossEntity.CAST_TICKS==32&&RealityMarbleBossEntity.SPECIAL_INTERVAL==80,"Boss keeps the documented 1.6-second warning and four-second cadence");
   begin=RealityMarbleBossEntity.class.getDeclaredMethod("sonicBurst",ServerLevel.class);begin.setAccessible(true);
   release=RealityMarbleBossEntity.class.getDeclaredMethod("releaseBurst",ServerLevel.class);release.setAccessible(true);
   effects=RealityMarbleBossEntity.class.getDeclaredField("effects");effects.setAccessible(true);

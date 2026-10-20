@@ -10,6 +10,7 @@
     "LivingCombatAccessor",
     "RuleBreakerDurabilityMixin",
     "GeasPickupMixin",
+    "ClarentGuardMixin",
     "IncomingSpellDamageMixin",
     "DeathProtectionMixin",
     "ProtectiveProjectileMixin",

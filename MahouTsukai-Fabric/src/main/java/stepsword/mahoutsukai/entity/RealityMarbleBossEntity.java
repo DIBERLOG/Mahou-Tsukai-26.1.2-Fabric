@@ -45,7 +45,7 @@ public class RealityMarbleBossEntity extends Monster {
  public static final String entityName = "reality_marble_boss";
  public static final String REWARD_KEY = "marble-boss-reward";
  public static final int ARENA_RADIUS = 160;
- public static final int SPECIAL_INTERVAL = 120;
+ public static final int SPECIAL_INTERVAL = 80;
  public static final int CAST_TICKS = 32;
  public static final int ARRIVAL_TICKS = 50;
  public static final int RECOVERY_TICKS = 12;
@@ -130,18 +130,18 @@ public class RealityMarbleBossEntity extends Monster {
 
  public static AttributeSupplier.Builder createAttributes() {
   return Monster.createMonsterAttributes()
-   .add(Attributes.MAX_HEALTH, 400.0)
+   .add(Attributes.MAX_HEALTH, 800.0)
    .add(Attributes.ARMOR, 8.0)
    .add(Attributes.KNOCKBACK_RESISTANCE, 0.85)
-   .add(Attributes.MOVEMENT_SPEED, 0.26)
+   .add(Attributes.MOVEMENT_SPEED, 0.32)
    .add(Attributes.FOLLOW_RANGE, 64.0)
-   .add(Attributes.ATTACK_DAMAGE, 14.0);
+   .add(Attributes.ATTACK_DAMAGE, 16.0);
  }
 
  @Override
  protected void registerGoals() {
   goalSelector.addGoal(1, new FloatGoal(this));
-  goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0, true){
+  goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.2, true){
    @Override public boolean canUse(){return !preparing()&&super.canUse();}
    @Override public boolean canContinueToUse(){return !preparing()&&super.canContinueToUse();}
   });
@@ -221,7 +221,7 @@ public class RealityMarbleBossEntity extends Monster {
 
   if (arrivalTicks()>0||recoveryTicks()>0){getNavigation().stop();setDeltaMovement(0,getDeltaMovement().y,0);return;}
   if (attackTicks()>0){getNavigation().stop();if(validTarget(getTarget()))getLookControl().setLookAt(getTarget(),30,30);}
-  else if (validTarget(getTarget()) && --specialCooldown<=0){specialCooldown=SPECIAL_INTERVAL;sonicBurst(level);}
+  else if (validTarget(getTarget()) && --specialCooldown<=0){specialCooldown=getHealth()<getMaxHealth()*.5F?50:SPECIAL_INTERVAL;sonicBurst(level);}
  }
 
  private boolean validTarget(LivingEntity target){
@@ -443,13 +443,19 @@ public class RealityMarbleBossEntity extends Monster {
  @Override
  protected void readAdditionalSaveData(ValueInput input) {
   super.readAdditionalSaveData(input);
+  if(input.getIntOr("mahoutsukai_archmage_balance",0)<37){
+   float ratio=getHealth()/getMaxHealth();
+   if(getAttribute(Attributes.MAX_HEALTH).getBaseValue()==400){getAttribute(Attributes.MAX_HEALTH).setBaseValue(800);setHealth(ratio*getMaxHealth());}
+   if(getAttribute(Attributes.MOVEMENT_SPEED).getBaseValue()==.26)getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(.32);
+   if(getAttribute(Attributes.ATTACK_DAMAGE).getBaseValue()==14)getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(16);
+  }
   recoverEffects=true;orphanRecoveryTicks=5;entityData.set(ATTACK_TICKS,0);entityData.set(RECOVERY,0);
   entityData.set(ARRIVAL,Math.clamp(input.getIntOr("mahoutsukai_arrival_ticks",0),0,ARRIVAL_TICKS));
   arrivalSoundPlayed=arrivalTicks()<ARRIVAL_TICKS;
   this.arena = input.read("mahoutsukai_arena", BlockPos.CODEC).orElse(null);
   this.attackers.clear();
   input.read("mahoutsukai_attackers", UUIDUtil.CODEC.listOf()).ifPresent(list -> attackers.addAll(list));
-  this.specialCooldown = Math.max(1, input.getIntOr("mahoutsukai_special", SPECIAL_INTERVAL));
+  this.specialCooldown = Math.clamp(input.getIntOr("mahoutsukai_special", SPECIAL_INTERVAL),1,SPECIAL_INTERVAL);
   this.pullCooldown = Math.max(1, input.getIntOr("mahoutsukai_pull", PULL_INTERVAL));
  }
 
@@ -461,6 +467,7 @@ public class RealityMarbleBossEntity extends Monster {
   output.putInt("mahoutsukai_special", specialCooldown);
   output.putInt("mahoutsukai_pull", pullCooldown);
   output.putInt("mahoutsukai_arrival_ticks",arrivalTicks());
+  output.putInt("mahoutsukai_archmage_balance",37);
  }
 
  /**
@@ -474,15 +481,17 @@ public class RealityMarbleBossEntity extends Monster {
   RealityMarbleBossEntity active = perLevel.get(cell);
   if (active != null && active.level()==level && !active.isRemoved() && active.isAlive()) return active;
   perLevel.remove(cell);
-  var existing = level.getEntitiesOfClass(RealityMarbleBossEntity.class, new AABB(center).inflate(ARENA_RADIUS));
+  Vec3 spawn = RealityMarbleSpellEffect.safeMarbleSpawn(level, center, 1.5, 3);
+  if (spawn == null) return null;
+  // Blocks and saved entities load separately. Resolve the saved boss before making a new copy.
+  level.waitForEntities(net.minecraft.world.level.ChunkPos.containing(BlockPos.containing(spawn)),0);
+  var existing = level.getEntitiesOfClass(RealityMarbleBossEntity.class, new AABB(center).inflate(ARENA_RADIUS),b->b.isAlive()&&!b.isRemoved());
   for (var found : existing) {
    if (found.arena() != null && found.arena().distSqr(center) <= 64L * 64L) {
     perLevel.put(cell, found);
     return found;
    }
   }
-  Vec3 spawn = RealityMarbleSpellEffect.safeMarbleSpawn(level, center, 1.5, 3);
-  if (spawn == null) return null;
   var boss = new RealityMarbleBossEntity(ModEntities.REALITY_MARBLE_BOSS.get(), level);
   boss.setArena(center);
   boss.snapTo(spawn.x, spawn.y, spawn.z, level.getRandom().nextFloat() * 360.0F, 0.0F);

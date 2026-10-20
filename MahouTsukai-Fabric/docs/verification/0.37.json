@@ -1,0 +1,25 @@
+{
+  "version": "1.36.36-fabric.0.37-incomplete",
+  "server_and_build": "BUILD SUCCESSFUL",
+  "checks": [
+    "[03:02:52] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: BOSS_VICTORY_037: four named vanilla boss deaths, client-ready private titles and sound, no duplicates or ordinary mob titles, contributor credit; 102 native Clarent damage cases, bypass/infinite protection, inactive stance rejection, 1600 cap; 800HP migration and aggressive low-health AI",
+    "[03:03:09] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: MULTIPLAYER_MARBLE_036: actual queued two-player entry and recast, one shared boss, dry grounded arrivals, independent saved origins and returns, explicit duel preserved, leave/death preserves the remaining fight, personal allocations unchanged",
+    "[03:03:10] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: VICTORY_RETURN_037: actual boss death automatically returns two participants to Overworld/End with independent coordinates and one banner each",
+    "[03:03:11] [Server thread/INFO] (Minecraft) [STDOUT]: PASS: ECONOMY_INTEGRATION"
+  ],
+  "clarent_registry_damage_cases": 102,
+  "continuous_arrow_and_spider_rounds": 12,
+  "visual_themes": [
+    "archmage",
+    "dragon",
+    "wither",
+    "warden",
+    "elder"
+  ],
+  "automatic_fade_seconds": 7,
+  "live_arena_victory": {
+    "entry": "PASS: natural grounded Reality Marble entry, live arena boss and exact enemy UUID; player=10170aa4-882d-3b2e-9798-50b9f8d93a4b boss=39695fcd-0b16-40ee-9e77-1490272e29c3 position=(0.5, 71.0, 3000.5) bossPosition=(12.5, 71.0, 3012.5) arrivalTicks=43\n",
+    "boss": "39695fcd-0b16-40ee-9e77-1490272e29c3",
+    "returned_dimension": "Player733 has the following entity data: \"minecraft:overworld\""
+  }
+}

@@ -7,6 +7,7 @@ import stepsword.mahoutsukai.networking.PlayerMahouPacket;
 
 public final class MahouNetworking {
     public static void register() {
+        PayloadTypeRegistry.clientboundPlay().register(stepsword.mahoutsukai.networking.BossVictoryPacket.TYPE,stepsword.mahoutsukai.networking.BossVictoryPacket.STREAM_CODEC);
         PayloadTypeRegistry.clientboundPlay().register(stepsword.mahoutsukai.networking.SpellVisualPacket.TYPE,stepsword.mahoutsukai.networking.SpellVisualPacket.STREAM_CODEC);
         PayloadTypeRegistry.clientboundPlay().register(stepsword.mahoutsukai.networking.GuideCatalogPacket.TYPE,stepsword.mahoutsukai.networking.GuideCatalogPacket.STREAM_CODEC);
         PayloadTypeRegistry.serverboundPlay().register(stepsword.mahoutsukai.networking.StopMagicPacket.TYPE,stepsword.mahoutsukai.networking.StopMagicPacket.STREAM_CODEC);

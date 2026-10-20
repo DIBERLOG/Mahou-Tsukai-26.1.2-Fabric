@@ -22,6 +22,8 @@ public final class MultiplayerMarble036Checks {
  private static ServerLevel origin,marble;
  private static ServerPlayer first,second,duelist;
  private static RealityMarbleBossEntity boss,duelBoss;
+ private static net.minecraft.world.level.ChunkPos arenaChunk;
+ private static boolean forcedArena;
  private static UUID duelTarget;
  private static BlockPos firstReturn,secondReturn,duelReturn;
  private static final BlockPos FIRST_ALLOCATION=new BlockPos(336,120,336);
@@ -52,6 +54,12 @@ public final class MultiplayerMarble036Checks {
  public static void start(ServerPlayer fixture){
   origin=fixture.level();marble=origin.getServer().getLevel(ResourceKey.create(Registries.DIMENSION,RealityMarbleSpellEffect.marble));
   require(marble!=null,"The shared encounter uses the registered Reality Marble dimension");
+  var fixtureArena=FIRST_ALLOCATION.offset(12,0,12);
+  var fixtureChunk=net.minecraft.world.level.ChunkPos.containing(fixtureArena);
+  for(int x=fixtureChunk.x()-1;x<=fixtureChunk.x()+1;x++)for(int z=fixtureChunk.z()-1;z<=fixtureChunk.z()+1;z++)marble.getChunk(x,z);
+  marble.waitForEntities(fixtureChunk,1);
+  // Failed prior runs may have saved unloaded fixture entities; clear only this test's arena.
+  for(var stale:marble.getEntitiesOfClass(RealityMarbleBossEntity.class,new AABB(fixtureArena).inflate(80)))stale.discard();
   first=player("MarblePartyA",610.5,536.5,FIRST_ALLOCATION);
   second=player("MarblePartyB",616.5,540.5,SECOND_ALLOCATION);
   firstReturn=first.blockPosition();secondReturn=second.blockPosition();
@@ -63,6 +71,9 @@ public final class MultiplayerMarble036Checks {
   require(RealityMarbleSpellEffect.goToMarble(first),"First party scroll starts an encounter");
   var enemy=Utils.getPlayerMahou(first).getEnemy();boss=RealityMarbleBossEntity.liveFor(marble,enemy);
   require(boss!=null&&boss.isAlive(),"The first entry creates a live boss before its dimension transfer executes");boss.setNoAi(true);
+  // This scenario tests exits, not chunk unloading after the final player leaves.
+  arenaChunk=boss.chunkPosition();forcedArena=!marble.getForceLoadedChunks().contains(arenaChunk.pack());
+  if(forcedArena)marble.setChunkForced(arenaChunk.x(),arenaChunk.z(),true);
   require(first.level()==origin,"The first dimension transfer is still queued when the second scroll is cast");
   require(RealityMarbleSpellEffect.goToMarble(second),"Near-simultaneous second scroll joins the encounter");
   require(enemy.equals(Utils.getPlayerMahou(second).getEnemy()),"Queued party casts resolve the same exact boss UUID");
@@ -116,13 +127,14 @@ public final class MultiplayerMarble036Checks {
   try{
    require(second.level()==origin&&second.position().distanceToSqr(Vec3.atLowerCornerOf(secondReturn))<1,"The second participant returns to their separate original position");
    require(duelist.level()==origin&&duelist.position().distanceToSqr(Vec3.atLowerCornerOf(duelReturn))<1,"The explicit duel also preserves its own return origin");
-   require(boss.isAlive()&&!boss.isRemoved(),"The boss remains through ordinary participant exits until its own arena cleanup");
+   require(boss.isAlive()&&!boss.isRemoved(),"The boss remains through ordinary participant exits in the loaded fixture: health="+boss.getHealth()+", removed="+boss.getRemovalReason());
    savedOrigins();allocations();
    System.out.println("PASS: MULTIPLAYER_MARBLE_036: actual queued two-player entry and recast, one shared boss, dry grounded arrivals, independent saved origins and returns, explicit duel preserved, leave/death preserves the remaining fight, personal allocations unchanged");
   }finally{cleanup();}
  }
  public static void cleanup(){
   if(boss!=null)boss.discard();if(duelBoss!=null)duelBoss.discard();
+  if(forcedArena&&arenaChunk!=null&&marble!=null){marble.setChunkForced(arenaChunk.x(),arenaChunk.z(),false);forcedArena=false;}
   if(origin==null)return;
   for(var level:origin.getServer().getAllLevels()){var target=duelTarget==null?null:level.getEntity(duelTarget);if(target!=null)target.discard();}
   var list=origin.getServer().getPlayerList();
