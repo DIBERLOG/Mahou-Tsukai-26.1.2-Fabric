@@ -28,14 +28,12 @@ public class ParticleSphereExplosion extends Particle {
    public float radius = 0.0F;
    public float maxRadius = 4.0F;
    public boolean destroy = false;
-   public static final java.util.Set<ParticleSphereExplosion> active=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
    public int quality = MTConfig.EXPLOSION_PARTICLE_QUALITY;
    public int delay = 0;
    public int delay2 = 0;
 
    public ParticleSphereExplosion(ClientLevel worldIn, float[] colors, double xCoordIn, double yCoordIn, double zCoordIn) {
       super(worldIn, xCoordIn, yCoordIn, zCoordIn, 0.0, 0.0, 0.0);
-      active.add(this);
       this.xd = 0.0;
       this.yd = 0.0;
       this.zd = 0.0;
@@ -61,7 +59,7 @@ public class ParticleSphereExplosion extends Particle {
       this.yo = this.y;
       this.zo = this.z;
       if (this.age++ >= this.lifetime) {
-         this.remove();active.remove(this);
+         this.remove();
       }
 
       if (this.delay > 0) {

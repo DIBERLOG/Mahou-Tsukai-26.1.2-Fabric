@@ -13,7 +13,6 @@ import stepsword.mahoutsukai.render.MahoujinRenderType;
 import stepsword.mahoutsukai.render.RenderUtils;
 
 public class ParticleSphere extends Particle {
- public static final java.util.Set<ParticleSphere> active=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
    protected float rCol = 1.0F;
    protected float gCol = 1.0F;
    protected float bCol = 1.0F;
@@ -68,7 +67,7 @@ public class ParticleSphere extends Particle {
       this.image = this.random.nextInt(6) + 1;
       this.shaders = shaders;
       this.slow = 0.6;
-      this.grow = grow;active.add(this);
+      this.grow = grow;
    }
 
    public void tick() {
@@ -91,7 +90,7 @@ public class ParticleSphere extends Particle {
       this.zd = this.zd * this.slow;
       this.rgba[3] = Math.max(0.0F, this.rgba[3] - 0.05F);
       this.sz = (float)(this.sz + this.grow);
-      this.oRoll = this.roll;if(!isAlive())active.remove(this);
+      this.oRoll = this.roll;
    }
 
    public ParticleRenderType getGroup() {

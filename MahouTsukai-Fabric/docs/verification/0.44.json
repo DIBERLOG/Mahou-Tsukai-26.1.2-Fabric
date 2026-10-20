@@ -1,0 +1,27 @@
+{
+  "version": "1.36.36-fabric.0.44-incomplete",
+  "minecraft": "26.1.2",
+  "scope": "Client particle lifecycle; no server gameplay changes",
+  "jar": {
+    "filename": "MahouTsukai-Fabric-1.36.36-fabric.0.44-incomplete.jar",
+    "size": 9212646,
+    "sha256": "1ad1ecb30e697705c7ff3688b1e43271c7d67672991982f54a20fa6991d96fb1"
+  },
+  "build_log": "analysis/phase044-build.log",
+  "client_log": "analysis/phase044-client-final.log",
+  "native_client_checks": {
+    "particle-lifecycle-check": {
+      "result": "PASS: five real custom particle types in an isolated native ParticleEngine; constructor/pending admission, delayed explosion hold, natural lifetime, explicit remove, clearParticles, pending clear, setLevel unload/reassignment and 16385-custom-particle eviction at native cap 16384; unrelated particle membership and ticking preserved; user's actual engine and world untouched",
+      "modified_utc": "2026-10-20T18:53:56.036005+00:00"
+    },
+    "particle-explosion-finished": {
+      "result": "PASS: the real preview explosion expired and left the production renderer's native source without a manual clear",
+      "modified_utc": "2026-10-20T18:54:23.132407+00:00"
+    }
+  },
+  "limits": [
+    "World cleanup verified through actual native setLevel calls on an isolated engine, not a player dimension transfer",
+    "No complete server combat rerun; local server is 0.43"
+  ],
+  "release_url": "https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/tag/v1.36.36-fabric.0.44"
+}

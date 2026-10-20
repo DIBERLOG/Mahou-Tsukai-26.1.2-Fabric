@@ -26,7 +26,7 @@ public final class ProjectorClient {
   net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(mc->{if(mc.player!=null&&mc.screen==null&&stepsword.mahoutsukai.Keybinds.settingsGUI.consumeClick())mc.setScreen(new stepsword.mahoutsukai.render.gui.PlayerSettingsGUI(mc.level,mc.player.getUUID()));});
   net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents.COLLECT_SUBMITS.register(context->{var mc=Minecraft.getInstance();if(mc.getCameraEntity()!=null)stepsword.mahoutsukai.render.overlay.RenderLeyLines.leyRender(mc.getCameraEntity(),context.poseStack(),mc.getDeltaTracker().getGameTimeDeltaPartialTick(false),context.submitNodeCollector());});
   net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents.COLLECT_SUBMITS.register(ProjectorClient::renderArmor);
-  net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents.COLLECT_SUBMITS.register(context->{for(var particle:java.util.List.copyOf(stepsword.mahoutsukai.render.particle.ProjectedFogParticle.active))particle.render(context);});
+  net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents.COLLECT_SUBMITS.register(context->{for(var particle:stepsword.mahoutsukai.render.particle.NativeSpellParticles.current(Minecraft.getInstance().particleEngine))if(particle.isAlive()&&particle instanceof stepsword.mahoutsukai.render.particle.ProjectedFogParticle fog)fog.render(context);});
   net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(ModTileEntities.fogProjector.get(),stepsword.mahoutsukai.render.tile.FogProjectorRenderer::new);
   net.minecraft.client.renderer.entity.EntityRenderers.register(stepsword.mahoutsukai.entity.ModEntities.AUTHORITY.get(),stepsword.mahoutsukai.render.entity.RenderAuthorityMahoujinEntity::new);
   net.minecraft.client.renderer.entity.EntityRenderers.register(stepsword.mahoutsukai.entity.ModEntities.RHONGOMYNIAD.get(),stepsword.mahoutsukai.render.entity.RenderRhongomyniadEntity::new);
@@ -46,7 +46,7 @@ public final class ProjectorClient {
   });
   net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents.CHUNK_LOAD.register((level,chunk)->{for(var tile:chunk.getBlockEntities().values())if(tile instanceof FogProjectorTileEntity)fogPositions.add(tile.getBlockPos().immutable());});
   net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents.CHUNK_UNLOAD.register((level,chunk)->fogPositions.removeIf(pos->net.minecraft.world.level.ChunkPos.containing(pos).equals(chunk.getPos())));
-  net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler,mc)->{fogPositions.clear();stepsword.mahoutsukai.render.particle.ProjectedFogParticle.active.clear();stepsword.mahoutsukai.client.ClientHandler.tint=false;stepsword.mahoutsukai.render.ProjectorRenderer.cacheClear();});
+  net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler,mc)->{fogPositions.clear();stepsword.mahoutsukai.client.ClientHandler.tint=false;stepsword.mahoutsukai.render.ProjectorRenderer.cacheClear();});
   net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(mc->{if(mc.level==null||mc.player==null)return;
    boolean abyss=mc.getCameraEntity() instanceof net.minecraft.world.entity.LivingEntity living&&living.hasEffect(stepsword.mahoutsukai.potion.ModEffects.ABYSS);
    if(stepsword.mahoutsukai.client.ClientHandler.tint!=abyss){stepsword.mahoutsukai.client.ClientHandler.tint=abyss;mc.levelRenderer.allChanged();}

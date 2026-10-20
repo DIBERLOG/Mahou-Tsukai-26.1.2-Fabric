@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 public final class VisualCapture implements ClientModInitializer {
  private int pendingBlackChecks;
  private boolean predictionGeometry;
+ private stepsword.mahoutsukai.render.particle.ParticleSphereExplosion particlePreview;
  private static Object countCollector(Object delegate,Class<?> type,java.util.concurrent.atomic.AtomicInteger calls){return java.lang.reflect.Proxy.newProxyInstance(type.getClassLoader(),new Class[]{type},(proxy,method,args)->{if(method.getName().startsWith("submitModel"))calls.incrementAndGet();Object result=method.invoke(delegate,args);return result instanceof net.minecraft.client.renderer.OrderedSubmitNodeCollector ordered?countCollector(ordered,net.minecraft.client.renderer.OrderedSubmitNodeCollector.class,calls):result;});}
 
  public void onInitializeClient() {
@@ -25,6 +26,19 @@ public final class VisualCapture implements ClientModInitializer {
     Files.delete(request);
     if (!name.matches("[a-z0-9-]+")) throw new IllegalArgumentException("Invalid capture name");
     if(name.equals("battle-respawn")){if(client.player.isDeadOrDying())client.player.respawn();client.setScreen(null);return;}
+    if(name.equals("particle-lifecycle-check")){
+     Files.deleteIfExists(Path.of(name+".passed"));Files.deleteIfExists(Path.of(name+".failed"));
+     try{ParticleLifecycle044Checks.run(client);}catch(Exception|AssertionError error){Files.writeString(Path.of(name+".failed"),error.toString()+"\n");org.slf4j.LoggerFactory.getLogger("mahoutsukai-visualcheck").error("Particle lifecycle check failed",error);}return;
+    }
+    if(name.equals("particle-explosion-preview")){
+     var point=client.player.getEyePosition().add(client.player.getLookAngle().scale(9));
+     particlePreview=new stepsword.mahoutsukai.render.particle.ParticleSphereExplosion(client.level,new float[]{.8f,.73f,1,1,1,.95f,1,1},point.x,point.y,point.z);
+     particlePreview.maxRadius=18;particlePreview.quality=10;particlePreview.addDelay2(40);client.particleEngine.add(particlePreview);return;
+    }
+    if(name.equals("particle-explosion-finished")){
+     if(particlePreview==null||particlePreview.isAlive()||stepsword.mahoutsukai.render.particle.NativeSpellParticles.current(client.particleEngine).contains(particlePreview))throw new AssertionError("The actual rendered explosion did not expire");
+     Files.writeString(Path.of(name+".passed"),"PASS: the real preview explosion expired and left the production renderer's native source without a manual clear\n");
+    }
     if(name.equals("clarent-book-check")){try{ClarentBook043Checks.book(client);}catch(Exception|AssertionError error){Files.writeString(Path.of("clarent-book-check.failed"),error.toString());org.slf4j.LoggerFactory.getLogger("mahoutsukai").error("Book check failed",error);}return;}
     if(name.equals("clarent-hud-check")){try{ClarentBook043Checks.hud(client);}catch(Exception|AssertionError error){Files.writeString(Path.of("clarent-hud-check.failed"),error.toString());org.slf4j.LoggerFactory.getLogger("mahoutsukai").error("HUD check failed",error);}return;}
     if(name.equals("scroll-catalog-open")){client.setScreen(new stepsword.mahoutsukai.render.gui.guide.ScrollCatalogScreen(client.screen));return;}
@@ -114,7 +128,7 @@ public final class VisualCapture implements ClientModInitializer {
       if(!stepsword.mahoutsukai.render.RenderUtils.turnOffMahouShaders())throw new AssertionError("Original automatic Iris shader fallback missing");
       var base=stepsword.mahoutsukai.render.MahoujinRenderType.createMahoujinRenderType(stepsword.mahoutsukai.render.RenderUtils.mahoujin,0,false);
       if(stepsword.mahoutsukai.render.ClipWrappedRenderLayer.wrap(true,0,0,0,0,0,0,1,base,new org.joml.Matrix4f())!=base)throw new AssertionError("Treasury shader still replaces Iris pipeline");
-     if(!name.equals("doom-shaderpack-check")&&stepsword.mahoutsukai.render.particle.ProjectedFogParticle.active.isEmpty())throw new AssertionError("No actual fog particles in compatibility scene");
+     if(!name.equals("doom-shaderpack-check")&&stepsword.mahoutsukai.render.particle.NativeSpellParticles.current(client.particleEngine).stream().noneMatch(p->p.isAlive()&&p instanceof stepsword.mahoutsukai.render.particle.ProjectedFogParticle))throw new AssertionError("No actual fog particles in compatibility scene");
       if(stepsword.mahoutsukai.render.FogRenderLayer.boundDraws!=0)throw new AssertionError("Custom depth fog still drawn under Iris");
       boolean pack;
       try{var api=Class.forName("net.irisshaders.iris.api.v0.IrisApi");pack=(boolean)api.getMethod("isShaderPackInUse").invoke(api.getMethod("getInstance").invoke(null));}catch(ReflectiveOperationException e){throw new RuntimeException(e);}
@@ -150,7 +164,7 @@ public final class VisualCapture implements ClientModInitializer {
      Files.writeString(Path.of("fog-gpu-check.passed"),"PASS: corrected fog shader compiled and bound real GPU draws/depth; see matching captured frame\n");return;
     }
     if(name.equals("fog-no-shaders")){
-     for(var particle:java.util.List.copyOf(stepsword.mahoutsukai.render.particle.ProjectedFogParticle.active))particle.remove();
+     for(var particle:stepsword.mahoutsukai.render.particle.NativeSpellParticles.current(client.particleEngine))if(particle instanceof stepsword.mahoutsukai.render.particle.ProjectedFogParticle)particle.remove();
      stepsword.mahoutsukai.config.MTConfig.NO_SHADERS=true;client.setScreen(null);return;
     }
     if(name.equals("fog-use-shaders")){stepsword.mahoutsukai.config.MTConfig.NO_SHADERS=false;client.setScreen(null);return;}
@@ -229,7 +243,7 @@ public final class VisualCapture implements ClientModInitializer {
      if(!actual.equals(java.util.List.of(40,50,60,70,80,90)))throw new AssertionError("Server did not acknowledge color edit: "+actual);
      Files.writeString(Path.of(name+".passed"),"PASS: edited spell colors returned from the real server and replaced the deliberately reset client state\n");return;
     }
-    if(name.equals("projector-fog-clear")){for(var particle:java.util.List.copyOf(stepsword.mahoutsukai.render.particle.ProjectedFogParticle.active))particle.remove();return;}
+    if(name.equals("projector-fog-clear")){for(var particle:stepsword.mahoutsukai.render.particle.NativeSpellParticles.current(client.particleEngine))if(particle instanceof stepsword.mahoutsukai.render.particle.ProjectedFogParticle)particle.remove();return;}
     if(name.equals("projector-shader-check")){
      if(stepsword.mahoutsukai.render.FogRenderLayer.boundDraws==0||stepsword.mahoutsukai.render.FogRenderLayer.depth()==null)throw new AssertionError("Fog did not bind native GPU uniforms/depth snapshot");
      if(stepsword.mahoutsukai.render.ClipWrappedRenderLayer.boundDraws==0)throw new AssertionError("Treasury did not bind native clipping uniforms");

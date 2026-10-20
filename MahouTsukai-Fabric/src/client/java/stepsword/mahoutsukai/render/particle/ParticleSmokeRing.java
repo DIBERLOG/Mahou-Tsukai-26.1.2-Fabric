@@ -26,7 +26,6 @@ public class ParticleSmokeRing extends Particle {
       MahoujinRenderType.createSmokeRingRenderType(beam, 1)
    );
    private static RenderType blend(RenderType type){return stepsword.mahoutsukai.render.MahouWrappedRenderTypes.wrapBlend(type,"gandr_smoke_ring");}
-   public static final java.util.Set<ParticleSmokeRing> active=java.util.concurrent.ConcurrentHashMap.newKeySet();
    public String loc;
    public float yaw = 0.0F;
    public float pitch = 0.0F;
@@ -47,7 +46,7 @@ public class ParticleSmokeRing extends Particle {
    public double trackingYOffset;
 
    public ParticleSmokeRing(ClientLevel worldIn, Color color, double xCoordIn, double yCoordIn, double zCoordIn) {
-      super(worldIn, xCoordIn, yCoordIn, zCoordIn, 0.0, 0.0, 0.0);active.add(this);
+      super(worldIn, xCoordIn, yCoordIn, zCoordIn, 0.0, 0.0, 0.0);
       this.xd = 0.0;
       this.yd = 0.0;
       this.zd = 0.0;

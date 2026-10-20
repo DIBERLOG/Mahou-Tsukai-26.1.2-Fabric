@@ -15,7 +15,6 @@ import stepsword.mahoutsukai.render.RenderUtils;
 import stepsword.mahoutsukai.util.Utils;
 
 public class ParticleLightning extends Particle {
-   public static final java.util.Set<ParticleLightning> active=java.util.concurrent.ConcurrentHashMap.newKeySet();
    protected float rCol = 1.0F;
    protected float gCol = 1.0F;
    protected float bCol = 1.0F;
@@ -45,7 +44,6 @@ public class ParticleLightning extends Particle {
       ClientLevel worldIn, Color c, Color c2, double xCoordIn, double yCoordIn, double zCoordIn, float scale, double motionX, double motionY, double motionZ
    ) {
       super(worldIn, xCoordIn, yCoordIn, zCoordIn, 0.0, 0.0, 0.0);
-      active.add(this);
       this.gCol = 0.7137255F;
       this.rCol = 1.0F;
       this.bCol = 0.75686276F;

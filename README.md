@@ -7,7 +7,7 @@
 ![Minecraft](https://img.shields.io/badge/Minecraft-26.1.2-629447?style=for-the-badge)
 ![Loader](https://img.shields.io/badge/Loader-Fabric-DBBEA2?style=for-the-badge)
 ![Java](https://img.shields.io/badge/Java-25-E78938?style=for-the-badge)
-![Version](https://img.shields.io/badge/Версия-0.43-8257E5?style=for-the-badge)
+![Version](https://img.shields.io/badge/Версия-0.44-8257E5?style=for-the-badge)
 
 [![Скачать](https://img.shields.io/badge/⬇_СКАЧАТЬ_ПОСЛЕДНЮЮ_ВЕРСИЮ-8257E5?style=for-the-badge)](https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/latest)
 
@@ -19,9 +19,11 @@
 
 <p align="center"><sub>Реальный игровой кадр DOOM с Complementary. Шейдерпак устанавливается отдельно.</sub></p>
 
-Неофициальный порт **Mahou Tsukai 1.36.36** автора **stepsword** на Fabric с дополнительными заклинаниями DOOM и Fireball. Текущая сборка — **0.43-incomplete**, рабочая экспериментальная версия.
+Неофициальный порт **Mahou Tsukai 1.36.36** автора **stepsword** на Fabric с дополнительными заклинаниями DOOM и Fireball. Текущая сборка — **0.44-incomplete**, рабочая экспериментальная версия.
 
 ### Возможности текущей версии
+
+- **Исправление 0.44:** сферы взрывов, кольца, молнии и туман больше не остаются застывшими после очистки или смены мира. Эффекты используют штатную очередь частиц Minecraft; проверены завершение и вытеснение при её заполнении. [Проверки и кадры](MahouTsukai-Fabric/docs/QA-0.44.md).
 
 - **Компендиум → «Свитки»:** 51 свиток с пиксельными значками назначения и стихии, поиском, подсказками и переходом к рецепту. У призыва фамильяра свой знак. Правила Кларента вынесены в отдельную главу полного справочника.
 
@@ -46,7 +48,7 @@
 - **Прогресс мага:** свитки увеличения маны из сокровищниц, уровни и регенерация, восстановление от еды и сна. Расход заклинаний уменьшен вдвое.
 - **Удобство применения:** название выбранного заклинания, время подготовки и готовность рядом с маной; подсказки включены по умолчанию и отключаются в настройках. Ранняя отмена подготовки не расходует ману.
 
-[Проверки обновления 0.43](MahouTsukai-Fabric/docs/QA-0.43.md) · [Проверки меню 0.41](MahouTsukai-Fabric/docs/QA-0.41.md) · [Проверки боя 0.40](MahouTsukai-Fabric/docs/QA-0.40.md) · [Храм, пробуждение и добыча 0.39](MahouTsukai-Fabric/docs/QA-0.39.md) · [Совместная арена и достижения 0.38](MahouTsukai-Fabric/docs/QA-0.38.md)
+[Исправление частиц 0.44](MahouTsukai-Fabric/docs/QA-0.44.md) · [Проверки обновления 0.43](MahouTsukai-Fabric/docs/QA-0.43.md) · [Проверки меню 0.41](MahouTsukai-Fabric/docs/QA-0.41.md) · [Проверки боя 0.40](MahouTsukai-Fabric/docs/QA-0.40.md) · [Храм, пробуждение и добыча 0.39](MahouTsukai-Fabric/docs/QA-0.39.md) · [Совместная арена и достижения 0.38](MahouTsukai-Fabric/docs/QA-0.38.md)
 
 ![Компендиум: назначения свитков](MahouTsukai-Fabric/docs/screenshots/0.43/scroll-catalog.png)
 
@@ -64,9 +66,9 @@
 
 | Файл | Для чего | Скачать |
 |---|---|---|
-| **Mahou Tsukai Fabric 0.43** | Основной мод, обязателен | **[Скачать JAR](https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/download/v1.36.36-fabric.0.43/MahouTsukai-Fabric-1.36.36-fabric.0.43-incomplete.jar)** |
-| **Jousting Fabric 0.1** | Необязательное дополнение: копья и Rhongomyniad | [Скачать JAR](https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/download/v1.36.36-fabric.0.43/Jousting-Fabric-1.0.12-fabric.0.1-incomplete.jar) |
-| **SHA256SUMS.txt** | Контрольные суммы файлов | [Скачать](https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/download/v1.36.36-fabric.0.43/SHA256SUMS.txt) |
+| **Mahou Tsukai Fabric 0.44** | Основной мод, обязателен | **[Скачать JAR](https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/download/v1.36.36-fabric.0.44/MahouTsukai-Fabric-1.36.36-fabric.0.44-incomplete.jar)** |
+| **Jousting Fabric 0.1** | Необязательное дополнение: копья и Rhongomyniad | [Скачать JAR](https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/download/v1.36.36-fabric.0.44/Jousting-Fabric-1.0.12-fabric.0.1-incomplete.jar) |
+| **SHA256SUMS.txt** | Контрольные суммы файлов | [Скачать](https://github.com/DIBERLOG/Mahou-Tsukai-26.1.2-Fabric/releases/download/v1.36.36-fabric.0.44/SHA256SUMS.txt) |
 
 `Source code (zip)` и `Source code (tar.gz)` содержат исходники для разработчиков. В папку `mods` устанавливаются готовые JAR из таблицы.
 
@@ -125,7 +127,7 @@ Apotheosis проверен с конкретным неофициальным F
 
 ## ✅ Проверки и статус
 
-Проверки текущего обновления: **[отчёт 0.43](MahouTsukai-Fabric/docs/QA-0.43.md)**. Полный серверный прогон, сборка и проверки настоящего клиента пройдены; проверены таймеры Кларента, книга, значки, анимации, настоящий Эмрис и шесть атак Архимага. Предыдущие боевые сценарии и их границы: [отчёт 0.40](MahouTsukai-Fabric/docs/QA-0.40.md) и [подробности храма и наград 0.39](MahouTsukai-Fabric/docs/QA-0.39.md). Телепорт из застревания повторно проверен в серверном прогоне; визуальная оценка этого телепорта и несколько физических клиентов в 0.43 не проверялись. Предыдущая базовая матрица приведена ниже с исходной версией проверки.
+Проверки исправления частиц: **[отчёт 0.44](MahouTsukai-Fabric/docs/QA-0.44.md)** — сборка, пять типов частиц и исчезновение взрыва в настоящем клиенте. Серверный боевой прогон в 0.44 не повторялся. Предыдущее обновление: **[отчёт 0.43](MahouTsukai-Fabric/docs/QA-0.43.md)**. Полный серверный прогон, сборка и проверки настоящего клиента пройдены; проверены таймеры Кларента, книга, значки, анимации, настоящий Эмрис и шесть атак Архимага. Предыдущие боевые сценарии и их границы: [отчёт 0.40](MahouTsukai-Fabric/docs/QA-0.40.md) и [подробности храма и наград 0.39](MahouTsukai-Fabric/docs/QA-0.39.md). Телепорт из застревания повторно проверен в серверном прогоне; визуальная оценка этого телепорта и несколько физических клиентов в 0.43 не проверялись. Предыдущая базовая матрица приведена ниже с исходной версией проверки.
 
 | Проверка версии 0.31 | Результат |
 |---|---|
