@@ -108,7 +108,7 @@ public class ClarentEffect {
 
    public static void clarentLivingAttack(LivingEntity victim,net.minecraft.world.damagesource.DamageSource source,float amount) {
       LivingEntity target = victim;
-      if (!target.level().isClientSide() && target.isUsingItem() && target.getUseItem().getItem() instanceof Clarent) {
+      if (stepsword.mahoutsukai.fabric.ClarentGuard.canBlock(target)) {
          ItemStack sword=target.getUseItem();
          Clarent.decay(sword,target.level().getGameTime());
          SwordMahou mahou = Utils.getSwordMahou(sword);

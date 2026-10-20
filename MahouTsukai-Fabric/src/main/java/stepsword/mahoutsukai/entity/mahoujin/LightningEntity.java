@@ -105,6 +105,7 @@ public class LightningEntity extends Entity {
       }
 
       if (this.caster != null && this.target != null) {
+         if(!this.level().isClientSide()&&this.caster instanceof stepsword.mahoutsukai.entity.RealityMarbleBossEntity boss&&!boss.canUseEmrys(this.target)){this.discard();return;}
          Vec3 targeteye = this.target.getEyePosition(1.0F).add(0.0, this.getZap() ? -this.target.getBbHeight() / 2.0F : 0.0, 0.0);
          Vec3 start = this.setLookPos(this.level().isClientSide());
          if (!this.level().isClientSide()) {
@@ -127,7 +128,9 @@ public class LightningEntity extends Entity {
                }
 
                if (this.getZap() && this.tickCount > 8) {
-                  EffectUtil.magicAttack(this.target, (float)MTConfig.EMRYS_DAMAGE_ZAP, this.caster);
+                  if(this.caster instanceof stepsword.mahoutsukai.entity.RealityMarbleBossEntity)
+                     this.target.hurtServer((ServerLevel)this.level(),this.caster.damageSources().indirectMagic(this,this.caster),(float)MTConfig.EMRYS_DAMAGE_ZAP);
+                  else EffectUtil.magicAttack(this.target, (float)MTConfig.EMRYS_DAMAGE_ZAP, this.caster);
                   EffectUtil.buff(this.target, ModEffects.ZAP_COOLDOWN, false, 60);
                   StaffEmrys.zap(this.target, false, null);
                   this.discard();

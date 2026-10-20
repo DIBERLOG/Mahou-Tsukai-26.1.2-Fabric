@@ -25,10 +25,20 @@ public final class VisualCapture implements ClientModInitializer {
     Files.delete(request);
     if (!name.matches("[a-z0-9-]+")) throw new IllegalArgumentException("Invalid capture name");
     if(name.equals("battle-respawn")){if(client.player.isDeadOrDying())client.player.respawn();client.setScreen(null);return;}
+    if(name.equals("clarent-book-check")){try{ClarentBook043Checks.book(client);}catch(Exception|AssertionError error){Files.writeString(Path.of("clarent-book-check.failed"),error.toString());org.slf4j.LoggerFactory.getLogger("mahoutsukai").error("Book check failed",error);}return;}
+    if(name.equals("clarent-hud-check")){try{ClarentBook043Checks.hud(client);}catch(Exception|AssertionError error){Files.writeString(Path.of("clarent-hud-check.failed"),error.toString());org.slf4j.LoggerFactory.getLogger("mahoutsukai").error("HUD check failed",error);}return;}
+    if(name.equals("scroll-catalog-open")){client.setScreen(new stepsword.mahoutsukai.render.gui.guide.ScrollCatalogScreen(client.screen));return;}
+    if(name.equals("handbook-clarent")){client.setScreen(new stepsword.mahoutsukai.render.gui.guide.HandbookScreen(client.screen,"clarent"));return;}
+    if(name.equals("scroll-badge-check")){
+     Files.deleteIfExists(Path.of("scroll-badge-check.passed"));Files.deleteIfExists(Path.of("scroll-badge-check.failed"));
+     try{ScrollBadge042Checks.run(client);}catch(AssertionError failure){Files.writeString(Path.of("scroll-badge-check.failed"),failure.toString()+"\n");org.slf4j.LoggerFactory.getLogger("mahoutsukai-visualcheck").error("Scroll badge check failed",failure);}return;
+    }
+    if(name.equals("scroll-badge-open")){client.setScreen(new ScrollBadge042Checks.Preview());return;}
     if(name.equals("pause-branding-open")){client.setScreen(new net.minecraft.client.gui.screens.PauseScreen(true));return;}
     if(name.equals("pause-branding-check")){PauseBranding041Checks.run(client);return;}
     if(name.equals("pause-branding-pack-check")){PauseBranding041Checks.resourcePack(client);return;}
     if(name.equals("archmage-model-check")){try{ArchmageVisualChecks.run(client);}catch(Exception failure){throw new RuntimeException(failure);}return;}
+    if(name.equals("archmage-held-check")){try{ArchmageVisualChecks.heldItem(client);}catch(Exception|AssertionError error){Files.writeString(Path.of("archmage-held-check.failed"),error.toString());org.slf4j.LoggerFactory.getLogger("mahoutsukai").error("Held item check failed",error);}return;}
     if(name.equals("stage-hud-unawakened")){var mana=stepsword.mahoutsukai.util.Utils.getPlayerMahou(client.player);mana.setHasMagic(false);mana.setVisible(true);client.setScreen(null);return;}
     if(name.equals("activation-geometry-check")){try{ActivationVisualChecks.run();}catch(Exception failure){throw new RuntimeException(failure);}return;}
     if(name.equals("handbook-open")){client.setScreen(new stepsword.mahoutsukai.render.gui.guide.HandbookScreen(client.screen));return;}

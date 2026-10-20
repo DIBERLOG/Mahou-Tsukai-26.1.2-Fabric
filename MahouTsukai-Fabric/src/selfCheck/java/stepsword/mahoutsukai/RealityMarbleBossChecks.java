@@ -18,7 +18,7 @@ import stepsword.mahoutsukai.dataattachments.worldsave.RealityMarbleEncounters;
 
 /**
  * Native checks for the Reality Marble boss: registration, one boss per arena, boss bar wiring,
- * arena bounds, real attacks, one-time Morgan reward, persistence and empty-arena cleanup.
+ * arena bounds, real attacks, one-time Emrys reward, persistence and empty-arena cleanup.
  */
 public final class RealityMarbleBossChecks {
  private static void require(boolean ok,String message){if(!ok)throw new AssertionError(message);}
@@ -136,12 +136,12 @@ public final class RealityMarbleBossChecks {
    level.removePlayerImmediately(farProbe,Entity.RemovalReason.DISCARDED);
    verifyContinuousFight(level,boss,player,victim);
 
-   // Real victory grants Morgan exactly once per player, even after another fight.
-   int before=morganCount(player);
+   // Real victory grants Emrys exactly once per player, even after another fight.
+   int before=emrysCount(player);
    boss.hurtServer(level,level.damageSources().playerAttack(player),100000.0F);
    require(!boss.isAlive(),"Boss dies to a real player attack");
    require(RealityMarbleEncounters.get(level).near(CENTER)==null,"Actual boss death clears its persisted encounter pointer");
-   require(morganCount(player)==before+1,"Winning the fight grants one Morgan, attackers="+boss.attackerCount()+" grants="+boss.rewardGrants+" missing="+boss.rewardMissing+" already="+boss.rewardAlreadyGiven+" morgan="+morganCount(player));
+   require(emrysCount(player)==before+1,"Winning the fight grants one Emrys, attackers="+boss.attackerCount()+" grants="+boss.rewardGrants+" missing="+boss.rewardMissing+" already="+boss.rewardAlreadyGiven+" emrys="+emrysCount(player));
    require(player.getAttachedOrCreate(GuideCatalog.KNOWLEDGE).contains(RealityMarbleBossEntity.REWARD_KEY),"Reward is recorded in persistent discoveries");
 
    var second=RealityMarbleBossEntity.spawnFor(level,CENTER);
@@ -149,7 +149,7 @@ public final class RealityMarbleBossChecks {
    boss.remove(Entity.RemovalReason.DISCARDED);
    require(RealityMarbleEncounters.get(level).near(CENTER).boss().equals(second.getUUID()),"A removed old instance cannot erase the replacement boss's persisted pointer");
    second.hurtServer(level,level.damageSources().playerAttack(player),100000.0F);
-   require(morganCount(player)==before+1,"A second victory never duplicates the one-time Morgan reward");
+   require(emrysCount(player)==before+1,"A second victory never duplicates the one-time Emrys reward");
 
    // Empty arena: after the idle grace period the boss removes itself.
    var third=RealityMarbleBossEntity.spawnFor(level,CENTER);
@@ -159,7 +159,7 @@ public final class RealityMarbleBossChecks {
    for(int tick=0;tick<RealityMarbleBossEntity.IDLE_DESPAWN_TICKS+20&&!third.isRemoved();tick++)third.tick();
    require(third.isRemoved(),"Boss cleans itself up when the arena stays empty");
    require(RealityMarbleEncounters.get(level).near(CENTER)==null,"Actual discard also clears the persisted encounter pointer");
-   System.out.println("PASS: REALITY_MARBLE_BOSS: registration, one boss per arena, boss bar, arena bounds, client-acknowledged fifty-tick entrance without melee or specials, real attacks, one-time Morgan reward, persistence and empty-arena cleanup");
+   System.out.println("PASS: REALITY_MARBLE_BOSS: registration, one boss per arena, boss bar, arena bounds, client-acknowledged fifty-tick entrance without melee or specials, real attacks, one-time Emrys reward, persistence and empty-arena cleanup");
   }finally{
    RealityMarbleBossEntity.discardAll(level);
    for(var boss:level.getEntitiesOfClass(RealityMarbleBossEntity.class,new AABB(CENTER).inflate(512)))boss.discard();
@@ -254,9 +254,9 @@ public final class RealityMarbleBossChecks {
   return recovered;
  }
 
- private static int morganCount(ServerPlayer player){
+ private static int emrysCount(ServerPlayer player){
   int count=0;
-  for(int slot=0;slot<player.getInventory().getContainerSize();slot++)if(player.getInventory().getItem(slot).is(ModItems.morgan.get()))count+=player.getInventory().getItem(slot).getCount();
+  for(int slot=0;slot<player.getInventory().getContainerSize();slot++)if(player.getInventory().getItem(slot).is(ModItems.emrysStaff.get()))count+=player.getInventory().getItem(slot).getCount();
   return count;
  }
 

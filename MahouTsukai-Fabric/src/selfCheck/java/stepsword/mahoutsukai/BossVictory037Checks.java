@@ -75,7 +75,7 @@ public final class BossVictory037Checks {
    require(!ally.getAdvancements().getOrStartProgress(shared).isDone(),"A duplicate death event cannot re-award a previously revoked boss achievement");
    var cow=EntityType.COW.create(world,EntitySpawnReason.COMMAND);cow.die(world.damageSources().playerAttack(p));BossVictories.tick(p);require(titles(packets)==5,"Ordinary mobs never show the boss victory title");cow.discard();
 
-   var sword=new ItemStack(ModItems.REGISTERED.get("clarent"));sword.set(net.minecraft.core.component.DataComponents.UNBREAKABLE,net.minecraft.util.Unit.INSTANCE);p.setItemInHand(InteractionHand.MAIN_HAND,sword);p.startUsingItem(InteractionHand.MAIN_HAND);
+   var sword=new ItemStack(ModItems.REGISTERED.get("clarent"));sword.set(net.minecraft.core.component.DataComponents.UNBREAKABLE,net.minecraft.util.Unit.INSTANCE);p.setItemInHand(InteractionHand.MAIN_HAND,sword);sword.getItem().use(world,p,InteractionHand.MAIN_HAND);
    int guarded=0;float health=p.getHealth();
    for(var holder:world.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).listElements().toList())for(int angle:new int[]{0,180}){
     p.setYRot(angle);p.invulnerableTime=0;

@@ -80,6 +80,7 @@ public class MahouGui  {
          section("reverted", () -> RenderRevertedOverlay.revertedOverlay(guiGraphics));
 
          section("mana", () -> manaText(guiGraphics));
+         section("clarent", () -> ClarentHud.render(guiGraphics));
 
          section("mahoujin", () -> mahoujinOverlay(guiGraphics));
          section("victory", () -> VictoryOverlay.render(guiGraphics));

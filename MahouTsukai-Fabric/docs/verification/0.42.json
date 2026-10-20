@@ -1,0 +1,10 @@
+{
+  "version": "1.36.36-fabric.0.42-incomplete",
+  "jar_sha256": "b334f36005054e5fae1adbc2ce42216d9b0581fb6ac6d01a302ff0ad484b196c",
+  "build": "BUILD SUCCESSFUL in 6s",
+  "native_client_check": "PASS: 51 actual registered scrolls with native extracted badge rectangles and translated tooltips; 3 dual role/element badges; familiar symbol, stacked count placement and unchanged components; ordinary item rendering unchanged",
+  "screenshot": "../screenshots/0.42/scroll-badges.png",
+  "packaged_test_classes": false,
+  "server_combat_code_changed": false,
+  "third_party_renderers_tested": false
+}

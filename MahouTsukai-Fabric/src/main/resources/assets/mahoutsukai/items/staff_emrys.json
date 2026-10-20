@@ -1,10 +1,10 @@
 {
   "model": {
-    "type": "minecraft:special",
-    "base": "mahoutsukai:item/staff_emrys_model",
-    "model": {
-      "type": "mahoutsukai:magical_item",
-      "renderer": "staff_emrys"
-    }
+    "type": "minecraft:composite",
+    "models": [
+      {"type": "minecraft:model", "model": "mahoutsukai:item/staff_emrys_model"},
+      {"type": "minecraft:special", "base": "mahoutsukai:item/staff_emrys_model",
+       "model": {"type": "mahoutsukai:magical_item", "renderer": "staff_emrys"}}
+    ]
   }
 }

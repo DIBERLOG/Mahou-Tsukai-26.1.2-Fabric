@@ -60,9 +60,11 @@ public final class GuideCatalogScreen extends Screen {
 
   previous=addRenderableWidget(Button.builder(Component.literal("‹"),b->{page--;refresh();}).bounds(left+12,top+bookHeight-37,30,20).build());next=addRenderableWidget(Button.builder(Component.literal("›"),b->{page++;refresh();}).bounds(left+listWidth-30,top+bookHeight-37,30,20).build());
 
-  addRenderableWidget(Button.builder(Component.translatable("mahoutsukai.handbook.open"),b->Minecraft.getInstance().setScreen(new HandbookScreen(this))).bounds(left+bookWidth-148,top+5,136,20).build());
+  int tabWidth=Math.max(40,(bookWidth-170)/3);
+  addRenderableWidget(Button.builder(Component.translatable("mahoutsukai.handbook.open"),b->Minecraft.getInstance().setScreen(new HandbookScreen(this))).bounds(left+bookWidth-tabWidth-12,top+5,tabWidth,20).build());
 
-  addRenderableWidget(Button.builder(Component.translatable("mahoutsukai.research.title"),b->Minecraft.getInstance().setScreen(new ResearchScreen(this))).bounds(left+bookWidth-276,top+5,122,20).build());
+  addRenderableWidget(Button.builder(Component.translatable("mahoutsukai.research.title"),b->Minecraft.getInstance().setScreen(new ResearchScreen(this))).bounds(left+bookWidth-tabWidth*3-20,top+5,tabWidth,20).build());
+  addRenderableWidget(Button.builder(Component.translatable("mahoutsukai.scroll.tab"),b->Minecraft.getInstance().setScreen(new ScrollCatalogScreen(this))).bounds(left+bookWidth-tabWidth*2-16,top+5,tabWidth,20).build());
 
   details=addRenderableWidget(Button.builder(Component.translatable("mahoutsukai.catalog.details"),b->openDetails()).bounds(left+listWidth+14,top+bookHeight-37,Math.max(80,bookWidth-listWidth-104),20).build());
 
@@ -96,6 +98,7 @@ public final class GuideCatalogScreen extends Screen {
   if(selected==null||!selected.get("unlocked").getAsBoolean())return;
 
   if(id(selected).equals("mahoutsukai:william")){Minecraft.getInstance().setScreen(new HandbookScreen(this,"william"));return;}
+  if(id(selected).equals("mahoutsukai:clarent")){Minecraft.getInstance().setScreen(new HandbookScreen(this,"clarent"));return;}
   if(id(selected).equals("mahoutsukai:scroll_doom")){Minecraft.getInstance().setScreen(new HandbookScreen(this,"doom"));return;}
   if(id(selected).equals("mahoutsukai:scroll_fireball")){Minecraft.getInstance().setScreen(new HandbookScreen(this,"fireball"));return;}
   if(id(selected).equals("mahoutsukai:fog_projector")){Minecraft.getInstance().setScreen(new HandbookScreen(this,"fog_projector"));return;}

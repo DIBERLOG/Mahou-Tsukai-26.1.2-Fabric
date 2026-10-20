@@ -68,7 +68,7 @@ public class Clarent extends GrowSwordItem {
    }
 
    public int getUseDuration(ItemStack stack, LivingEntity entity) {
-      return 72000;
+      return stepsword.mahoutsukai.fabric.ClarentGuard.ACTIVE_TICKS;
    }
 
    public ItemUseAnimation getUseAnimation(ItemStack stack) {
@@ -76,6 +76,9 @@ public class Clarent extends GrowSwordItem {
    }
 
    public InteractionResult use(Level worldIn, Player player, InteractionHand handIn) {
+      if (handIn != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
+      if (player.getCooldowns().isOnCooldown(player.getItemInHand(handIn))) return InteractionResult.FAIL;
+      if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer && !stepsword.mahoutsukai.fabric.ClarentGuard.begin(serverPlayer)) return InteractionResult.FAIL;
       if (handIn == InteractionHand.MAIN_HAND) {
          player.startUsingItem(handIn);
       }
@@ -84,9 +87,12 @@ public class Clarent extends GrowSwordItem {
    }
 
    public boolean releaseUsing(ItemStack stack, Level world, LivingEntity player, int cnt) {
+      if(player instanceof net.minecraft.server.level.ServerPlayer p)stepsword.mahoutsukai.fabric.ClarentGuard.finish(p);
       super.releaseUsing(stack, world, player, cnt);
       return true;
    }
+
+   @Override public ItemStack finishUsingItem(ItemStack stack,Level world,LivingEntity entity){if(entity instanceof net.minecraft.server.level.ServerPlayer p)stepsword.mahoutsukai.fabric.ClarentGuard.finish(p);return stack;}
 
    public static int auraColor(float power){return power<25?0x69BFFF:power<100?0xAF5BFF:power<500?0xFF476B:0xFFD369;}
    public static void aura(Player player){

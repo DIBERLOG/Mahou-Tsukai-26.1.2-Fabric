@@ -164,6 +164,7 @@ public final class EconomyIntegration implements ModInitializer {
                             Nobu031Checks.run(player);
                             Fireball031Checks.run(player);
                             ArchmageCombat034Checks.run(player);
+                              Clarent043Checks.run(player);
                             ArchmageStuck040Checks.run(player);
                             MagicIntegration.run(player);
                             RitualIntegration.run(player);

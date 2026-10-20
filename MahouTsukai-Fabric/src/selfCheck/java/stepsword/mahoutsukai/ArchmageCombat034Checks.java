@@ -195,6 +195,16 @@ public final class ArchmageCombat034Checks {
    release.invoke(boss,level);require(effects(boss,Vex.class).size()==3&&boss.vexesSpawned==3,"Repeating a summon cannot stack more than three owned vexes");
    tick(boss,201,false);require(vexes.stream().allMatch(Entity::isRemoved),"Boss enforces a strict 200-tick vex lifetime even without vanilla death animation");
 
+   require(boss.getMainHandItem().is(stepsword.mahoutsukai.item.ModItems.emrysStaff.get()),"Archmage really equips the player's Emrys ItemStack");
+   cast(boss,target,6);
+   var lightning=effects(boss,stepsword.mahoutsukai.entity.mahoujin.LightningEntity.class);
+   require(!lightning.isEmpty()&&lightning.size()<=3&&boss.emrysCasts==lightning.size(),"Sixth special creates bounded native Emrys bolts");
+   float healthBeforeEmrys=target.getHealth();
+   for(var beam:lightning){beam.tickCount=9;beam.tick();}
+   require(target.getHealth()<healthBeforeEmrys,"Real Emrys lightning damages the intended survival target");
+   require(creative.getHealth()==1000&&spectator.getHealth()==1000&&far.getHealth()==1000,"Emrys excludes creative, spectator and distant targets");
+   tick(boss,20,false);require(lightning.stream().allMatch(Entity::isRemoved),"Emrys effects expire and cannot outlive the encounter");
+
    // Wrap the cycle and leave live effects behind before removal: every owned entity must go.
    target.setPos(584.5,250,552.5);cast(boss,target,1);var remaining=effects(boss);finishRecovery(boss);begin.invoke(boss,level);
    require(boss.attackTicks()==32,"Save fixture includes an unfinished second special");
@@ -208,7 +218,7 @@ public final class ArchmageCombat034Checks {
    var foreign=new Display.BlockDisplay(EntityType.BLOCK_DISPLAY,level);foreign.setPos(581,250,552);foreign.setBlockState(Blocks.DEEPSLATE_BRICKS.defaultBlockState());foreign.addTag("ArchmageOwner:"+java.util.UUID.randomUUID());foreign.addTag("ArchmagePillar");require(level.addFreshEntity(foreign),"Foreign owner effect fixture inserted");creatures.add(foreign);
    tick(restored,6,false);
    require(orphan.isRemoved()&&!foreign.isRemoved(),"Reload reclaims saved transient entities only for the exact archmage owner");
-   System.out.println("PASS: ARCHMAGE_COMBAT_034: fifty-tick entrance, native 32-tick warnings, exact twelve-tick recovery and restart guards, five-special cycle, owned fangs and real damage, six terrain-safe pillars, three native bolts and collisions, delayed one-hit shockwave and damage veto, capped vexes, strict lifetimes, owner cleanup and saved-orphan recovery");
+   System.out.println("PASS: ARCHMAGE_COMBAT_043: fifty-tick entrance, 32-tick warnings, twelve-tick recovery, six-special cycle including real equipped Emrys lightning and damage, owned fangs, terrain-safe pillars, native firebolts, shockwave, capped vexes, strict lifetimes and owner cleanup");
   }finally{
    for(var boss:bosses)boss.discard();for(var creature:creatures)creature.discard();
    for(var player:players)level.removePlayerImmediately(player,Entity.RemovalReason.DISCARDED);

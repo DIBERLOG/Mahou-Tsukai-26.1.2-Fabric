@@ -36,7 +36,6 @@ public class StaffEmrysRenderer implements SpecialModelRenderer<MagicalItemRende
       MagicalItemRenderState state = new MagicalItemRenderState();
       state.render = true;
       state.time = Minecraft.getInstance().level != null ? ClientHandler.clientTickCounter : 0L;
-      state.model = (QuadCollection)Minecraft.getInstance().getModelManager().getModel(RenderBaseItem.staff.key);
       return state;
    }
 
@@ -51,7 +50,7 @@ public class StaffEmrysRenderer implements SpecialModelRenderer<MagicalItemRende
    ) {
       if (state != null && state.render) {
          matrix.pushPose();
-         RenderBaseItem.render(state.model, matrix, submitNodeCollector, null, true);
+         // Shaft geometry is the native generated item layer; this layer adds only the live magic.
          float offsetx = 0.04F;
          float offsety = 0.96F;
          float offsetz = 0.5F;

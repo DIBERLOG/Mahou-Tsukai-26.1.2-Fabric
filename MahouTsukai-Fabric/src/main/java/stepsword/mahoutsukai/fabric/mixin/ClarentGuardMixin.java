@@ -16,7 +16,7 @@ public abstract class ClarentGuardMixin {
  @Inject(method="hurtServer",at=@At("HEAD"),cancellable=true)
  private void mahoutsukai$guard(ServerLevel level,DamageSource source,float amount,CallbackInfoReturnable<Boolean> result){
   var self=(LivingEntity)(Object)this;
-  if(self.isAlive()&&amount>0&&self.isUsingItem()&&self.getUseItem().getItem() instanceof Clarent){
+  if(amount>0&&stepsword.mahoutsukai.fabric.ClarentGuard.canBlock(self)){
    ClarentEffect.clarentLivingAttack(self,source,Float.isFinite(amount)?amount:Clarent.cap());
    result.setReturnValue(false);
   }

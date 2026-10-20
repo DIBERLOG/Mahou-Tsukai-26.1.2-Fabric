@@ -45,7 +45,7 @@ import stepsword.mahoutsukai.item.ModItems;
  */
 public class RealityMarbleBossEntity extends Monster {
  public static final String entityName = "reality_marble_boss";
- public static final String REWARD_KEY = "marble-boss-reward";
+ public static final String REWARD_KEY = "marble-emrys-reward";
  public static final int ARENA_RADIUS = 160;
  public static final int SPECIAL_INTERVAL = 80;
  public static final int CAST_TICKS = 32;
@@ -90,7 +90,7 @@ public class RealityMarbleBossEntity extends Monster {
  private boolean arrivalSoundPlayed;
  private boolean awakened;
  private BlockPos shrineEntrance;
- public int fangsSpawned,pillarsSpawned,boltsSpawned,vexesSpawned,shockwaveHits;
+ public int fangsSpawned,pillarsSpawned,boltsSpawned,vexesSpawned,shockwaveHits,emrysCasts;
  public int arrivalFlashes,arrivalSounds,arrivalLaughs;
 
  private final Set<UUID> attackers = new HashSet<>();
@@ -116,6 +116,8 @@ public class RealityMarbleBossEntity extends Monster {
   this.xpReward = 120;
   this.setPersistenceRequired();
   this.setHealth(this.getMaxHealth());
+  this.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,new ItemStack(ModItems.emrysStaff.get()));
+  this.setDropChance(net.minecraft.world.entity.EquipmentSlot.MAINHAND,0);
   bossEvent.setDarkenScreen(false);
   bossEvent.setCreateWorldFog(false);
  }
@@ -334,7 +336,7 @@ public class RealityMarbleBossEntity extends Monster {
  private void sonicBurst(ServerLevel level){
   if(!isAlive()||!validTarget(getTarget())||preparing())return;
   sonicBursts++;castPoint=getTarget().position();
-  entityData.set(ATTACK_KIND,attackKind()%5+1);entityData.set(ATTACK_TICKS,CAST_TICKS);
+  entityData.set(ATTACK_KIND,attackKind()%6+1);entityData.set(ATTACK_TICKS,CAST_TICKS);
   getNavigation().stop();
   level.playSound(null,getX(),getY(),getZ(),attackKind()==5?SoundEvents.EVOKER_PREPARE_SUMMON:SoundEvents.EVOKER_PREPARE_ATTACK,SoundSource.HOSTILE,1.5F,.8F);
   level.playSound(null,getX(),getY(),getZ(),stepsword.mahoutsukai.sounds.ModSounds.ARCHMAGE_CHARGE.get(),SoundSource.HOSTILE,1.5F,1F);
@@ -351,10 +353,26 @@ public class RealityMarbleBossEntity extends Monster {
    case 4->{waveCenter=position();waveTicks=20;waveVictims.clear();levitationTicks=30;setNoGravity(true);
     level.playSound(null,getX(),getY(),getZ(),stepsword.mahoutsukai.sounds.ModSounds.ARCHMAGE_SHOCKWAVE.get(),SoundSource.HOSTILE,2,1);}
    case 5->summonVexes(level);
+   case 6->emrysLightning(level);
   }
   entityData.set(RECOVERY,RECOVERY_TICKS);
  }
  private String effectTag(){return "ArchmageOwner:"+getUUID();}
+ /** Reuse Emrys's real lightning entity and damage path, bounded by this encounter's lifecycle. */
+ private void emrysLightning(ServerLevel level){
+  if(!getMainHandItem().is(ModItems.emrysStaff.get()))return;
+  int count=0;
+  var victims=level.getEntitiesOfClass(LivingEntity.class,getBoundingBox().inflate(24),this::canUseEmrys);
+  victims.sort(java.util.Comparator.comparingDouble(this::distanceToSqr));
+  for(var victim:victims){
+   if(count++>=3)break;
+   var lightning=new stepsword.mahoutsukai.entity.mahoujin.LightningEntity(level,this,victim,.45F,.75F,1F,1F,.035F,true);
+   if(addEffect(level,lightning,16))emrysCasts++;
+  }
+  level.playSound(null,getX(),getY(),getZ(),SoundEvents.LIGHTNING_BOLT_THUNDER,SoundSource.HOSTILE,.65F,1.4F);
+  level.sendParticles(ParticleTypes.ELECTRIC_SPARK,getX(),getY()+2.4,getZ(),35,.6,.5,.6,.12);
+ }
+ public boolean canUseEmrys(LivingEntity victim){return isAlive()&&victim!=this&&getMainHandItem().is(ModItems.emrysStaff.get())&&validTarget(victim)&&distanceToSqr(victim)<=24*24&&hasLineOfSight(victim)&&!victim.entityTags().contains(effectTag());}
  private boolean addEffect(ServerLevel level,net.minecraft.world.entity.Entity entity,int life){
   entity.addTag(effectTag());
   if(!level.addFreshEntity(entity))return false;
@@ -563,8 +581,8 @@ public class RealityMarbleBossEntity extends Monster {
     if (!known.add(REWARD_KEY)) { rewardAlreadyGiven++; continue; }
     player.setAttached(GuideCatalog.KNOWLEDGE, List.copyOf(known));
     rewardGrants++;
-    ItemStack morgan = new ItemStack(ModItems.morgan.get());
-    if (!player.getInventory().add(morgan)) player.drop(morgan, false);
+    ItemStack reward = new ItemStack(ModItems.emrysStaff.get());
+    if (!player.getInventory().add(reward)) player.drop(reward, false);
     player.sendSystemMessage(Component.translatable("mahoutsukai.marble.boss_reward"));
    }
   }
@@ -574,6 +592,8 @@ public class RealityMarbleBossEntity extends Monster {
  @Override
  protected void readAdditionalSaveData(ValueInput input) {
   super.readAdditionalSaveData(input);
+  if(getMainHandItem().isEmpty())setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,new ItemStack(ModItems.emrysStaff.get()));
+  setDropChance(net.minecraft.world.entity.EquipmentSlot.MAINHAND,0);
   if(input.getIntOr("mahoutsukai_archmage_balance",0)<37){
    float ratio=getHealth()/getMaxHealth();
    if(getAttribute(Attributes.MAX_HEALTH).getBaseValue()==400){getAttribute(Attributes.MAX_HEALTH).setBaseValue(800);setHealth(ratio*getMaxHealth());}

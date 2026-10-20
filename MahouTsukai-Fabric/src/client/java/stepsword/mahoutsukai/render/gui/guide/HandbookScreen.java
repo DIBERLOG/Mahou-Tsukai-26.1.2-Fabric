@@ -19,7 +19,7 @@ public final class HandbookScreen extends Screen {
  public HandbookScreen(Screen parent){this(parent,"start");}
  public HandbookScreen(Screen parent,String openingChapter){
   super(Component.translatable("mahoutsukai.handbook.open"));this.parent=parent;
-  for(String key:List.of("start","familiar","world","changes","doom","fireball","william")){if(key.equals(openingChapter))chapter=chapters.size();chapters.add(new Chapter(tr(key+".title"),tr(key+".body")));}
+  for(String key:List.of("start","familiar","world","changes","clarent","doom","fireball","william")){if(key.equals(openingChapter))chapter=chapters.size();chapters.add(new Chapter(tr(key+".title"),tr(key+".body")));}
   for(Page page:new GuidebookInstance().getPages()){
    if(page instanceof SpellPage spell){
     // Recipe disclosure remains governed by the server catalogue.

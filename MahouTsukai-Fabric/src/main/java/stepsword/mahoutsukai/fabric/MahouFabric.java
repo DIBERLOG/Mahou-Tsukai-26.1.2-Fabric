@@ -18,6 +18,7 @@ import stepsword.mahoutsukai.commands.AddMaxMana;
 public final class MahouFabric implements ModInitializer {
     @Override
     public void onInitialize() {
+        ClarentGuard.init();
         net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.serverboundPlay().register(stepsword.mahoutsukai.networking.SettingsUpdatePacket.TYPE,stepsword.mahoutsukai.networking.SettingsUpdatePacket.STREAM_CODEC);
         net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.registerGlobalReceiver(stepsword.mahoutsukai.networking.SettingsUpdatePacket.TYPE,(packet,context)->stepsword.mahoutsukai.networking.SettingsUpdatePacket.handle(packet,context.player()));
         net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.serverboundPlay().register(stepsword.mahoutsukai.networking.ProjectorRightClickPacket.TYPE,stepsword.mahoutsukai.networking.ProjectorRightClickPacket.STREAM_CODEC);
