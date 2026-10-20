@@ -13,6 +13,7 @@ public final class MahouFabricClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        stepsword.mahoutsukai.render.gui.PauseMenuBranding.init();
         ClientPlayNetworking.registerGlobalReceiver(stepsword.mahoutsukai.networking.BossVictoryPacket.TYPE,(packet,context)->stepsword.mahoutsukai.render.gui.VictoryOverlay.show(packet.theme(),packet.bossName()));
         ClientPlayNetworking.registerGlobalReceiver(stepsword.mahoutsukai.networking.LootReturnPacket.TYPE,(packet,context)->stepsword.mahoutsukai.render.gui.VictoryOverlay.lootReturn(packet.remainingTicks()));
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler,client)->stepsword.mahoutsukai.render.gui.VictoryOverlay.clear());

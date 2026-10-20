@@ -1,0 +1,12 @@
+{
+  "version": "1.36.36-fabric.0.41-incomplete",
+  "jar_sha256": "b56ffbc8171620c8fc066c7bdbd2ea0cf1c501113b083e2d598a428cb72470b3",
+  "build": "build visualCheckClasses --offline --console=plain: BUILD SUCCESSFUL",
+  "native_menu_check": "PASS: 8 native menu/resize layouts at GUI scales 1-4; original heading hidden; all buttons and labels retained; no logo/button overlap; loading pause preserved; actual RGBA PNG loaded through the resource manager",
+  "native_resourcepack_check": "PASS: native resource-pack ZIP discovery and reload; pause logo resolved from file/MahouTsukai-pause-menu-resourcepack-0.41.zip; previous selection restored and reloaded",
+  "real_client_capture": "../screenshots/0.41/pause-menu.png",
+  "packaged_test_classes": false,
+  "internet_server_pack_delivery_tested": false,
+  "combat_040_rerun": false,
+  "server_gameplay_sources_unchanged": true
+}

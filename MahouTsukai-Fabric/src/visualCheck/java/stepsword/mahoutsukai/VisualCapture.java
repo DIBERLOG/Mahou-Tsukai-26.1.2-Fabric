@@ -25,6 +25,9 @@ public final class VisualCapture implements ClientModInitializer {
     Files.delete(request);
     if (!name.matches("[a-z0-9-]+")) throw new IllegalArgumentException("Invalid capture name");
     if(name.equals("battle-respawn")){if(client.player.isDeadOrDying())client.player.respawn();client.setScreen(null);return;}
+    if(name.equals("pause-branding-open")){client.setScreen(new net.minecraft.client.gui.screens.PauseScreen(true));return;}
+    if(name.equals("pause-branding-check")){PauseBranding041Checks.run(client);return;}
+    if(name.equals("pause-branding-pack-check")){PauseBranding041Checks.resourcePack(client);return;}
     if(name.equals("archmage-model-check")){try{ArchmageVisualChecks.run(client);}catch(Exception failure){throw new RuntimeException(failure);}return;}
     if(name.equals("stage-hud-unawakened")){var mana=stepsword.mahoutsukai.util.Utils.getPlayerMahou(client.player);mana.setHasMagic(false);mana.setVisible(true);client.setScreen(null);return;}
     if(name.equals("activation-geometry-check")){try{ActivationVisualChecks.run();}catch(Exception failure){throw new RuntimeException(failure);}return;}
